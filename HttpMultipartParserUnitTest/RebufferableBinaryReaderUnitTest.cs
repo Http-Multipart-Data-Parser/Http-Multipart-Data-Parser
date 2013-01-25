@@ -66,7 +66,7 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanReadSingleCharacterBuffer()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("abc"), Encoding.UTF8);
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abc"), Encoding.UTF8);
 
             Assert.AreEqual(reader.Read(), 'a');
             Assert.AreEqual(reader.Read(), 'b');
@@ -76,8 +76,8 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanReadSingleCharacterOverBuffers()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("def"), Encoding.UTF8);
-            reader.Buffer(Utility.Convert.StringToByteNoBom("abc"));
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("def"), Encoding.UTF8);
+            reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
             Assert.AreEqual(reader.Read(), 'a');
             Assert.AreEqual(reader.Read(), 'b');
@@ -92,7 +92,7 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanReadSingleBuffer()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("6chars"), Encoding.UTF8);
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[Encoding.UTF8.GetByteCount("6chars")];
             reader.Read(buffer, 0, buffer.Length);
@@ -103,8 +103,8 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanReadAcrossMultipleBuffers()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("ars"), Encoding.UTF8);
-            reader.Buffer(Utility.Convert.StringToByteNoBom("6ch"));
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("ars"), Encoding.UTF8);
+            reader.Buffer(TestUtil.StringToByteNoBom("6ch"));
 
             var buffer = new byte[6];
             reader.Read(buffer, 0, buffer.Length);
@@ -114,7 +114,7 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void ReadCorrectlyHandlesSmallerBufferThenStream()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("6chars"), Encoding.UTF8);
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[4];
             reader.Read(buffer, 0, buffer.Length);
@@ -128,7 +128,7 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void ReadCorrectlyHandlesLargerBufferThenStream()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("6chars"), Encoding.UTF8);
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[10];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
@@ -150,14 +150,14 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void ReadCanResumeInterruptedStream()
         {
-            var reader = new RebufferableBinaryReader(Utility.Convert.StringToStreamNoBom("6chars"), Encoding.UTF8);
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[4];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "6cha");
             Assert.AreEqual(amountRead, 4);
 
-            reader.Buffer(Utility.Convert.StringToByteNoBom("14intermission"));
+            reader.Buffer(TestUtil.StringToByteNoBom("14intermission"));
             buffer = new byte[14];
             amountRead = reader.Read(buffer, 0, buffer.Length);
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "14intermission");

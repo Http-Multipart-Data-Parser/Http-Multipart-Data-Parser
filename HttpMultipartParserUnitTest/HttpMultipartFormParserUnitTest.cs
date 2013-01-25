@@ -29,7 +29,7 @@ namespace HttpMultipartParserUnitTest
                   afterdata
                   --boundry--");
 
-                using (var stream = Utility.Convert.StringToStream(request, Encoding.UTF8))
+                using (var stream = TestUtil.StringToStream(request, Encoding.UTF8))
                 {
                     var parser = new MultipartFormDataParser("boundry", stream, Encoding.UTF8);
 
@@ -65,7 +65,7 @@ namespace HttpMultipartParserUnitTest
                 Submit
                 -----------------------------265001916915724--");
 
-            using (var stream = Utility.Convert.StringToStream(request))
+            using (var stream = TestUtil.StringToStream(request))
             {
                 // The boundry is missing the first two -- in accordance with the multipart
                 // spec. (A -- is added by the parser, this boundry is what would be sent in the
@@ -107,7 +107,7 @@ namespace HttpMultipartParserUnitTest
                   afterdata
                   --boundry--");
 
-            using (var stream = Utility.Convert.StringToStream(request, Encoding.UTF8))
+            using (var stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser("boundry", stream, Encoding.UTF8, 16);
 
@@ -156,7 +156,7 @@ namespace HttpMultipartParserUnitTest
                   waylaterdata 
                   --boundry--");
 
-            using (var stream = Utility.Convert.StringToStream(request, Encoding.UTF8))
+            using (var stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser("boundry", stream, Encoding.UTF8, 16);
 

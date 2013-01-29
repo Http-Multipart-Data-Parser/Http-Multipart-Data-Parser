@@ -1,37 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpTOC>
 
-  <HelpTOCNode Id="ebf04d0f-77ea-4a0b-a4fd-fe5d63d8daed" Title="HttpMultipartParser Namespace" Url="html/8abcbcc9-1189-bddd-6cd2-5b4319a6c853.htm">
-    <HelpTOCNode Id="6e5d2a67-7624-4a8e-8e6c-d48439765516" Title="FilePart Class" Url="html/25a7430d-53ee-605e-ffa1-3d1a4c80f362.htm">
+  <HelpTOCNode Id="559e0c17-8a93-470c-be7b-a3632539c07c" Title="HttpMultipartParser Namespace" Url="html/8abcbcc9-1189-bddd-6cd2-5b4319a6c853.htm">
+    <HelpTOCNode Id="7161fdd8-7f80-4fd9-a574-189a36549df2" Title="FilePart Class" Url="html/25a7430d-53ee-605e-ffa1-3d1a4c80f362.htm">
       <HelpTOCNode Title="FilePart Members" Url="html/61619d2c-9a0d-1d97-73e0-c13c4e783501.htm" />
       <HelpTOCNode Title="FilePart Constructor " Url="html/02b00e03-a3fd-f156-e33a-f8e98775c245.htm" />
       <HelpTOCNode Title="FilePart Methods" Url="html/803f699e-b797-6df1-a56c-d43cd44e6981.htm" />
-      <HelpTOCNode Id="e957ad63-606f-4144-bf7b-16da63eaf1a6" Title="FilePart Properties" Url="html/f7218f4a-658e-324d-eb51-039f4d594620.htm">
+      <HelpTOCNode Id="a2d40f8b-007f-4fb5-a365-2a6edc7d59a5" Title="FilePart Properties" Url="html/f7218f4a-658e-324d-eb51-039f4d594620.htm">
         <HelpTOCNode Title="Data Property " Url="html/d0fcd295-216e-4c16-5a8f-24e2fddcf135.htm" />
         <HelpTOCNode Title="FileName Property " Url="html/a68f1d70-0af2-af17-16a0-f1c1d45824ac.htm" />
         <HelpTOCNode Title="Name Property " Url="html/95cbae16-063c-4428-0f7f-af1cf1b688fc.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="575d7d2a-2181-41f7-9432-497abf4877a5" Title="MultipartFormDataParser Class" Url="html/7311db8e-02fe-8803-6030-ded7380f11e4.htm">
+    <HelpTOCNode Id="c97b5c3f-710c-4fa7-86e5-024a7a1112f6" Title="MultipartFormDataParser Class" Url="html/7311db8e-02fe-8803-6030-ded7380f11e4.htm">
       <HelpTOCNode Title="MultipartFormDataParser Members" Url="html/2ee696e4-c7f1-e602-d73a-d8e746efeadf.htm" />
-      <HelpTOCNode Id="9a4aec16-5072-4cf4-b601-d77dbe3d6301" Title="MultipartFormDataParser Constructor " Url="html/2930761f-ff71-889e-3fc9-f111ee2cb523.htm">
+      <HelpTOCNode Id="8b093043-8446-4ed3-8222-f0d4369e7c66" Title="MultipartFormDataParser Constructor " Url="html/2930761f-ff71-889e-3fc9-f111ee2cb523.htm">
         <HelpTOCNode Title="MultipartFormDataParser Constructor (String, Stream)" Url="html/21e802fe-3361-6ce6-c3f8-c3292028cafe.htm" />
         <HelpTOCNode Title="MultipartFormDataParser Constructor (String, Stream, Encoding)" Url="html/07682a8e-0812-d59e-36d1-cc3b2c06dcb0.htm" />
         <HelpTOCNode Title="MultipartFormDataParser Constructor (String, Stream, Encoding, Int32)" Url="html/d5846ec1-e9e5-9660-1dd6-b83f4ef73764.htm" />
       </HelpTOCNode>
       <HelpTOCNode Title="MultipartFormDataParser Methods" Url="html/4c8b154c-b8be-8174-1884-3ee2a5083087.htm" />
-      <HelpTOCNode Id="384ea0e1-29ab-4795-8c8e-ab323207e03c" Title="MultipartFormDataParser Properties" Url="html/aed13a3f-141e-6dc5-3075-153b5ab9eac1.htm">
+      <HelpTOCNode Id="b0d43451-7c50-4797-b315-110feaebf5bb" Title="MultipartFormDataParser Properties" Url="html/aed13a3f-141e-6dc5-3075-153b5ab9eac1.htm">
         <HelpTOCNode Title="BinaryBufferSize Property " Url="html/8aa00921-6b51-8471-ceb6-603f68d497e4.htm" />
         <HelpTOCNode Title="Encoding Property " Url="html/5f7a5d24-4fdf-325e-339c-7ac690d2c500.htm" />
         <HelpTOCNode Title="Files Property " Url="html/f7dd4e6e-5bb3-e775-a53f-15d48f63b9e3.htm" />
         <HelpTOCNode Title="Parameters Property " Url="html/de0b8c67-ee04-8ee2-7402-d7d47d9eafd6.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
-    <HelpTOCNode Id="68e47c42-7956-4a1b-86d0-17ee4503a0fc" Title="ParameterPart Class" Url="html/a8e54db5-1876-b7ae-f526-7c30bf77ced1.htm">
+    <HelpTOCNode Id="8756a572-de44-448f-b50b-077fe6d8011e" Title="ParameterPart Class" Url="html/a8e54db5-1876-b7ae-f526-7c30bf77ced1.htm">
       <HelpTOCNode Title="ParameterPart Members" Url="html/55f4afdb-6512-37bf-da18-5c011f820f88.htm" />
       <HelpTOCNode Title="ParameterPart Constructor " Url="html/c4ee8081-0523-797f-4e32-5649a91b25c6.htm" />
       <HelpTOCNode Title="ParameterPart Methods" Url="html/8e1b44d0-9644-1f7d-d811-0397b51473ef.htm" />
-      <HelpTOCNode Id="05438a8c-eb88-4f08-a485-a3543646b3a4" Title="ParameterPart Properties" Url="html/46b6b4e9-207c-ac2d-6399-89aa36bad516.htm">
+      <HelpTOCNode Id="8d57bfb1-7a1e-4234-9424-a527bae641df" Title="ParameterPart Properties" Url="html/46b6b4e9-207c-ac2d-6399-89aa36bad516.htm">
         <HelpTOCNode Title="Data Property " Url="html/eb660d60-3e33-c2ad-df3a-be1ec58e1459.htm" />
         <HelpTOCNode Title="Name Property " Url="html/b07238d0-056b-d754-80e8-c9bd9ca2e1a7.htm" />
       </HelpTOCNode>

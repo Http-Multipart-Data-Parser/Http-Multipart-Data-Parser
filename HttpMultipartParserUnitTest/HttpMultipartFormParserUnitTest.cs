@@ -11,6 +11,41 @@ namespace HttpMultipartParserUnitTest
     public class HttpMultipartFormParserUnitTest
     {
         [TestMethod]
+        public void CorrectlyHandlesCRLF()
+        {
+            var request = TestUtil.TrimAllLines(@"--boundry
+                  Content-Disposition: form-data; name=""text""
+                  
+                  textdata
+                  --boundry
+                  Content-Disposition: form-data; name=""file""; filename=""data.txt""
+                  Content-Type: text/plain
+
+                  tiny
+                  --boundry
+                  Content-Disposition: form-data; name=""after""
+
+                  afterdata
+                  --boundry--").Replace("\n", "\r\n");
+
+                using (var stream = TestUtil.StringToStream(request, Encoding.UTF8))
+                {
+                    var parser = new MultipartFormDataParser("boundry", stream, Encoding.UTF8);
+
+                    Assert.AreEqual(parser.Parameters["text"].Data, "textdata");
+                    Assert.AreEqual(parser.Parameters["after"].Data, "afterdata");
+
+                    var fileData = parser.Files["file"];
+                    Assert.AreEqual(fileData.Name, "file");
+                    Assert.AreEqual(fileData.FileName, "data.txt");
+
+                    var reader = new StreamReader(fileData.Data);
+                    string data = reader.ReadToEnd();
+                    Assert.AreEqual(data, "tiny");
+                }
+        }
+
+        [TestMethod]
         public void TinyDataTest()
         {
             var request = TestUtil.TrimAllLines(

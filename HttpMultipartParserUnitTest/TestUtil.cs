@@ -6,7 +6,8 @@
     using System.Text.RegularExpressions;
 
     internal static class TestUtil
-    {        public static Stream StringToStream(string input)
+    {
+        public static Stream StringToStream(string input)
         {
             return StringToStream(input, Encoding.UTF8);
         }
@@ -40,9 +41,16 @@
 
         public static string TrimAllLines(string input)
         {
-            return Regex.Split(input, System.Environment.NewLine)
+            return
+                string.Concat(
+                    input.Split('\n')
+                         .Select(x => x.Trim())
+                         .Aggregate((first, second) => first + '\n' + second)
+                         .Where(x => x != '\r'));
+            /*return Regex.Split(input, "\n")
                         .Select(x => x.Trim())
-                        .Aggregate((first, second) => first + System.Environment.NewLine + second);
+                        .Where(x => x != "\r")
+                        .Aggregate((first, second) => first + System.Environment.NewLine + second);*/
         }
     }
 }

@@ -282,7 +282,8 @@ namespace HttpMultipartParser
             // This is horribly inefficient, consider profiling here if
             // it becomes an issue.
             BinaryReader top = this.streams.Peek();
-            byte[] search = this.CurrentEncoding.GetBytes(Environment.NewLine);
+            byte[] ignore = this.CurrentEncoding.GetBytes(new[] { '\r' });
+            byte[] search = this.CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
             var builder = new MemoryStream();
 
@@ -302,6 +303,11 @@ namespace HttpMultipartParser
                     top.Dispose();
                     top = this.streams.Peek();
                     b = top.ReadByte();
+                }                
+                
+                if (ignore.Contains((byte)b))
+                {
+                    continue;
                 }
 
                 // Now that we've found a byte we need to check it against the search array

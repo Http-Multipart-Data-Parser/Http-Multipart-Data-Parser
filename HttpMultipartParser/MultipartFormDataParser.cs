@@ -172,8 +172,8 @@ namespace HttpMultipartParser
             // We add newline here because unlike reader.ReadLine() binary reading
             // does not automatically consume the newline, we want to add it to our signature
             // so we can automatically detect and consume newlines after the boundary
-            this.boundaryBinary = this.Encoding.GetBytes(this.boundary + Environment.NewLine);
-            this.endBoundaryBinary = this.Encoding.GetBytes(this.endBoundary + Environment.NewLine);
+            this.boundaryBinary = this.Encoding.GetBytes(this.boundary);
+            this.endBoundaryBinary = this.Encoding.GetBytes(this.endBoundary);
 
             Debug.Assert(
                 binaryBufferSize >= this.endBoundaryBinary.Length, "binaryBufferSize must be bigger then the boundary");
@@ -210,6 +210,45 @@ namespace HttpMultipartParser
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Calculates the length of a newline starting from offset. It is assumed that
+        /// data[offset] is the start of the newline sequence.
+        /// </summary>
+        /// <param name="data">The data containing the newline</param>
+        /// <param name="offset">The offset of the start of the newline</param>
+        /// <returns>The length in bytes of the newline sequence</returns>
+        private int CalculateNewlineOffset(ref byte[] data, int offset)
+        {
+            byte[][] newlinePatterns =
+                {
+                    Encoding.GetBytes("\r\n"), 
+                    Encoding.GetBytes("\n")
+                };
+
+            // Go through each pattern and find which one matches.
+            foreach (byte[] pattern in newlinePatterns)
+            {
+                bool found = false;
+                for (int i = 0; i < pattern.Length; ++i)
+                {
+                    if (pattern[i] != data[offset + i])
+                    {
+                        found = false;
+                        break;
+                    }
+
+                    found = true;
+                }
+
+                if (found)
+                {
+                    return pattern.Length;
+                }
+            }
+
+            return 0;
+        }
 
         /// <summary>
         /// Begins the parsing of the stream into objects.
@@ -303,6 +342,14 @@ namespace HttpMultipartParser
 
                 if (endPos != -1)
                 {
+                    // Now we need to check if the endPos is followed by \r\n or just \n. HTTP
+                    // specifies \r\n but some clients might encode with \n.
+                    int newlineOffset = this.CalculateNewlineOffset(ref fullBuffer, endPos + endPosLength);
+                    if (newlineOffset == 0)
+                    {
+                        throw new MultipartParseException("CalculateNewlineOffset returned bad offset.");    
+                    }
+
                     // We've found an end. We need to consume all the binary up to it 
                     // and then write the remainder back to the original stream. Then we
                     // need to modify the original streams position to take into account
@@ -310,9 +357,9 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    data.Write(fullBuffer, 0, endPos - this.Encoding.GetByteCount(Environment.NewLine));
+                    data.Write(fullBuffer, 0, endPos - newlineOffset);
 
-                    int writeBackOffset = endPos + endPosLength;
+                    int writeBackOffset = endPos + endPosLength + newlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
                     var writeBackBuffer = new byte[writeBackAmount];
                     Buffer.BlockCopy(fullBuffer, writeBackOffset, writeBackBuffer, 0, writeBackAmount);
@@ -429,10 +476,12 @@ namespace HttpMultipartParser
                 // Content-Disposition: form-data; name="textdata" 
                 // ["content-disposition"] = "form-data"
                 // ["name"] = "textdata"
+                //
                 // Content-Disposition: form-data; name="file"; filename="data.txt"
                 // ["content-disposition"] = "form-data"
                 // ["name"] = "file"
                 // ["filename"] = "data.txt"
+                //
                 // Content-Type: text/plain 
                 // ["Content-Type"] = "text/plain"
                 Dictionary<string, string> values = line.Split(';') // Split the line into n strings delimited by ;

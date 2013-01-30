@@ -50,7 +50,7 @@ namespace HttpMultipartParser
     ///     <code lang="C#"> 
     ///       Stream multipartStream = GetTheMultipartStream();
     ///       string boundary = GetTheBoundary();
-    ///       var parser = new MultipartFormDataParser(boundary, multipartStream, Encoding.UTF8);
+    ///       var parser = new MultipartFormDataParser(multipartStream, boundary, Encoding.UTF8);
     ///  
     ///       // Grab the parameters (non-file data). Key is based on the name field
     ///       var username = parser.Parameters["username"].Data;
@@ -74,7 +74,7 @@ namespace HttpMultipartParser
     ///         var boundary = type.Substring(type.IndexOf('=')+1);
     /// 
     ///         // Now that we've got the boundary we can parse our multipart and use it as normal
-    ///         var parser = new MultipartFormDataParser(boundary, data, Encoding.UTF8);
+    ///         var parser = new MultipartFormDataParser(data, boundary, Encoding.UTF8);
     /// 
     ///         ...
     ///     }

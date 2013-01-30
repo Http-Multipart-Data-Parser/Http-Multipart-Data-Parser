@@ -48,7 +48,7 @@ namespace HttpMultipartParserUnitTest
         ///     </see>
         ///     test object.
         /// </summary>
-        private static readonly string MultipleDataAndParams = TestUtil.TrimAllLines(@"--boundry
+        private static readonly string MultipleParamsAndFilesTestData = TestUtil.TrimAllLines(@"--boundry
               Content-Disposition: form-data; name=""text""
               
               textdata
@@ -79,8 +79,8 @@ namespace HttpMultipartParserUnitTest
         /// <summary>
         ///     Test case for multiple parameters and files.
         /// </summary>
-        private static readonly TestData MultipleDataAndParamsTestData = new TestData(
-            MultipleDataAndParams, 
+        private static readonly TestData MultipleParamsAndFilesTestCase = new TestData(
+            MultipleParamsAndFilesTestData, 
             new Dictionary<string, ParameterPart>
                 {
                     { "text", new ParameterPart("text", "textdata") }, 
@@ -109,7 +109,7 @@ namespace HttpMultipartParserUnitTest
         /// <summary>
         ///     The small request.
         /// </summary>
-        private static readonly string SmallRequest =
+        private static readonly string SmallTestData =
             TestUtil.TrimAllLines(@"-----------------------------265001916915724
                 Content-Disposition: form-data; name=""textdata""
                 
@@ -128,8 +128,8 @@ namespace HttpMultipartParserUnitTest
         /// <summary>
         ///     The small data test case with expected outcomes
         /// </summary>
-        private static readonly TestData SmallTestData = new TestData(
-            SmallRequest, 
+        private static readonly TestData SmallTestCase = new TestData(
+            SmallTestData, 
             new Dictionary<string, ParameterPart>
                 {
                     { "textdata", new ParameterPart("textdata", "Testdata") }, 
@@ -149,7 +149,7 @@ namespace HttpMultipartParserUnitTest
         /// <summary>
         ///     Raw multipart/form-data for the <see cref="TestData" /> object.
         /// </summary>
-        private static readonly string TinyRequest = TestUtil.TrimAllLines(@"--boundry
+        private static readonly string TinyTestData = TestUtil.TrimAllLines(@"--boundry
             Content-Disposition: form-data; name=""text""
 
             textdata
@@ -167,8 +167,8 @@ namespace HttpMultipartParserUnitTest
         /// <summary>
         ///     The tiny data test case with expected outcomes
         /// </summary>
-        private static readonly TestData TinyTestData = new TestData(
-            TinyRequest, 
+        private static readonly TestData TinyTestCase = new TestData(
+            TinyTestData, 
             new Dictionary<string, ParameterPart>
                 {
                     { "text", new ParameterPart("text", "textdata") }, 
@@ -183,6 +183,36 @@ namespace HttpMultipartParserUnitTest
                     }
                 });
 
+        /// <summary>
+        ///     Raw test data for testing a multipart with the file as the last data section.
+        /// </summary>
+        private static readonly string FileIsLastTestData = TestUtil.TrimAllLines(
+            @"-----------------------------41952539122868
+            Content-Disposition: form-data; name=""adID""
+
+            1425
+            -----------------------------41952539122868
+            Content-Disposition: form-data; name=""files[]""; filename=""Capture.JPG""
+            Content-Type: image/jpeg
+
+             BinaryData
+             -----------------------------41952539122868--");
+
+        /// <summary>
+        ///     Test for cases where the file is last with expected outcomes.
+        /// </summary>
+        private static readonly TestData FileIsLastTestCase = new TestData(
+            FileIsLastTestData,
+            new Dictionary<string, ParameterPart>
+                {
+                    { "adID", new ParameterPart("adID", "1425") }
+                }, 
+            new Dictionary<string, FilePart>
+                {
+                    { "files[]", new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData")) }   
+                });
+
+
         #endregion
 
         #region Public Methods and Operators
@@ -193,10 +223,10 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanAutoDetectBoundary()
         {
-            using (Stream stream = TestUtil.StringToStream(TinyTestData.Request, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream);
-                Assert.IsTrue(TinyTestData.Validate(parser));
+                Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
 
@@ -207,10 +237,10 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanDetectBoundariesCrossBuffer()
         {
-            using (Stream stream = TestUtil.StringToStream(TinyTestData.Request, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
-                Assert.IsTrue(TinyTestData.Validate(parser));
+                Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
 
@@ -228,11 +258,11 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CorrectlyHandlesCRLF()
         {
-            string request = TinyTestData.Request.Replace("\n", "\r\n");
+            string request = TinyTestCase.Request.Replace("\n", "\r\n");
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
-                Assert.IsTrue(TinyTestData.Validate(parser));
+                Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
 
@@ -243,7 +273,7 @@ namespace HttpMultipartParserUnitTest
         [TestInitialize]
         public void Initialize()
         {
-            var testData = new[] { TinyTestData, SmallTestData, MultipleDataAndParamsTestData };
+            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase };
             foreach (TestData data in testData)
             {
                 foreach (var pair in data.ExpectedFileData)
@@ -260,10 +290,10 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void MultipleFilesAndParamsTest()
         {
-            using (Stream stream = TestUtil.StringToStream(MultipleDataAndParamsTestData.Request, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(MultipleParamsAndFilesTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
-                Assert.IsTrue(MultipleDataAndParamsTestData.Validate(parser));
+                Assert.IsTrue(MultipleParamsAndFilesTestCase.Validate(parser));
             }
         }
 
@@ -273,13 +303,13 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void SmallDataTest()
         {
-            using (Stream stream = TestUtil.StringToStream(SmallTestData.Request))
+            using (Stream stream = TestUtil.StringToStream(SmallTestCase.Request))
             {
                 // The boundry is missing the first two -- in accordance with the multipart
                 // spec. (A -- is added by the parser, this boundry is what would be sent in the
                 // requset header)
                 var parser = new MultipartFormDataParser(stream, "---------------------------265001916915724");
-                Assert.IsTrue(SmallTestData.Validate(parser));
+                Assert.IsTrue(SmallTestCase.Validate(parser));
 
             }
         }
@@ -290,10 +320,23 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void TinyDataTest()
         {
-            using (Stream stream = TestUtil.StringToStream(TinyTestData.Request, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
-                TinyTestData.Validate(parser);
+                Assert.IsTrue(TinyTestCase.Validate(parser));
+            }
+        }
+
+        /// <summary>
+        /// The can handle file as last section.
+        /// </summary>
+        [TestMethod]
+        public void CanHandleFileAsLastSection()
+        {
+            using (Stream stream = TestUtil.StringToStream(FileIsLastTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.IsTrue(FileIsLastTestCase.Validate(parser));
             }
         }
 

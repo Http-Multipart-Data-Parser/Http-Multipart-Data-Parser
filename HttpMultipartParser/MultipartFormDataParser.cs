@@ -316,8 +316,38 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        /// Calculates the length of a newline starting from offset. It is assumed that
-        ///     data[offset] is the start of the newline sequence.
+        /// Finds the next sequence of newlines in the input stream.
+        /// </summary>
+        /// <param name="data">The data to search</param>
+        /// <param name="offset">The offset to start searching at</param>
+        /// <param name="maxBytes">The maximum number of bytes (starting from offset) to search.</param>
+        /// <returns>The offset of the next newline</returns>
+        private int FindNextNewline(ref byte[] data, int offset, int maxBytes)
+        {
+            byte[][] newlinePatterns = { this.Encoding.GetBytes("\r\n"), this.Encoding.GetBytes("\n") };
+            Array.Sort(newlinePatterns, (first, second) => second.Length.CompareTo(first.Length));
+
+            byte[] dataRef = data;
+            if (offset != 0)
+            {
+                dataRef = data.Skip(offset).ToArray();
+            }
+
+            foreach (var pattern in newlinePatterns)
+            {
+                int position = SubsequenceFinder.Search(dataRef, pattern);
+                if (position != -1)
+                {
+                    return position + offset;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Calculates the length of the next found newline.
+        ///     data[offset] is the start of the space to search.
         /// </summary>
         /// <param name="data">
         /// The data containing the newline
@@ -328,7 +358,7 @@ namespace HttpMultipartParser
         /// <returns>
         /// The length in bytes of the newline sequence
         /// </returns>
-        private int CalculateNewlineOffset(ref byte[] data, int offset)
+        private int CalculateNewlineLength(ref byte[] data, int offset)
         {
             byte[][] newlinePatterns = { this.Encoding.GetBytes("\r\n"), this.Encoding.GetBytes("\n") };
 
@@ -430,7 +460,62 @@ namespace HttpMultipartParser
                 Buffer.BlockCopy(curBuffer, 0, fullBuffer, prevLength, curLength);
 
                 // Now we want to check for a substring within the current buffer.
-                int endPos = SubsequenceFinder.Search(fullBuffer, this.boundaryBinary);
+                // We need to find the closest substring greedily. That is find the
+                // closest boundary and don't miss the end --'s if it's an end boundary.
+                int endBoundaryPos = SubsequenceFinder.Search(fullBuffer, this.endBoundaryBinary);
+                int endBoundaryLength = this.endBoundaryBinary.Length;
+                int boundaryPos = SubsequenceFinder.Search(fullBuffer, this.boundaryBinary);
+                int boundaryLength = this.boundaryBinary.Length;
+
+                // We need to select the appropriate position and length
+                // based on the smallest non-negative position.
+                int endPos = -1;
+                int endPosLength = 0;
+
+                if (endBoundaryPos >= 0 && boundaryPos >= 0)
+                {
+                    if (boundaryPos < endBoundaryPos)
+                    {
+                        // Select boundary
+                        endPos = boundaryPos;
+                        endPosLength = boundaryLength;
+                    }
+                    else
+                    {
+                        // Select end boundary
+                        endPos = endBoundaryPos;
+                        endPosLength = endBoundaryLength;
+                        this.readEndBoundary = true;
+                    }
+                }
+                else if (boundaryPos >= 0 && endBoundaryPos < 0)
+                {
+                    // Select boundary    
+                    endPos = boundaryPos;
+                    endPosLength = boundaryLength;
+                }
+                else if (boundaryPos < 0 && endBoundaryPos >= 0)
+                {
+                    // Select end boundary
+                    endPos = endBoundaryPos;
+                    endPosLength = endBoundaryLength;
+                    this.readEndBoundary = true;
+                }
+
+                //int endPos = SubsequenceFinder.Search(fullBuffer, this.endBoundaryBinary);
+                //int endPosLength = this.endBoundaryBinary.Length;
+
+                /*if (endPos == -1)
+                {
+                    // No final end found, check for a regular boundary.                    
+                    endPos = SubsequenceFinder.Search(fullBuffer, this.boundaryBinary);
+                    endPosLength = this.boundaryBinary.Length;
+                }
+                else
+                {
+                    this.readEndBoundary = true;
+                }*/
+                /*int endPos = SubsequenceFinder.Search(fullBuffer, this.boundaryBinary);
                 int endPosLength = this.boundaryBinary.Length;
 
                 if (endPos == -1)
@@ -442,17 +527,20 @@ namespace HttpMultipartParser
                     {
                         this.readEndBoundary = true;
                     }
-                }
+                }*/
 
                 if (endPos != -1)
                 {
                     // Now we need to check if the endPos is followed by \r\n or just \n. HTTP
-                    // specifies \r\n but some clients might encode with \n.
-                    int newlineOffset = this.CalculateNewlineOffset(ref fullBuffer, endPos + endPosLength);
-                    if (newlineOffset == 0)
-                    {
-                        throw new MultipartParseException("CalculateNewlineOffset returned bad offset.");
-                    }
+                    // specifies \r\n but some clients might encode with \n. Or we might get 0 if
+                    // we are at the end of the file.
+                    int boundaryNewlineOffset = this.CalculateNewlineLength(ref fullBuffer, endPos + endPosLength);
+
+                    // We also need to check if the last n characters of the buffer to write
+                    // are a newline and if they are ignore them.
+                    var maxNewlineBytes = Encoding.GetMaxByteCount(2);
+                    int bufferNewlineOffset = this.FindNextNewline(ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
+                    int bufferNewlineLength = this.CalculateNewlineLength(ref fullBuffer, bufferNewlineOffset);
 
                     // We've found an end. We need to consume all the binary up to it 
                     // and then write the remainder back to the original stream. Then we
@@ -461,9 +549,9 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    data.Write(fullBuffer, 0, endPos - newlineOffset);
+                    data.Write(fullBuffer, 0, endPos - bufferNewlineLength);
 
-                    int writeBackOffset = endPos + endPosLength + newlineOffset;
+                    int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
                     var writeBackBuffer = new byte[writeBackAmount];
                     Buffer.BlockCopy(fullBuffer, writeBackOffset, writeBackBuffer, 0, writeBackAmount);

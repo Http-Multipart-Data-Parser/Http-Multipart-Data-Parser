@@ -132,6 +132,18 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
+        /// Adds the string to the front of the stream. The most recently buffered data will
+        ///     be read first.
+        /// </summary>
+        /// <param name="data">
+        /// The data.
+        /// </param>
+        public void Buffer(string data)
+        {
+            this.streamStack.Push(this.encoding.GetBytes(data));
+        }
+
+        /// <summary>
         ///     Closes the stream.
         /// </summary>
         public void Dispose()

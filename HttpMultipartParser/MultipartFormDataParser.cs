@@ -156,6 +156,22 @@ namespace HttpMultipartParser
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipartFormDataParser"/> class
+        ///     with the input stream and stream encoding. Boundary is automatically
+        ///     detected.
+        /// </summary>
+        /// <param name="stream">
+        /// The stream containing the multipart data
+        /// </param>
+        /// <param name="encoding">
+        /// The encoding of the multipart data
+        /// </param>
+        public MultipartFormDataParser(Stream stream, Encoding encoding) 
+            : this(stream, null, encoding, DefaultBufferSize)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MultipartFormDataParser"/> class
         ///     with the boundary, input stream and stream encoding.
         /// </summary>
         /// <param name="stream">
@@ -174,6 +190,26 @@ namespace HttpMultipartParser
             // 4096 is the optimal buffer size as it matches the internal buffer of a StreamReader
             // See: http://stackoverflow.com/a/129318/203133
             // See: http://msdn.microsoft.com/en-us/library/9kstw824.aspx (under remarks)
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MultipartFormDataParser"/> class
+        ///     with the stream, input encoding and buffer size. Boundary is automatically
+        ///     detected.
+        /// </summary>
+        /// <param name="stream">
+        /// The stream containing the multipart data
+        /// </param>
+        /// <param name="encoding">
+        /// The encoding of the multipart data
+        /// </param>
+        /// <param name="binaryBufferSize">
+        /// The size of the buffer to use for parsing the multipart form data. This must be larger
+        ///     then (size of boundary + 4 + # bytes in newline).
+        /// </param>
+        public MultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
+            : this(stream, null, encoding, binaryBufferSize)
+        {
         }
 
         /// <summary>

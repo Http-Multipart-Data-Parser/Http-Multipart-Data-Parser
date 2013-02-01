@@ -116,7 +116,7 @@ namespace HttpMultipartParserUnitTest
                 Testdata
                 -----------------------------265001916915724
                 Content-Disposition: form-data; name=""file""; filename=""data.txt""
-                Content-Type: text/plain
+                Content-Type: application/octet-stream
 
                 This is a small file
                 -----------------------------265001916915724
@@ -142,7 +142,9 @@ namespace HttpMultipartParserUnitTest
                         new FilePart(
                         "file", 
                         "data.txt", 
-                        TestUtil.StringToStreamNoBom("This is a small file"))
+                        TestUtil.StringToStreamNoBom("This is a small file"),
+                        "application/octet-stream",
+                        "form-data")
                     }
                 });
 
@@ -438,6 +440,11 @@ namespace HttpMultipartParserUnitTest
                         FilePart actualFile = parser.Files[pair.Key];
 
                         if (expectedFile.Name != actualFile.Name || expectedFile.FileName != actualFile.FileName)
+                        {
+                            return false;
+                        }
+
+                        if (expectedFile.ContentType != actualFile.ContentType || expectedFile.ContentDisposition != actualFile.ContentDisposition)
                         {
                             return false;
                         }

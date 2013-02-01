@@ -502,33 +502,6 @@ namespace HttpMultipartParser
                     this.readEndBoundary = true;
                 }
 
-                //int endPos = SubsequenceFinder.Search(fullBuffer, this.endBoundaryBinary);
-                //int endPosLength = this.endBoundaryBinary.Length;
-
-                /*if (endPos == -1)
-                {
-                    // No final end found, check for a regular boundary.                    
-                    endPos = SubsequenceFinder.Search(fullBuffer, this.boundaryBinary);
-                    endPosLength = this.boundaryBinary.Length;
-                }
-                else
-                {
-                    this.readEndBoundary = true;
-                }*/
-                /*int endPos = SubsequenceFinder.Search(fullBuffer, this.boundaryBinary);
-                int endPosLength = this.boundaryBinary.Length;
-
-                if (endPos == -1)
-                {
-                    endPos = SubsequenceFinder.Search(fullBuffer, this.endBoundaryBinary);
-                    endPosLength = this.endBoundaryBinary.Length;
-
-                    if (endPos != -1)
-                    {
-                        this.readEndBoundary = true;
-                    }
-                }*/
-
                 if (endPos != -1)
                 {
                     // Now we need to check if the endPos is followed by \r\n or just \n. HTTP
@@ -539,7 +512,8 @@ namespace HttpMultipartParser
                     // We also need to check if the last n characters of the buffer to write
                     // are a newline and if they are ignore them.
                     var maxNewlineBytes = Encoding.GetMaxByteCount(2);
-                    int bufferNewlineOffset = this.FindNextNewline(ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
+                    int bufferNewlineOffset = this.FindNextNewline(
+                        ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
                     int bufferNewlineLength = this.CalculateNewlineLength(ref fullBuffer, bufferNewlineOffset);
 
                     // We've found an end. We need to consume all the binary up to it 
@@ -583,7 +557,9 @@ namespace HttpMultipartParser
             }
             while (prevLength != 0);
 
-            var part = new FilePart(parameters["name"], parameters["filename"], data);
+            var contentType = parameters.ContainsKey("content-type") ? parameters["content-type"] : "text/plain";
+            var contentDisposition = parameters.ContainsKey("content-disposition") ? parameters["content-disposition"] : "form-data";
+            var part = new FilePart(parameters["name"], parameters["filename"], data, contentType, contentDisposition);
 
             return part;
         }

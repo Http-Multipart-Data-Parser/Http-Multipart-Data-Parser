@@ -211,7 +211,7 @@ namespace HttpMultipartParserUnitTest
                 }, 
             new Dictionary<string, FilePart>
                 {
-                    { "files[]", new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData")) }   
+                    { "files[]", new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data") }   
                 });
 
 
@@ -427,39 +427,47 @@ namespace HttpMultipartParserUnitTest
                 }
 
                 // Validate files
-                foreach (var pair in this.ExpectedFileData)
+                foreach (var file in parser.Files)
                 {
-                    if (parser.Files[pair.Key] != pair.Value)
+                    bool foundPairMatch = false;
+                    foreach (var pair in this.ExpectedFileData)
                     {
-                        if (!parser.Files.ContainsKey(pair.Key))
+                        if (pair.Key == file.Name)
                         {
-                            return false;
+                            foundPairMatch = true;
+
+                            FilePart expectedFile = pair.Value;
+                            FilePart actualFile = file;
+
+                            if (expectedFile.Name != actualFile.Name || expectedFile.FileName != actualFile.FileName)
+                            {
+                                return false;
+                            }
+
+                            if (expectedFile.ContentType != actualFile.ContentType || expectedFile.ContentDisposition != actualFile.ContentDisposition)
+                            {
+                                return false;
+                            }
+
+                            // Read the data from the files and see if it's the same
+                            var reader = new StreamReader(expectedFile.Data);
+                            string expectedFileData = reader.ReadToEnd();
+
+                            reader = new StreamReader(actualFile.Data);
+                            string actualFileData = reader.ReadToEnd();
+
+                            if (expectedFileData != actualFileData)
+                            {
+                                return false;
+                            }
+
+                            break;
                         }
+                    }
 
-                        FilePart expectedFile = pair.Value;
-                        FilePart actualFile = parser.Files[pair.Key];
-
-                        if (expectedFile.Name != actualFile.Name || expectedFile.FileName != actualFile.FileName)
-                        {
-                            return false;
-                        }
-
-                        if (expectedFile.ContentType != actualFile.ContentType || expectedFile.ContentDisposition != actualFile.ContentDisposition)
-                        {
-                            return false;
-                        }
-
-                        // Read the data from the files and see if it's the same
-                        var reader = new StreamReader(expectedFile.Data);
-                        string expectedFileData = reader.ReadToEnd();
-
-                        reader = new StreamReader(actualFile.Data);
-                        string actualFileData = reader.ReadToEnd();
-
-                        if (expectedFileData != actualFileData)
-                        {
-                            return false;
-                        }
+                    if (!foundPairMatch)
+                    {
+                        return false;
                     }
                 }
 

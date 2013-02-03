@@ -233,7 +233,7 @@ namespace HttpMultipartParser
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
             this.Parameters = new Dictionary<string, ParameterPart>();
-            this.Files = new Dictionary<string, FilePart>();
+            this.Files = new List<FilePart>();
             this.Encoding = encoding;
             this.BinaryBufferSize = binaryBufferSize;
             this.readEndBoundary = false;
@@ -283,7 +283,7 @@ namespace HttpMultipartParser
         ///     Gets the mapping of parameters parsed files. The name of a given field
         ///     maps to the parsed file data.
         /// </summary>
-        public Dictionary<string, FilePart> Files { get; private set; }
+        public List<FilePart> Files { get; private set; }
 
         /// <summary>
         ///     Gets the mapping of the parameters. The name of a given field
@@ -682,7 +682,7 @@ namespace HttpMultipartParser
                 // This assumption needs to be checked, it holds true in firefox but is untested for other 
                 // browsers.
                 FilePart part = this.ParseFilePart(parameters, reader);
-                this.Files.Add(part.Name, part);
+                this.Files.Add(part);
             }
             else
             {

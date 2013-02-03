@@ -1,5 +1,3 @@
-Http Multipart Parser
-
 What is it?
 ===========
 
@@ -34,8 +32,7 @@ Examples
 Single file
 -----------
 
-stream:
-
+	// stream:
 	-----------------------------41952539122868
 	Content-Disposition: form-data; name="username"
 
@@ -51,8 +48,7 @@ stream:
 	ExampleBinaryData012031203
 	-----------------------------41952539122868--
 
-Parse:
-
+	// parse:
     var parser = new MultipartFormDataParser(stream);
 
 	// From this point the data is parsed, we can retrieve the
@@ -68,8 +64,7 @@ Parse:
 Multiple Files
 -----------
 
-stream:
-
+	// stream:
 	-----------------------------41111539122868
 	Content-Disposition: form-data; name="files[]"; filename="photo1.jpg"
 	Content-Type: image/jpeg
@@ -82,8 +77,7 @@ stream:
 	ImagineLotsOfBinaryData
 	-----------------------------41111539122868--
 
-Parse:
-
+	// parse:
     var parser = new MultipartFormDataParser(stream);
 
 	// Loop through all the files

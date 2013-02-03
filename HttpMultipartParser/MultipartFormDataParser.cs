@@ -56,9 +56,10 @@ namespace HttpMultipartParser
     ///       var username = parser.Parameters["username"].Data;
     ///       var password = parser.parameters["password"].Data;
     ///       
-    ///       // Grab the file data as a stream!
-    ///       var filename = parser.FileName["file"].FileName
-    ///       var filestream = parser.Files["file"].Data;
+    ///       // Grab the first files data
+    ///       var file = parser.Files.First();
+    ///       var filename = file.FileName;
+    ///       var filestream = file.Data;
     ///   </code>
     ///     <code lang="C#">
     ///     // In the context of WCF you can get the boundary from the HTTP

@@ -23,6 +23,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+
 namespace HttpMultipartParserUnitTest
 {
     using System.Collections.Generic;
@@ -214,6 +216,22 @@ namespace HttpMultipartParserUnitTest
                     { "files[]", new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data") }   
                 });
 
+        private static readonly string MixedUnicodeWidthAndAsciiWidthCharactersTestData = TestUtil.TrimAllLines(
+            @"--boundary_.oOo._MjQ1NTU=OTk3Ng==MjcxODE=
+              Content-Disposition: form-data; name=""psAdTitle""
+
+              Bonjour poignée 
+              --boundary_.oOo._MjQ1NTU=OTk3Ng==MjcxODE=--"
+            );
+
+        private static readonly TestData MixedUnicodeWidthAndAsciiWidthCharactersTestCase = new TestData(
+            MixedUnicodeWidthAndAsciiWidthCharactersTestData,
+            new Dictionary<string, ParameterPart>
+                {
+                    {"psAdTitle", new ParameterPart("psAdTitle", "Bonjour poignée")}
+                },
+            new Dictionary<string, FilePart>());
+
 
         #endregion
 
@@ -342,6 +360,30 @@ namespace HttpMultipartParserUnitTest
             }
         }
 
+        [TestMethod]
+        public void CanHandleUnicodeWidthAndAsciiWidthCharacters()
+        {
+            using (
+                var stream = TestUtil.StringToStream(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Request,
+                                                     Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.IsTrue(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Validate(parser));
+            }
+        }
+
+        [TestMethod]
+        public void Playground()
+        {
+            string input = "Bonjour poignée";
+
+            byte[] data = Encoding.UTF8.GetBytes(input);
+
+            string mangle = Encoding.UTF8.GetString(data);
+
+            Assert.AreEqual(input, mangle);
+        }
+
         #endregion
 
         /// <summary>
@@ -419,6 +461,8 @@ namespace HttpMultipartParserUnitTest
 
                     ParameterPart expectedPart = pair.Value;
                     ParameterPart actualPart = parser.Parameters[pair.Key];
+
+                    Console.WriteLine("Expected {0} = {1}, Found {2} = {3}", expectedPart.Name, expectedPart.Data, actualPart.Name, actualPart.Data);
 
                     if (expectedPart.Name != actualPart.Name || expectedPart.Data != actualPart.Data)
                     {

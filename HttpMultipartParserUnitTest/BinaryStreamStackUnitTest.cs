@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BinaryStreamStackUnitTest.cs" company="Macquarie Generation">
-//   Copyright (c) Macquarie Generation. All rights reserved.
+// <copyright file="BinaryStreamStackUnitTest.cs" company="Jake Woods">
+//   Copyright (c) Jake Woods. All rights reserved.
 // </copyright>
 // <summary>
 //   Unit Tests for <see cref="BinaryStreamStack" />
@@ -63,6 +63,54 @@ namespace HttpMultipartParserUnitTest
             Assert.AreEqual(stack.Read(), 'e');
             Assert.AreEqual(stack.Read(), 'f');
         }
+
+        [TestMethod]
+        public void CanReadSingleUnicodeCharacter()
+        {
+            var stack = new BinaryStreamStack(Encoding.UTF8);
+            stack.Push(TestUtil.StringToByteNoBom("é"));
+
+            Assert.AreEqual(stack.Read(), 'é');
+        }
+
+        [TestMethod]
+        public void CanReadMultipleUnicodeCharacters()
+        {
+            var stack = new BinaryStreamStack(Encoding.UTF8);
+            stack.Push(TestUtil.StringToByteNoBom("تست"));
+
+            Assert.AreEqual(stack.Read(), 'ت');
+            Assert.AreEqual(stack.Read(), 'س');
+            Assert.AreEqual(stack.Read(), 'ت');
+        }
+
+        [TestMethod]
+        public void CanReadMultipleUnicodeCharactersOverBuffers()
+        {
+            var stack = new BinaryStreamStack(Encoding.UTF8);
+            stack.Push(TestUtil.StringToByteNoBom("ست"));
+            stack.Push(TestUtil.StringToByteNoBom("ت"));
+
+            Assert.AreEqual(stack.Read(), 'ت');
+            Assert.AreEqual(stack.Read(), 'س');
+            Assert.AreEqual(stack.Read(), 'ت');
+        }
+
+        [TestMethod]
+        public void CanReadMixedUnicodeAndAsciiCharacters()
+        {
+            var stack = new BinaryStreamStack(Encoding.UTF8);
+            stack.Push(TestUtil.StringToByteNoBom("تست.jpg"));
+
+            Assert.AreEqual(stack.Read(), 'ت');
+            Assert.AreEqual(stack.Read(), 'س');
+            Assert.AreEqual(stack.Read(), 'ت');
+            Assert.AreEqual(stack.Read(), '.');
+            Assert.AreEqual(stack.Read(), 'j');
+            Assert.AreEqual(stack.Read(), 'p');
+            Assert.AreEqual(stack.Read(), 'g');
+        }
+
         #endregion
 
         #region Read(buffer, index, count) Tests

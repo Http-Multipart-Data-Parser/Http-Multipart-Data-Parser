@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
+using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -85,6 +87,35 @@ namespace HttpMultipartParserUnitTest
             Assert.AreEqual(reader.Read(), 'e');
             Assert.AreEqual(reader.Read(), 'f');
         }
+
+        [TestMethod]
+        public void CanReadMixedAsciiAndUTFCharacters()
+        {
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abcdèfg"), Encoding.UTF8);
+
+            Assert.AreEqual(reader.Read(), 'a');
+            Assert.AreEqual(reader.Read(), 'b');
+            Assert.AreEqual(reader.Read(), 'c');
+            Assert.AreEqual(reader.Read(), 'd');
+            Assert.AreEqual(reader.Read(), 'è');
+            Assert.AreEqual(reader.Read(), 'f');
+            Assert.AreEqual(reader.Read(), 'g');
+        }
+
+        [TestMethod]
+        public void CanReadMixedAsciiAndUTFCharactersOverBuffers()
+        {
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("dèfg"), Encoding.UTF8);
+            reader.Buffer(TestUtil.StringToByteNoBom("abc"));
+
+            Assert.AreEqual(reader.Read(), 'a');
+            Assert.AreEqual(reader.Read(), 'b');
+            Assert.AreEqual(reader.Read(), 'c');
+            Assert.AreEqual(reader.Read(), 'd');
+            Assert.AreEqual(reader.Read(), 'è');
+            Assert.AreEqual(reader.Read(), 'f');
+            Assert.AreEqual(reader.Read(), 'g');
+        }
         #endregion
 
         #region Read(buffer, index, count) Tests
@@ -108,6 +139,29 @@ namespace HttpMultipartParserUnitTest
             var buffer = new byte[6];
             reader.Read(buffer, 0, buffer.Length);
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "6chars");
+        }
+
+        [TestMethod]
+        public void CanReadMixedAsciiAndUTF8()
+        {
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("5èats"), Encoding.UTF8);
+
+            var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
+            reader.Read(buffer, 0, buffer.Length);
+            var result = Encoding.UTF8.GetString(buffer);
+            Assert.AreEqual(result, "5èats");
+        }
+        
+        [TestMethod]
+        public void CanReadMixedAsciiAndUTF8AcrossMultipleBuffers()
+        {
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("ts"), Encoding.UTF8);
+            reader.Buffer(TestUtil.StringToByteNoBom(("5èa")));
+
+            var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
+            reader.Read(buffer, 0, buffer.Length);
+            var result = Encoding.UTF8.GetString(buffer);
+            Assert.AreEqual(result, "5èats");
         }
 
         [TestMethod]
@@ -166,6 +220,21 @@ namespace HttpMultipartParserUnitTest
             amountRead = reader.Read(buffer, 0, buffer.Length);
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "rs");
             Assert.AreEqual(amountRead, 2);
+        }
+        #endregion
+
+        #region ReadByteLine() Tests
+        [TestMethod]
+        public void CanReadByteLineOnMixedAsciiAndUTF8Text()
+        {
+            var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("Bonjour poignée"), Encoding.UTF8);
+            var bytes = reader.ReadByteLine();
+            var expected = new byte[] {66, 111, 110, 106, 111, 117, 114, 32, 112, 111, 105, 103, 110, 195, 169, 101};
+
+            foreach (var pair in expected.Zip(bytes, Tuple.Create))
+            {
+                Assert.AreEqual(pair.Item1, pair.Item2);
+            }
         }
         #endregion
     }

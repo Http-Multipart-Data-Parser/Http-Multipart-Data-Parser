@@ -232,6 +232,30 @@ namespace HttpMultipartParserUnitTest
                 },
             new Dictionary<string, FilePart>());
 
+        private static readonly string MixedSingleByteAndMultiByteWidthTestData = TestUtil.TrimAllLines(
+            @"-----------------------------41952539122868
+            Content-Disposition: form-data; name=""تت""
+
+            1425
+            -----------------------------41952539122868
+            Content-Disposition: form-data; name=""files[]""; filename=""تست.jpg""
+            Content-Type: image/jpeg
+
+             BinaryData
+             -----------------------------41952539122868--"
+        );
+
+        private static readonly TestData MixedSingleByteAndMultiByteWidthTestCase = new TestData(
+            MixedSingleByteAndMultiByteWidthTestData,
+            new Dictionary<string, ParameterPart>
+                {
+                    {"تت", new ParameterPart("تت", "1425")}
+                }, 
+            new Dictionary<string, FilePart>
+                {
+                    {"files[]", new FilePart("files[]", "تست.jpg", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data")}
+                }
+        );
 
         #endregion
 
@@ -373,15 +397,13 @@ namespace HttpMultipartParserUnitTest
         }
 
         [TestMethod]
-        public void Playground()
+        public void CanHandleMixedSingleByteAndMultiByteWidthCharacters()
         {
-            string input = "Bonjour poignée";
-
-            byte[] data = Encoding.UTF8.GetBytes(input);
-
-            string mangle = Encoding.UTF8.GetString(data);
-
-            Assert.AreEqual(input, mangle);
+            using (var stream = TestUtil.StringToStream(MixedSingleByteAndMultiByteWidthTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.IsTrue(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
+            }
         }
 
         #endregion

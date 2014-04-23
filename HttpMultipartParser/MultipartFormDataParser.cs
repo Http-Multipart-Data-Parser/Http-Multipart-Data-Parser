@@ -586,6 +586,7 @@ namespace HttpMultipartParser
             // an actual ParameterPart object with it. All we need to do is read data into a string
             // untill we hit the boundary
             var data = new StringBuilder();
+            bool firstTime = true;
             string line = reader.ReadLine();
             while (line != this.boundary && line != this.endBoundary)
             {
@@ -594,7 +595,16 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-                data.Append(line);
+                if (firstTime)
+                {
+                    data.Append(line);
+                    firstTime = false;
+                }
+                else
+                {
+                    data.Append(Environment.NewLine);
+                    data.Append(line);
+                }
                 line = reader.ReadLine();
             }
 

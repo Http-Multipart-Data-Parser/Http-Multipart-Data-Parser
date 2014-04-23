@@ -311,6 +311,28 @@ namespace HttpMultipartParserUnitTest
         }
 
         /// <summary>
+        ///     Tests for correct handling of a multiline parameter.
+        /// </summary>
+        [TestMethod]
+        public void CorrectlyHandlesMultilineParameter()
+        {
+            string request = TestUtil.TrimAllLines(
+                @"-----------------------------41952539122868
+                Content-Disposition: form-data; name=""multilined""
+
+                line 1
+                line 2
+                line 3
+                -----------------------------41952539122868--");
+
+            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.AreEqual(parser.Parameters["multilined"].Data, "line 1\r\nline 2\r\nline 3");
+            }
+        }
+
+        /// <summary>
         ///     Initializes the test data before each run, this primarily
         ///     consists of resetting data stream positions.
         /// </summary>

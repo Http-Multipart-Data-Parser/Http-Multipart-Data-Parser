@@ -706,10 +706,11 @@ namespace HttpMultipartParser
             int partEnd;
             string key;
             string value;
-            var equalSignIndex = line.IndexOf(':');
 
-            key = line.Substring(start, equalSignIndex);
-            start += equalSignIndex + 1;
+            partEnd = line.IndexOf(':');
+            key = line.Substring(start, partEnd);
+            
+            start += partEnd + 1;
 
             while (true)
             {

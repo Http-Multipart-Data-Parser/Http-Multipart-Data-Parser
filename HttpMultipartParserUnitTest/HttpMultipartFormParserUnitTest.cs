@@ -259,7 +259,7 @@ namespace HttpMultipartParserUnitTest
 
         private static readonly string FullPathAsFileNameTestData = TestUtil.TrimAllLines(
             @"-----------------------------7de6cc440a46
-            Content-Disposition: form-data; name=""file""; filename=""C:\test\test.txt""
+            Content-Disposition: form-data; name=""file""; filename=""C:\test\test;abc.txt""
             Content-Type: text/plain
 
             test
@@ -271,7 +271,7 @@ namespace HttpMultipartParserUnitTest
             new Dictionary<string, ParameterPart>(),
             new Dictionary<string, FilePart>
                 {
-                    {"file", new FilePart("file", "test.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")}
+                    {"file", new FilePart("file", "test;abc.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")}
                 }
         );
 

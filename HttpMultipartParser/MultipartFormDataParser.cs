@@ -651,21 +651,7 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-                // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata" 
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "textdata"
-                // Content-Disposition: form-data; name="file"; filename="data.txt"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "file"
-                // ["filename"] = "data.txt"
-                // Content-Type: text/plain 
-                // ["Content-Type"] = "text/plain"
-                Dictionary<string, string> values = line.Split(';') // Split the line into n strings delimited by ;
-                                                        .Select(x => x.Split(new[] { ':', '=' }))
-                                                        .ToDictionary(
-                                                            x => x[0].Trim().Replace("\"", string.Empty).ToLower(), 
-                                                            x => x[1].Trim().Replace("\"", string.Empty));
+                Dictionary<string, string> values = PareseHeaderValues(line);
 
                 // Here we just want to push all the values that we just retrieved into the 
                 // parameters dictionary.
@@ -699,6 +685,69 @@ namespace HttpMultipartParser
             {
                 ParameterPart part = this.ParseParameterPart(parameters, reader);
                 this.Parameters.Add(part.Name, part);
+            }
+        }
+
+        private Dictionary<string, string> PareseHeaderValues(string line)
+        {
+            // This line parses the header values into a set of key/value pairs. For example:
+            // Content-Disposition: form-data; name="textdata" 
+            // ["content-disposition"] = "form-data"
+            // ["name"] = "textdata"
+            // Content-Disposition: form-data; name="file"; filename="data.txt"
+            // ["content-disposition"] = "form-data"
+            // ["name"] = "file"
+            // ["filename"] = "data.txt"
+            // Content-Type: text/plain 
+            // ["content-type"] = "text/plain"
+            var result = new Dictionary<string, string>();
+
+            var start = 0;
+            int partEnd;
+            string key;
+            string value;
+
+            partEnd = line.IndexOf(':');
+            key = line.Substring(start, partEnd);
+            
+            start += partEnd + 1;
+
+            while (true)
+            {
+                while (line[start] == ' ')
+                {
+                    start++;
+                }
+
+                if (line[start] == '"')
+                {
+                    partEnd = line.IndexOf('"', start + 1) + 1 - start;
+                    value = line.Substring(start + 1, partEnd - 2);
+                }
+                else
+                {
+                    var lastIndexOfSemicolon = line.IndexOf(';', start);
+                    partEnd = (lastIndexOfSemicolon != -1 ? lastIndexOfSemicolon : line.Length) - start;
+                    value = line.Substring(start, partEnd);
+                }
+                start += partEnd + 1;
+                result.Add(key.ToLowerInvariant(), value);
+
+                if (start >= line.Length)
+                {
+                    return result;
+                }
+
+                while (line[start] == ' ')
+                {
+                    start++;
+                }
+
+                partEnd = line.IndexOf('=', start) - start;
+
+                key = line.Substring(start, partEnd);
+
+                start += partEnd + 1;
             }
         }
 

@@ -257,6 +257,24 @@ namespace HttpMultipartParserUnitTest
                 }
         );
 
+        private static readonly string FullPathAsFileNameTestData = TestUtil.TrimAllLines(
+            @"-----------------------------7de6cc440a46
+            Content-Disposition: form-data; name=""file""; filename=""C:\test\test;abc.txt""
+            Content-Type: text/plain
+
+            test
+            -----------------------------7de6cc440a46--"
+        );
+
+        private static readonly TestData FullPathAsFileNameTestCase = new TestData(
+            FullPathAsFileNameTestData,
+            new Dictionary<string, ParameterPart>(),
+            new Dictionary<string, FilePart>
+                {
+                    {"file", new FilePart("file", "test;abc.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")}
+                }
+        );
+
         #endregion
 
         #region Public Methods and Operators
@@ -425,6 +443,16 @@ namespace HttpMultipartParserUnitTest
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
                 Assert.IsTrue(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
+            }
+        }
+
+        [TestMethod]
+        public void HandlesFullPathAsFileNameCorrectly()
+        {
+            using (var stream = TestUtil.StringToStream(FullPathAsFileNameTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.IsTrue(FullPathAsFileNameTestCase.Validate(parser));
             }
         }
 

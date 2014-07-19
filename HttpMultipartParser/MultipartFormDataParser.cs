@@ -678,7 +678,7 @@ namespace HttpMultipartParser
                         parameters.Add(pair.Key, pair.Value);
                     }
                 }
-                catch (ArgumentException ex)
+                catch (ArgumentException)
                 {
                     throw new MultipartParseException("Duplicate field in section");
                 }

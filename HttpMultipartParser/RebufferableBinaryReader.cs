@@ -59,11 +59,6 @@ namespace HttpMultipartParser
         /// </summary>
         private readonly BinaryStreamStack streamStack;
 
-        /// <summary>
-        ///     Determines if we have run out of data to read or not.
-        /// </summary>
-        private bool done;
-
         #endregion
 
         #region Constructors and Destructors
@@ -108,7 +103,6 @@ namespace HttpMultipartParser
         /// </param>
         public RebufferableBinaryReader(Stream input, Encoding encoding, int bufferSize)
         {
-            this.done = false;
             this.stream = input;
             this.streamStack = new BinaryStreamStack(encoding);
             this.encoding = encoding;
@@ -167,7 +161,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return -1;
                     }
                 }
@@ -204,7 +197,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return amountRead;
                     }
                 }
@@ -242,7 +234,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return amountRead;
                     }
                 }
@@ -269,7 +260,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return builder.ToArray();
                     }
                 }

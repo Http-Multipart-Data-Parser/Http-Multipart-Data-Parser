@@ -63,10 +63,6 @@
       <Project>{4691988a-ce66-40cb-afb4-2757255e03e0}</Project>
       <Name>HttpMultipartParser</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Utility\Utility.csproj">
-      <Project>{c5db6fb1-0a0f-49b7-b373-0ac2ae8f219b}</Project>
-      <Name>Utility</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

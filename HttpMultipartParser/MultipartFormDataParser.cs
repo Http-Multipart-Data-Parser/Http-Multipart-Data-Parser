@@ -651,6 +651,7 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
+
                 // This line parses the header values into a set of key/value pairs. For example:
                 // Content-Disposition: form-data; name="textdata" 
                 // ["content-disposition"] = "form-data"
@@ -660,12 +661,13 @@ namespace HttpMultipartParser
                 // ["name"] = "file"
                 // ["filename"] = "data.txt"
                 // Content-Type: text/plain 
-                // ["Content-Type"] = "text/plain"
-                Dictionary<string, string> values = line.Split(';') // Split the line into n strings delimited by ;
-                                                        .Select(x => x.Split(new[] { ':', '=' }))
-                                                        .ToDictionary(
-                                                            x => x[0].Trim().Replace("\"", string.Empty).ToLower(), 
-                                                            x => x[1].Trim().Replace("\"", string.Empty));
+                // ["content-type"] = "text/plain"
+                var values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
+                    .Select(x => x.Split(new[] {':', '='}, 2)) // Limit split to 2 splits so we don't accidently split characters in file paths.
+                    .ToDictionary(
+                        x => x[0].Trim().Replace("\"", string.Empty).ToLower(),
+                        x => x[1].Trim().Replace("\"", string.Empty));
+
 
                 // Here we just want to push all the values that we just retrieved into the 
                 // parameters dictionary.
@@ -702,6 +704,37 @@ namespace HttpMultipartParser
             }
         }
 
+        /// <summary>
+        /// Splits a line by semicolons but ignores semicolons in quotes.
+        /// </summary>
+        /// <param name="line">The line to split</param>
+        /// <returns>The split strings</returns>
+        private IEnumerable<string> SplitBySemicolonIgnoringSemicolonsInQuotes(string line)
+        {
+            // Loop over the line looking for a semicolon. Keep track of if we're currently inside quotes
+            // and if we are don't treat a semicolon as a splitting character.
+            var inQuotes = false;
+            var workingString = "";
+            foreach(var c in line)
+            {
+                if(c == '"')
+                {
+                    inQuotes = !inQuotes;
+                }
+
+                if (c == ';' && !inQuotes)
+                {
+                    yield return workingString;
+                    workingString = "";
+                }
+                else
+                {
+                    workingString += c;
+                }
+            }
+
+            yield return workingString;
+        }
         #endregion
     }
 }

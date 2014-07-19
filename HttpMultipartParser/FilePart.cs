@@ -23,6 +23,9 @@
 //   stream.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
+using System.Linq;
+
 namespace HttpMultipartParser
 {
     using System.IO;
@@ -73,7 +76,7 @@ namespace HttpMultipartParser
         public FilePart(string name, string fileName, Stream data, string contentType, string contentDisposition)
         {
             this.Name = name;
-            this.FileName = fileName;
+            this.FileName = fileName.Split(Path.GetInvalidFileNameChars()).Last();
             this.Data = data;
             this.ContentType = contentType;
             this.ContentDisposition = contentDisposition;

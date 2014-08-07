@@ -54,6 +54,20 @@ namespace HttpMultipartParser
         /// </returns>
         public static int Search(byte[] haystack, byte[] needle)
         {
+            // Special case for size 1 needle.
+            if (needle.Length == 1)
+            {
+                for (int index = 0; index < haystack.Length; ++index )
+                {
+                    if (haystack[index] == needle[0])
+                    {
+                        return index;
+                    }
+                }
+
+                return -1;
+            }
+
             int m = 0;
             int i = 0;
             int[] table = GenerateTable(needle);

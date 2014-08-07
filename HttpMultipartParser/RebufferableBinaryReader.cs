@@ -59,11 +59,6 @@ namespace HttpMultipartParser
         /// </summary>
         private readonly BinaryStreamStack streamStack;
 
-        /// <summary>
-        ///     Determines if we have run out of data to read or not.
-        /// </summary>
-        private bool done;
-
         #endregion
 
         #region Constructors and Destructors
@@ -108,7 +103,6 @@ namespace HttpMultipartParser
         /// </param>
         public RebufferableBinaryReader(Stream input, Encoding encoding, int bufferSize)
         {
-            this.done = false;
             this.stream = input;
             this.streamStack = new BinaryStreamStack(encoding);
             this.encoding = encoding;
@@ -129,6 +123,18 @@ namespace HttpMultipartParser
         public void Buffer(byte[] data)
         {
             this.streamStack.Push(data);
+        }
+
+        /// <summary>
+        /// Adds the string to the front of the stream. The most recently buffered data will
+        ///     be read first.
+        /// </summary>
+        /// <param name="data">
+        /// The data.
+        /// </param>
+        public void Buffer(string data)
+        {
+            this.streamStack.Push(this.encoding.GetBytes(data));
         }
 
         /// <summary>
@@ -155,7 +161,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return -1;
                     }
                 }
@@ -192,7 +197,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return amountRead;
                     }
                 }
@@ -230,7 +234,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return amountRead;
                     }
                 }
@@ -257,7 +260,6 @@ namespace HttpMultipartParser
                 {
                     if (this.StreamData() == 0)
                     {
-                        this.done = true;
                         return builder.ToArray();
                     }
                 }

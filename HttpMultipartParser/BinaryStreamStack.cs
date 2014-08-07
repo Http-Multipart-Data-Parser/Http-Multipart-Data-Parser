@@ -282,15 +282,17 @@ namespace HttpMultipartParser
             // This is horribly inefficient, consider profiling here if
             // it becomes an issue.
             BinaryReader top = this.streams.Peek();
-            byte[] search = this.CurrentEncoding.GetBytes(Environment.NewLine);
+            byte[] ignore = this.CurrentEncoding.GetBytes(new[] { '\r' });
+            byte[] search = this.CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
             var builder = new MemoryStream();
 
             while (true)
             {
                 // First we need to read a byte from one of the streams
-                int b = top.Read();
-                while (b == -1)
+                var bytes = new byte[search.Length];
+                var amountRead = top.Read(bytes, 0, bytes.Length);
+                while (amountRead == 0)
                 {
                     this.streams.Pop();
                     if (!this.streams.Any())
@@ -301,33 +303,40 @@ namespace HttpMultipartParser
 
                     top.Dispose();
                     top = this.streams.Peek();
-                    b = top.ReadByte();
-                }
+                    amountRead = top.Read(bytes, 0, bytes.Length);
+                }              
 
-                // Now that we've found a byte we need to check it against the search array
-                if (b == search[searchPos])
+                // Now we've got some bytes, we need to check it against the search array.
+                foreach(var b in bytes)
                 {
-                    searchPos += 1;
-                }
-                else
-                {
-                    // We only want to append the information if it's
-                    // not part of the newline sequence
-                    if (searchPos != 0)
+                    if (ignore.Contains(b))
                     {
-                        byte[] append = search.Take(searchPos).ToArray();
-                        builder.Write(append, 0, append.Length);
+                        continue;
                     }
 
-                    builder.Write(new[] { (byte)b }, 0, 1);
-                    searchPos = 0;
-                }
+                    if(b == search[searchPos])
+                    {
+                        searchPos += 1;
+                    }
+                    else
+                    {
+                        // We only want to append the information if it's
+                        // not part of the newline sequence
+                        if (searchPos != 0)
+                        {
+                            byte[] append = search.Take(searchPos).ToArray();
+                            builder.Write(append, 0, append.Length);
+                        }
 
-                // Finally we need to check if the stream is exhauste
-                if (searchPos == search.Length)
-                {
-                    // Found Newline character sequence!
-                    return builder.ToArray();
+                        builder.Write(new[] { b }, 0, 1);
+                        searchPos = 0;
+                    }
+
+                    // Finally if we've found our string
+                    if (searchPos == search.Length)
+                    {
+                        return builder.ToArray();
+                    }
                 }
             }
         }

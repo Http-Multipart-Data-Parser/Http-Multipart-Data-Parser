@@ -346,6 +346,7 @@ namespace HttpMultipartParserUnitTest
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                parser.Run();
                 Assert.AreEqual(parser.Parameters["multilined"].Data, "line 1\r\nline 2\r\nline 3");
             }
         }
@@ -523,6 +524,19 @@ namespace HttpMultipartParserUnitTest
             /// </returns>
             public bool Validate(MultipartFormDataParser parser)
             {
+                var files = new Dictionary<string, string>();
+                parser.FileStream += (fileName, buffer, count) =>
+                    {
+                        if (!files.ContainsKey(fileName))
+                        {
+                            files[fileName] = string.Empty;
+                        }
+
+                        files[fileName] += parser.Encoding.GetString(buffer);
+                    };
+
+                parser.Run();
+
                 // Validate parameters
                 foreach (var pair in this.ExpectedParams)
                 {

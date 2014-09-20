@@ -97,30 +97,32 @@ namespace HttpMultipartParser
         /// <summary>
         ///     The boundary of the multipart message  as a string.
         /// </summary>
-        private readonly string boundary;
+        private string boundary;
 
         /// <summary>
         ///     The boundary of the multipart message as a byte string
         ///     encoded with CurrentEncoding
         /// </summary>
-        private readonly byte[] boundaryBinary;
+        private byte[] boundaryBinary;
 
         /// <summary>
         ///     The end boundary of the multipart message as a string.
         /// </summary>
-        private readonly string endBoundary;
+        private string endBoundary;
 
         /// <summary>
         ///     The end boundary of the multipart message as a byte string
         ///     encoded with CurrentEncoding
         /// </summary>
-        private readonly byte[] endBoundaryBinary;
+        private byte[] endBoundaryBinary;
 
         /// <summary>
         ///     Determines if we have consumed the end boundary binary and determines
         ///     if we are done parsing.
         /// </summary>
         private bool readEndBoundary;
+
+        private readonly Stream stream;
 
         #endregion
 
@@ -233,42 +235,22 @@ namespace HttpMultipartParser
         /// </param>
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
+            this.stream = stream;
+            this.boundary = boundary;
             this.Parameters = new Dictionary<string, ParameterPart>();
             this.Files = new List<FilePart>();
             this.Encoding = encoding;
             this.BinaryBufferSize = binaryBufferSize;
             this.readEndBoundary = false;
-
-            using (var reader = new RebufferableBinaryReader(stream, this.Encoding, this.BinaryBufferSize))
-            {
-                // If we don't know the boundary now is the time to calculate it.
-                if (boundary == null)
-                {
-                    boundary = DetectBoundary(reader);
-                }
-
-                // It's important to remember that the boundary given in the header has a -- appended to the start
-                // and the last one has a -- appended to the end
-                this.boundary = "--" + boundary;
-                this.endBoundary = this.boundary + "--";
-
-                // We add newline here because unlike reader.ReadLine() binary reading
-                // does not automatically consume the newline, we want to add it to our signature
-                // so we can automatically detect and consume newlines after the boundary
-                this.boundaryBinary = this.Encoding.GetBytes(this.boundary);
-                this.endBoundaryBinary = this.Encoding.GetBytes(this.endBoundary);
-
-                Debug.Assert(
-                    binaryBufferSize >= this.endBoundaryBinary.Length, 
-                    "binaryBufferSize must be bigger then the boundary");
-
-                this.Parse(reader);
-            }
         }
 
         #endregion
 
         #region Public Properties
+
+        public delegate void FileStreamHandler(string fileName, byte[] buffer, int bytes);
+
+        public FileStreamHandler FileStream;
 
         /// <summary>
         ///     Gets or sets the binary buffer size.
@@ -295,6 +277,35 @@ namespace HttpMultipartParser
         #endregion
 
         #region Methods
+
+        public void Run()
+        {
+            using (var reader = new RebufferableBinaryReader(stream, this.Encoding, this.BinaryBufferSize))
+            {
+                // If we don't know the boundary now is the time to calculate it.
+                if (boundary == null)
+                {
+                    boundary = DetectBoundary(reader);
+                }
+
+                // It's important to remember that the boundary given in the header has a -- appended to the start
+                // and the last one has a -- appended to the end
+                this.boundary = "--" + boundary;
+                this.endBoundary = this.boundary + "--";
+
+                // We add newline here because unlike reader.ReadLine() binary reading
+                // does not automatically consume the newline, we want to add it to our signature
+                // so we can automatically detect and consume newlines after the boundary
+                this.boundaryBinary = this.Encoding.GetBytes(this.boundary);
+                this.endBoundaryBinary = this.Encoding.GetBytes(this.endBoundary);
+
+                Debug.Assert(
+                    BinaryBufferSize >= this.endBoundaryBinary.Length, 
+                    "binaryBufferSize must be bigger then the boundary");
+
+                this.Parse(reader);
+            }
+        }
 
         /// <summary>
         /// Detects the boundary from the input stream. Assumes that the
@@ -427,6 +438,25 @@ namespace HttpMultipartParser
             }
         }
 
+        private FilePart ParseFileSectionIntoFilePart(Dictionary<string, string> parameters,
+                                                      RebufferableBinaryReader reader)
+        {
+            var data = new MemoryStream();
+
+            ParseFileSection(parameters, reader, (fileName, buffer, count) =>
+                {
+                    data.Write(buffer, 0, count);
+                });
+
+            data.Position = 0;
+
+            var contentType = parameters.ContainsKey("content-type") ? parameters["content-type"] : "text/plain";
+            var contentDisposition = parameters.ContainsKey("content-disposition") ? parameters["content-disposition"] : "form-data";
+            var part = new FilePart(parameters["name"], parameters["filename"], data, contentType, contentDisposition);
+
+            return part;
+        }
+
         /// <summary>
         /// Parses a section of the stream that is known to be file data.
         /// </summary>
@@ -439,11 +469,12 @@ namespace HttpMultipartParser
         /// <returns>
         /// The <see cref="FilePart"/> containing the parsed data (name, filename, stream containing file).
         /// </returns>
-        private FilePart ParseFilePart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
+        private void ParseFileSection(Dictionary<string, string> parameters, RebufferableBinaryReader reader, FileStreamHandler fileDelegate)
         {
+            var filename = parameters["filename"];
+
             // We want to create a stream and fill it with the data from the
             // file.
-            var data = new MemoryStream();
             var curBuffer = new byte[this.BinaryBufferSize];
             var prevBuffer = new byte[this.BinaryBufferSize];
             int curLength = 0;
@@ -524,7 +555,10 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    data.Write(fullBuffer, 0, endPos - bufferNewlineLength);
+
+                    // We only want to write to data if we don't have a FileStream handler that we want
+                    // to use instead.
+                    fileDelegate(filename, fullBuffer, endPos - bufferNewlineLength);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -532,17 +566,11 @@ namespace HttpMultipartParser
                     Buffer.BlockCopy(fullBuffer, writeBackOffset, writeBackBuffer, 0, writeBackAmount);
                     reader.Buffer(writeBackBuffer);
 
-                    // stream.Write(fullBuffer, writeBackOffset, writeBackAmount);
-                    // stream.Position = stream.Position - writeBackAmount;
-                    // stream.Flush();
-                    data.Position = 0;
-                    data.Flush();
                     break;
                 }
 
                 // No end, consume the entire previous buffer    
-                data.Write(prevBuffer, 0, prevLength);
-                data.Flush();
+                fileDelegate(filename, prevBuffer, prevLength);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -558,11 +586,6 @@ namespace HttpMultipartParser
             }
             while (prevLength != 0);
 
-            var contentType = parameters.ContainsKey("content-type") ? parameters["content-type"] : "text/plain";
-            var contentDisposition = parameters.ContainsKey("content-disposition") ? parameters["content-disposition"] : "form-data";
-            var part = new FilePart(parameters["name"], parameters["filename"], data, contentType, contentDisposition);
-
-            return part;
         }
 
         /// <summary>
@@ -694,8 +717,17 @@ namespace HttpMultipartParser
                 // Right now we assume that if a section contains filename then it is a file.
                 // This assumption needs to be checked, it holds true in firefox but is untested for other 
                 // browsers.
-                FilePart part = this.ParseFilePart(parameters, reader);
-                this.Files.Add(part);
+
+                // If we have a FileStream delegate then we want ParseFileSection to apply it on each buffer. However
+                // If we don't have a FileStream then we're going to return a FilePart and add it to Files.
+                if (FileStream == null)
+                {
+                    this.Files.Add(this.ParseFileSectionIntoFilePart(parameters, reader));
+                }
+                else
+                {
+                    ParseFileSection(parameters, reader, FileStream);
+                }
             }
             else
             {

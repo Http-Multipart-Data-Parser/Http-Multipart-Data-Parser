@@ -9,7 +9,8 @@
         <projectUrl>https://github.com/Vodurden/Http-Multipart-Data-Parser</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A C# Http Multipart/form-data parser that works correctly on binary data and very large files.</description>
-        <summary>The Http Multipart Parser does it exactly what it claims on the tin: parses multipart/form-data. This particular parser is well suited to parsing large data from streams as it doesn't attempt to read the entire stream at once and procudes a set of streams for file data.</summary>
+        <summary>The Http Multipart Parser does it exactly what it claims on the tin: parses multipart/form-data. This particular parser is well suited to parsing large data from streams as it doesn't attempt to read the entire stream at once and produces a set of streams for file data.</summary>
+        <tags>http multipart parser form data</tags>
         <copyright>2014</copyright>
         <dependencies>
             <group targetFramework=".NETFramework4.0">

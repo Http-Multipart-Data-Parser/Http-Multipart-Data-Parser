@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>HttpMultipartParser</id>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <title>HttpMultipartParser</title>
         <authors>Jake Woods</authors>
         <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
@@ -10,7 +10,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A C# Http Multipart/form-data parser that works correctly on binary data and very large files.</description>
         <summary>The Http Multipart Parser does it exactly what it claims on the tin: parses multipart/form-data. This particular parser is well suited to parsing large data from streams as it doesn't attempt to read the entire stream at once and procudes a set of streams for file data.</summary>
-        <copyright>2013</copyright>
+        <copyright>2014</copyright>
         <dependencies>
             <group targetFramework=".NETFramework4.0">
             </group>

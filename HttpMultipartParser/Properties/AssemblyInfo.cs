@@ -34,10 +34,16 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("HttpMultipartParser")]
-[assembly: AssemblyCopyright("Copyright © Jake Woods 2013")]
+[assembly: AssemblyCopyright("Copyright © Jake Woods 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: InternalsVisibleTo("HttpMultipartParserUnitTest")]
+[assembly: InternalsVisibleTo("HttpMultipartParserUnitTest, PublicKey=" +
+        "0024000004800000940000000602000000240000525341310004000001000100358f629b5038a9" +
+        "e84085b20cddc68441058f283d2120788d44bc494d66edeb143db4e7b45365b60a27fd10f28898" +
+        "a91dac50164d960fa80556484e16b8ea193a6766ad3c4fb0ace272403f25cf8f20ed2faa601ea5" +
+        "f5a44defe0b9425c56197ecfe06910a8cf4a94fd3c92632ad573a316530f9fea22ce4631ac1b5c" +
+        "59b1cba9")]
+
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -55,5 +61,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.2.0")]
+[assembly: AssemblyFileVersion("1.0.2.0")]

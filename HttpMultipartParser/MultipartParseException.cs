@@ -29,7 +29,6 @@ namespace HttpMultipartParser
     /// <summary>
     ///     Represents a parsing problem occurring within the MultipartFormDataParser
     /// </summary>
-    [Serializable]
     internal class MultipartParseException : Exception
     {
         #region Constructors and Destructors

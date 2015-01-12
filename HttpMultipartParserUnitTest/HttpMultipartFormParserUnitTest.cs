@@ -34,6 +34,7 @@ namespace HttpMultipartParserUnitTest
     using HttpMultipartParser;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Threading.Tasks;
 
     /// <summary>
     ///     The http multipart form parser unit test.
@@ -283,11 +284,12 @@ namespace HttpMultipartParserUnitTest
         ///     Tests for correct detection of the boundary in the input stream.
         /// </summary>
         [TestMethod]
-        public void CanAutoDetectBoundary()
+        public async Task CanAutoDetectBoundary()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream);
                 Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
@@ -297,11 +299,12 @@ namespace HttpMultipartParserUnitTest
         ///     two different buffers.
         /// </summary>
         [TestMethod]
-        public void CanDetectBoundariesCrossBuffer()
+        public async Task CanDetectBoundariesCrossBuffer()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, "boundry", Encoding.UTF8, 16);
                 Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
@@ -318,12 +321,13 @@ namespace HttpMultipartParserUnitTest
         ///     Tests for correct handling of <c>crlf (\r\n)</c> in the input stream.
         /// </summary>
         [TestMethod]
-        public void CorrectlyHandlesCRLF()
+        public async Task CorrectlyHandlesCRLF()
         {
             string request = TinyTestCase.Request.Replace("\n", "\r\n");
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, "boundry", Encoding.UTF8);
                 Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
@@ -332,7 +336,7 @@ namespace HttpMultipartParserUnitTest
         ///     Tests for correct handling of a multiline parameter.
         /// </summary>
         [TestMethod]
-        public void CorrectlyHandlesMultilineParameter()
+        public async Task CorrectlyHandlesMultilineParameter()
         {
             string request = TestUtil.TrimAllLines(
                 @"-----------------------------41952539122868
@@ -345,7 +349,8 @@ namespace HttpMultipartParserUnitTest
 
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, Encoding.UTF8);
                 Assert.AreEqual(parser.Parameters["multilined"].Data, "line 1\r\nline 2\r\nline 3");
             }
         }
@@ -372,11 +377,12 @@ namespace HttpMultipartParserUnitTest
         ///     and that everything parses correctly.
         /// </summary>
         [TestMethod]
-        public void MultipleFilesAndParamsTest()
+        public async Task MultipleFilesAndParamsTest()
         {
             using (Stream stream = TestUtil.StringToStream(MultipleParamsAndFilesTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, "boundry", Encoding.UTF8, 16);
                 Assert.IsTrue(MultipleParamsAndFilesTestCase.Validate(parser));
             }
         }
@@ -385,14 +391,15 @@ namespace HttpMultipartParserUnitTest
         ///     The small data test.
         /// </summary>
         [TestMethod]
-        public void SmallDataTest()
+        public async Task SmallDataTest()
         {
             using (Stream stream = TestUtil.StringToStream(SmallTestCase.Request))
             {
                 // The boundry is missing the first two -- in accordance with the multipart
                 // spec. (A -- is added by the parser, this boundry is what would be sent in the
                 // requset header)
-                var parser = new MultipartFormDataParser(stream, "---------------------------265001916915724");
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, "---------------------------265001916915724");
                 Assert.IsTrue(SmallTestCase.Validate(parser));
 
             }
@@ -402,11 +409,12 @@ namespace HttpMultipartParserUnitTest
         ///     The tiny data test.
         /// </summary>
         [TestMethod]
-        public void TinyDataTest()
+        public async Task TinyDataTest()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, "boundry", Encoding.UTF8);
                 Assert.IsTrue(TinyTestCase.Validate(parser));
             }
         }
@@ -415,43 +423,47 @@ namespace HttpMultipartParserUnitTest
         /// The can handle file as last section.
         /// </summary>
         [TestMethod]
-        public void CanHandleFileAsLastSection()
+        public async Task CanHandleFileAsLastSection()
         {
             using (Stream stream = TestUtil.StringToStream(FileIsLastTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, Encoding.UTF8);
                 Assert.IsTrue(FileIsLastTestCase.Validate(parser));
             }
         }
 
         [TestMethod]
-        public void CanHandleUnicodeWidthAndAsciiWidthCharacters()
+        public async Task CanHandleUnicodeWidthAndAsciiWidthCharacters()
         {
             using (
                 var stream = TestUtil.StringToStream(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Request,
                                                      Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, Encoding.UTF8);
                 Assert.IsTrue(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Validate(parser));
             }
         }
 
         [TestMethod]
-        public void CanHandleMixedSingleByteAndMultiByteWidthCharacters()
+        public async Task CanHandleMixedSingleByteAndMultiByteWidthCharacters()
         {
             using (var stream = TestUtil.StringToStream(MixedSingleByteAndMultiByteWidthTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, Encoding.UTF8);
                 Assert.IsTrue(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
             }
         }
 
         [TestMethod]
-        public void HandlesFullPathAsFileNameWithSemicolonCorrectly()
+        public async Task HandlesFullPathAsFileNameWithSemicolonCorrectly()
         {
             using (var stream = TestUtil.StringToStream(FullPathAsFileNameWithSemicolon.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var inputStream = new InputStreamImpl(stream);
+                var parser = await MultipartFormDataParser.CreateAsync(inputStream, Encoding.UTF8);
                 Assert.IsTrue(FullPathAsFileNameWithSemicolon.Validate(parser));
             }
         }

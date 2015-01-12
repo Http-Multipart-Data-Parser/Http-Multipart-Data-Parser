@@ -376,7 +376,7 @@ namespace HttpMultipartParser
                 return null;
             }
 
-            return this.CurrentEncoding.GetString(result);
+            return this.CurrentEncoding.GetString(result, 0, result.Length);
         }
 
         #endregion

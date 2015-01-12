@@ -27,6 +27,7 @@ namespace HttpMultipartParser
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     ///     Provides methods to parse a
@@ -97,24 +98,24 @@ namespace HttpMultipartParser
         /// <summary>
         ///     The boundary of the multipart message  as a string.
         /// </summary>
-        private readonly string boundary;
+        private string boundary;
 
         /// <summary>
         ///     The boundary of the multipart message as a byte string
         ///     encoded with CurrentEncoding
         /// </summary>
-        private readonly byte[] boundaryBinary;
+        private byte[] boundaryBinary;
 
         /// <summary>
         ///     The end boundary of the multipart message as a string.
         /// </summary>
-        private readonly string endBoundary;
+        private string endBoundary;
 
         /// <summary>
         ///     The end boundary of the multipart message as a byte string
         ///     encoded with CurrentEncoding
         /// </summary>
-        private readonly byte[] endBoundaryBinary;
+        private byte[] endBoundaryBinary;
 
         /// <summary>
         ///     Determines if we have consumed the end boundary binary and determines
@@ -134,9 +135,9 @@ namespace HttpMultipartParser
         /// <param name="stream">
         /// The stream containing the multipart data
         /// </param>
-        public MultipartFormDataParser(Stream stream)
-            : this(stream, null, Encoding.UTF8, DefaultBufferSize)
+        public static async Task<MultipartFormDataParser> CreateAsync(IInputStreamAsync stream)
         {
+            return await CreateAsync(stream, null, Encoding.UTF8, DefaultBufferSize);            
         }
 
         /// <summary>
@@ -150,9 +151,9 @@ namespace HttpMultipartParser
         /// The multipart/form-data boundary. This should be the value
         ///     returned by the request header.
         /// </param>
-        public MultipartFormDataParser(Stream stream, string boundary)
-            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize)
+        public static async Task<MultipartFormDataParser> CreateAsync(IInputStreamAsync stream, string boundary)
         {
+            return await CreateAsync(stream, boundary, Encoding.UTF8, DefaultBufferSize);
         }
 
         /// <summary>
@@ -166,9 +167,9 @@ namespace HttpMultipartParser
         /// <param name="encoding">
         /// The encoding of the multipart data
         /// </param>
-        public MultipartFormDataParser(Stream stream, Encoding encoding) 
-            : this(stream, null, encoding, DefaultBufferSize)
+        public static async Task<MultipartFormDataParser> CreateAsync(IInputStreamAsync stream, Encoding encoding) 
         {
+            return await CreateAsync(stream, null, encoding, DefaultBufferSize);
         }
 
         /// <summary>
@@ -185,12 +186,12 @@ namespace HttpMultipartParser
         /// <param name="encoding">
         /// The encoding of the multipart data
         /// </param>
-        public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
-            : this(stream, boundary, encoding, DefaultBufferSize)
+        public static async Task<MultipartFormDataParser> CreateAsync(IInputStreamAsync stream, string boundary, Encoding encoding)
         {
             // 4096 is the optimal buffer size as it matches the internal buffer of a StreamReader
             // See: http://stackoverflow.com/a/129318/203133
             // See: http://msdn.microsoft.com/en-us/library/9kstw824.aspx (under remarks)
+            return await CreateAsync(stream, boundary, encoding, DefaultBufferSize);
         }
 
         /// <summary>
@@ -208,9 +209,9 @@ namespace HttpMultipartParser
         /// The size of the buffer to use for parsing the multipart form data. This must be larger
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
-        public MultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
-            : this(stream, null, encoding, binaryBufferSize)
+        public static async Task<MultipartFormDataParser> CreateAsync(IInputStreamAsync stream, Encoding encoding, int binaryBufferSize)
         {
+            return await CreateAsync(stream, null, encoding, binaryBufferSize);
         }
 
         /// <summary>
@@ -231,39 +232,45 @@ namespace HttpMultipartParser
         /// The size of the buffer to use for parsing the multipart form data. This must be larger
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
-        public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
+        /// 
+        public static async Task<MultipartFormDataParser> CreateAsync(IInputStreamAsync stream, string boundary, Encoding encoding, int binaryBufferSize)
+        {
+            var parser = new MultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
+            var reader = new RebufferableBinaryReader(stream, parser.Encoding, parser.BinaryBufferSize);
+
+            // If we don't know the boundary now is the time to calculate it.
+            if (boundary == null)
+            {
+                boundary = await DetectBoundary(reader);
+            }
+
+            // It's important to remember that the boundary given in the header has a -- appended to the start
+            // and the last one has a -- appended to the end
+            parser.boundary = "--" + boundary;
+            parser.endBoundary = parser.boundary + "--";
+
+            // We add newline here because unlike reader.ReadLine() binary reading
+            // does not automatically consume the newline, we want to add it to our signature
+            // so we can automatically detect and consume newlines after the boundary
+            parser.boundaryBinary = parser.Encoding.GetBytes(parser.boundary);
+            parser.endBoundaryBinary = parser.Encoding.GetBytes(parser.endBoundary);
+
+            Debug.Assert(
+                binaryBufferSize >= parser.endBoundaryBinary.Length, 
+                "binaryBufferSize must be bigger then the boundary");
+
+            await parser.Parse(reader);
+
+            return parser;
+        }
+        
+        MultipartFormDataParser(IInputStreamAsync stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
             this.Parameters = new Dictionary<string, ParameterPart>();
             this.Files = new List<FilePart>();
             this.Encoding = encoding;
             this.BinaryBufferSize = binaryBufferSize;
             this.readEndBoundary = false;
-
-            using (var reader = new RebufferableBinaryReader(stream, this.Encoding, this.BinaryBufferSize))
-            {
-                // If we don't know the boundary now is the time to calculate it.
-                if (boundary == null)
-                {
-                    boundary = DetectBoundary(reader);
-                }
-
-                // It's important to remember that the boundary given in the header has a -- appended to the start
-                // and the last one has a -- appended to the end
-                this.boundary = "--" + boundary;
-                this.endBoundary = this.boundary + "--";
-
-                // We add newline here because unlike reader.ReadLine() binary reading
-                // does not automatically consume the newline, we want to add it to our signature
-                // so we can automatically detect and consume newlines after the boundary
-                this.boundaryBinary = this.Encoding.GetBytes(this.boundary);
-                this.endBoundaryBinary = this.Encoding.GetBytes(this.endBoundary);
-
-                Debug.Assert(
-                    binaryBufferSize >= this.endBoundaryBinary.Length, 
-                    "binaryBufferSize must be bigger then the boundary");
-
-                this.Parse(reader);
-            }
         }
 
         #endregion
@@ -307,11 +314,12 @@ namespace HttpMultipartParser
         /// <returns>
         /// The boundary string
         /// </returns>
-        private static string DetectBoundary(RebufferableBinaryReader reader)
+        private static async Task<string> DetectBoundary(RebufferableBinaryReader reader)
         {
             // Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
             // the front as per the protocol and ||||||||||||| is the part we care about.
-            var boundary = string.Concat(reader.ReadLine().Skip(2));
+            var line = await reader.ReadLine();
+            var boundary = string.Concat(line.Substring(2));
             reader.Buffer("--" + boundary + "\n");
             return boundary;
         }
@@ -396,7 +404,7 @@ namespace HttpMultipartParser
         /// <exception cref="MultipartParseException">
         /// thrown on finding unexpected data such as a boundary before we are ready for one.
         /// </exception>
-        private void Parse(RebufferableBinaryReader reader)
+        private async Task Parse(RebufferableBinaryReader reader)
         {
             // Parsing references include:
             // RFC1341 section 7: http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
@@ -405,7 +413,7 @@ namespace HttpMultipartParser
             // First we need to read untill we find a boundary
             while (true)
             {
-                string line = reader.ReadLine();
+                string line = await reader.ReadLine();
                 if (line == this.boundary)
                 {
                     break;
@@ -423,7 +431,7 @@ namespace HttpMultipartParser
             {
                 // ParseSection will parse up to and including
                 // the next boundary.
-                this.ParseSection(reader);
+                await this.ParseSection(reader);
             }
         }
 
@@ -439,7 +447,7 @@ namespace HttpMultipartParser
         /// <returns>
         /// The <see cref="FilePart"/> containing the parsed data (name, filename, stream containing file).
         /// </returns>
-        private FilePart ParseFilePart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
+        private async Task<FilePart> ParseFilePart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
         {
             // We want to create a stream and fill it with the data from the
             // file.
@@ -449,10 +457,10 @@ namespace HttpMultipartParser
             int curLength = 0;
             int prevLength = 0;
 
-            prevLength = reader.Read(prevBuffer, 0, prevBuffer.Length);
+            prevLength = await reader.ReadAsync(prevBuffer, 0, prevBuffer.Length);
             do
             {
-                curLength = reader.Read(curBuffer, 0, curBuffer.Length);
+                curLength = await reader.ReadAsync(curBuffer, 0, curBuffer.Length);
 
                 // Combine both buffers into the fullBuffer
                 // See: http://stackoverflow.com/questions/415291/best-way-to-combine-two-or-more-byte-arrays-in-c-sharp
@@ -580,14 +588,14 @@ namespace HttpMultipartParser
         /// <exception cref="MultipartParseException">
         /// thrown if unexpected data is found such as running out of stream before hitting the boundary.
         /// </exception>
-        private ParameterPart ParseParameterPart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
+        private async Task<ParameterPart> ParseParameterPart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
         {
             // Our job is to get the actual "data" part of the parameter and construct
             // an actual ParameterPart object with it. All we need to do is read data into a string
             // untill we hit the boundary
             var data = new StringBuilder();
             bool firstTime = true;
-            string line = reader.ReadLine();
+            string line = await reader.ReadLine();
             while (line != this.boundary && line != this.endBoundary)
             {
                 if (line == null)
@@ -605,7 +613,7 @@ namespace HttpMultipartParser
                     data.Append(Environment.NewLine);
                     data.Append(line);
                 }
-                line = reader.ReadLine();
+                line = await reader.ReadLine();
             }
 
             if (line == this.endBoundary)
@@ -629,7 +637,7 @@ namespace HttpMultipartParser
         /// <exception cref="MultipartParseException">
         /// thrown if unexpected data is hit such as end of stream.
         /// </exception>
-        private void ParseSection(RebufferableBinaryReader reader)
+        private async Task ParseSection(RebufferableBinaryReader reader)
         {
             // Our first job is to determine what type of section this is: form data or file.
             // This is a bit tricky because files can still be encoded with Content-Disposition: form-data
@@ -638,7 +646,7 @@ namespace HttpMultipartParser
             // multiple Content-Disposition: form-data files.
             var parameters = new Dictionary<string, string>();
 
-            string line = reader.ReadLine();
+            string line = await reader.ReadLine();
             while (line != string.Empty)
             {
                 if (line == null)
@@ -683,7 +691,7 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Duplicate field in section");
                 }
 
-                line = reader.ReadLine();
+                line = await reader.ReadLine();
             }
 
             // Now that we've consumed all the parameters we're up to the body. We're going to do
@@ -694,12 +702,12 @@ namespace HttpMultipartParser
                 // Right now we assume that if a section contains filename then it is a file.
                 // This assumption needs to be checked, it holds true in firefox but is untested for other 
                 // browsers.
-                FilePart part = this.ParseFilePart(parameters, reader);
+                FilePart part = await this.ParseFilePart(parameters, reader);
                 this.Files.Add(part);
             }
             else
             {
-                ParameterPart part = this.ParseParameterPart(parameters, reader);
+                ParameterPart part = await this.ParseParameterPart(parameters, reader);
                 this.Parameters.Add(part.Name, part);
             }
         }

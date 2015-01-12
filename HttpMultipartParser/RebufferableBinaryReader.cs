@@ -29,13 +29,14 @@ namespace HttpMultipartParser
     using System;
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     ///     Provides methods to interpret and read a stream as either character or binary
     ///     data similar to a <see cref="BinaryReader" /> and provides the ability to push
     ///     data onto the front of the stream.
     /// </summary>
-    internal class RebufferableBinaryReader : IDisposable
+    internal class RebufferableBinaryReader
     {
         #region Fields
 
@@ -52,7 +53,7 @@ namespace HttpMultipartParser
         /// <summary>
         ///     The stream to read raw data from.
         /// </summary>
-        private readonly Stream stream;
+        private readonly IInputStreamAsync stream;
 
         /// <summary>
         ///     The stream stack to store buffered data.
@@ -70,7 +71,7 @@ namespace HttpMultipartParser
         /// <param name="input">
         /// The input stream to read from.
         /// </param>
-        public RebufferableBinaryReader(Stream input)
+        public RebufferableBinaryReader(IInputStreamAsync input)
             : this(input, new UTF8Encoding(false))
         {
         }
@@ -84,7 +85,7 @@ namespace HttpMultipartParser
         /// <param name="encoding">
         /// The encoding to use for character based operations.
         /// </param>
-        public RebufferableBinaryReader(Stream input, Encoding encoding)
+        public RebufferableBinaryReader(IInputStreamAsync input, Encoding encoding)
             : this(input, encoding, 4096)
         {
         }
@@ -101,7 +102,7 @@ namespace HttpMultipartParser
         /// <param name="bufferSize">
         /// The buffer size to use for new buffers.
         /// </param>
-        public RebufferableBinaryReader(Stream input, Encoding encoding, int bufferSize)
+        public RebufferableBinaryReader(IInputStreamAsync input, Encoding encoding, int bufferSize)
         {
             this.stream = input;
             this.streamStack = new BinaryStreamStack(encoding);
@@ -138,28 +139,20 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        ///     Closes the stream.
-        /// </summary>
-        public void Dispose()
-        {
-            this.stream.Close();
-        }
-
-        /// <summary>
         ///     Reads a single byte as an integer from the stream. Returns -1 if no
         ///     data is left to read.
         /// </summary>
         /// <returns>
         ///     The <see cref="byte" /> that was read.
         /// </returns>
-        public int Read()
+        public async Task<int> ReadAsync()
         {
             int value = -1;
             while (value == -1)
             {
                 if (!this.streamStack.HasData())
                 {
-                    if (this.StreamData() == 0)
+                    if (await this.StreamData() == 0)
                     {
                         return -1;
                     }
@@ -188,14 +181,14 @@ namespace HttpMultipartParser
         /// The number of bytes read into buffer. This might be less than the number of bytes requested if that many bytes are not available,
         ///     or it might be zero if the end of the stream is reached.
         /// </returns>
-        public int Read(byte[] buffer, int index, int count)
+        public async Task<int> ReadAsync(byte[] buffer, int index, int count)
         {
             int amountRead = 0;
             while (amountRead < count)
             {
                 if (!this.streamStack.HasData())
                 {
-                    if (this.StreamData() == 0)
+                    if (await this.StreamData() == 0)
                     {
                         return amountRead;
                     }
@@ -225,14 +218,14 @@ namespace HttpMultipartParser
         ///     characters requested if that many characters are not available,
         ///     or it might be zero if the end of the stream is reached.
         /// </returns>
-        public int Read(char[] buffer, int index, int count)
+        public async Task<int> Read(char[] buffer, int index, int count)
         {
             int amountRead = 0;
             while (amountRead < count)
             {
                 if (!this.streamStack.HasData())
                 {
-                    if (this.StreamData() == 0)
+                    if (await this.StreamData() == 0)
                     {
                         return amountRead;
                     }
@@ -251,14 +244,14 @@ namespace HttpMultipartParser
         /// <returns>
         ///     A byte array containing all the data up to but not including the next newline in the stack.
         /// </returns>
-        public byte[] ReadByteLine()
+        public async Task<byte[]> ReadByteLine()
         {
             var builder = new MemoryStream();
             while (true)
             {
                 if (!this.streamStack.HasData())
                 {
-                    if (this.StreamData() == 0)
+                    if (await this.StreamData() == 0)
                     {
                         return builder.ToArray();
                     }
@@ -281,10 +274,10 @@ namespace HttpMultipartParser
         /// <returns>
         ///     The <see cref="string" /> containing the line.
         /// </returns>
-        public string ReadLine()
+        public async Task<string> ReadLine()
         {
-            byte[] data = this.ReadByteLine();
-            return this.encoding.GetString(data);
+            byte[] data = await this.ReadByteLine();
+            return this.encoding.GetString(data, 0, data.Length);
         }
 
         #endregion
@@ -322,10 +315,10 @@ namespace HttpMultipartParser
         /// <returns>
         ///     The number of bytes read into the stream stack as an <see cref="int" />
         /// </returns>
-        private int StreamData()
+        private async Task<int> StreamData()
         {
             var buffer = new byte[this.bufferSize];
-            int amountRead = this.stream.Read(buffer, 0, buffer.Length);
+            int amountRead = await this.stream.ReadBytesAsync(buffer);
 
             // We need to check if our stream is using our encodings
             // BOM, if it is we need to jump it.

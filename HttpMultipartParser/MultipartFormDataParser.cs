@@ -508,7 +508,7 @@ namespace HttpMultipartParser
                     // Now we need to check if the endPos is followed by \r\n or just \n. HTTP
                     // specifies \r\n but some clients might encode with \n. Or we might get 0 if
                     // we are at the end of the file.
-                    int boundaryNewlineOffset = this.CalculateNewlineLength(ref fullBuffer, endPos + endPosLength);
+                    int boundaryNewlineOffset = this.CalculateNewlineLength(ref fullBuffer, Math.Min(fullBuffer.Length - 1, endPos + endPosLength));
 
                     // We also need to check if the last n characters of the buffer to write
                     // are a newline and if they are ignore them.

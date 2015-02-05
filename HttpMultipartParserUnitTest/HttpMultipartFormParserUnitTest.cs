@@ -43,6 +43,13 @@ namespace HttpMultipartParserUnitTest
     {
         #region Static Fields
 
+        private static readonly string SingleFileTestData = TestUtil.TrimAllLines(@"--boundry
+              Content-Disposition: form-data; name=""file""; filename=""data.txt""
+              Content-Type: text/plain
+
+              I am the first data1
+              --boundry--");
+
         /// <summary>
         ///     Raw multipart/form-data for the
         ///     <see cref="TestData">
@@ -77,6 +84,27 @@ namespace HttpMultipartParserUnitTest
 
               waylaterdata 
               --boundry--");
+
+        /// <summary>
+        ///     Test case for single files.
+        /// </summary>
+        private static readonly TestData SingleFileTestCase = new TestData(
+            SingleFileTestData, 
+            new Dictionary<string, ParameterPart>
+                {
+                }, 
+            new Dictionary<string, FilePart>
+                {
+                    {
+                        "file", 
+                        new FilePart(
+                        "file", 
+                        "data.txt", 
+                        TestUtil.StringToStreamNoBom("I am the first data1"),
+                        "text/plain",
+                        "form-data")
+                    }
+                });
 
         /// <summary>
         ///     Test case for multiple parameters and files.
@@ -357,7 +385,7 @@ namespace HttpMultipartParserUnitTest
         [TestInitialize]
         public void Initialize()
         {
-            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase };
+            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase };
             foreach (TestData data in testData)
             {
                 foreach (var pair in data.ExpectedFileData)
@@ -378,6 +406,16 @@ namespace HttpMultipartParserUnitTest
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
                 Assert.IsTrue(MultipleParamsAndFilesTestCase.Validate(parser));
+            }
+        }
+
+        [TestMethod]
+        public void SingleFileTest()
+        {
+            using (Stream stream = TestUtil.StringToStream(SingleFileTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                Assert.IsTrue(SingleFileTestCase.Validate(parser));
             }
         }
 

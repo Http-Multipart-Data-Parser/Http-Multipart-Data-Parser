@@ -55,6 +55,7 @@
     <Compile Include="ParameterPart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RebufferableBinaryReader.cs" />
+    <Compile Include="StreamingMultipartFormDataParser.cs" />
     <Compile Include="SubsequenceFinder.cs" />
   </ItemGroup>
   <ItemGroup>

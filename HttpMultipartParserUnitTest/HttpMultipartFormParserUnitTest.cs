@@ -456,6 +456,19 @@ namespace HttpMultipartParserUnitTest
             }
         }
 
+        [TestMethod]
+        public void DoesNotCloseTheStream()
+        {
+            using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                Assert.IsTrue(TinyTestCase.Validate(parser));
+
+                stream.Position = 0;
+                Assert.IsTrue(true, "if the stream was closed we'd get a ObjectDisposedException");
+            }
+        }
+
         #endregion
 
         /// <summary>

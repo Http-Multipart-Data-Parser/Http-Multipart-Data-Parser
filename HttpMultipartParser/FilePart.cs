@@ -24,12 +24,11 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.IO;
 using System.Linq;
 
 namespace HttpMultipartParser
 {
-    using System.IO;
-
     /// <summary>
     ///     Represents a single file extracted from a multipart/form-data
     ///     stream.
@@ -39,16 +38,16 @@ namespace HttpMultipartParser
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilePart"/> class.
+        ///     Initializes a new instance of the <see cref="FilePart" /> class.
         /// </summary>
         /// <param name="name">
-        /// The name of the input field used for the upload.
+        ///     The name of the input field used for the upload.
         /// </param>
         /// <param name="fileName">
-        /// The name of the file.
+        ///     The name of the file.
         /// </param>
         /// <param name="data">
-        /// The file data.
+        ///     The file data.
         /// </param>
         public FilePart(string name, string fileName, Stream data) :
             this(name, fileName, data, "text/plain", "form-data")
@@ -56,30 +55,30 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilePart"/> class.
+        ///     Initializes a new instance of the <see cref="FilePart" /> class.
         /// </summary>
         /// <param name="name">
-        /// The name of the input field used for the upload.
+        ///     The name of the input field used for the upload.
         /// </param>
         /// <param name="fileName">
-        /// The name of the file.
+        ///     The name of the file.
         /// </param>
         /// <param name="data">
-        /// The file data.
+        ///     The file data.
         /// </param>
         /// <param name="contentType">
-        /// The content type.
+        ///     The content type.
         /// </param>
         /// <param name="contentDisposition">
-        /// The content disposition.
+        ///     The content disposition.
         /// </param>
         public FilePart(string name, string fileName, Stream data, string contentType, string contentDisposition)
         {
-            this.Name = name;
-            this.FileName = fileName.Split(Path.GetInvalidFileNameChars()).Last();
-            this.Data = data;
-            this.ContentType = contentType;
-            this.ContentDisposition = contentDisposition;
+            Name = name;
+            FileName = fileName.Split(Path.GetInvalidFileNameChars()).Last();
+            Data = data;
+            ContentType = contentType;
+            ContentDisposition = contentDisposition;
         }
 
         #endregion
@@ -107,7 +106,7 @@ namespace HttpMultipartParser
         public string ContentType { get; set; }
 
         /// <summary>
-        ///  Gets or sets the content-disposition. Defaults to form-data if unspecified.
+        ///     Gets or sets the content-disposition. Defaults to form-data if unspecified.
         /// </summary>
         public string ContentDisposition { get; set; }
 

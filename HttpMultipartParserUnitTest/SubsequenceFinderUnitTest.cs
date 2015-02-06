@@ -1,43 +1,22 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using HttpMultipartParser;
+﻿using HttpMultipartParser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HttpMultipartParserUnitTest
 {
     /// <summary>
-    /// Summary description for SubsequenceFinderUnitTest
+    ///     Summary description for SubsequenceFinderUnitTest
     /// </summary>
     [TestClass]
     public class SubsequenceFinderUnitTest
     {
-        public SubsequenceFinderUnitTest()
-        {
-            //
-            // TODO: Add constructor logic here
-            //
-        }
-
-        private TestContext testContextInstance;
-
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
+        public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -57,6 +36,7 @@ namespace HttpMultipartParserUnitTest
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]

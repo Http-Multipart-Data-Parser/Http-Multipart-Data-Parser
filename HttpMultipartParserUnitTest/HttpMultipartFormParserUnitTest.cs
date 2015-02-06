@@ -24,17 +24,14 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using HttpMultipartParser;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HttpMultipartParserUnitTest
 {
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-
-    using HttpMultipartParser;
-
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     /// <summary>
     ///     The http multipart form parser unit test.
     /// </summary>
@@ -55,20 +52,20 @@ namespace HttpMultipartParserUnitTest
         ///     Test case for single files.
         /// </summary>
         private static readonly TestData SingleFileTestCase = new TestData(
-            SingleFileTestData, 
+            SingleFileTestData,
             new Dictionary<string, ParameterPart>
                 {
-                }, 
+                },
             new Dictionary<string, FilePart>
                 {
                     {
-                        "file", 
+                        "file",
                         new FilePart(
-                        "file", 
-                        "data.txt", 
-                        TestUtil.StringToStreamNoBom("I am the first data1"),
-                        "text/plain",
-                        "form-data")
+                "file",
+                "data.txt",
+                TestUtil.StringToStreamNoBom("I am the first data1"),
+                "text/plain",
+                "form-data")
                     }
                 });
 
@@ -111,29 +108,29 @@ namespace HttpMultipartParserUnitTest
         ///     Test case for multiple parameters and files.
         /// </summary>
         private static readonly TestData MultipleParamsAndFilesTestCase = new TestData(
-            MultipleParamsAndFilesTestData, 
+            MultipleParamsAndFilesTestData,
             new Dictionary<string, ParameterPart>
                 {
-                    { "text", new ParameterPart("text", "textdata") }, 
-                    { "after", new ParameterPart("after", "afterdata") }, 
-                    { "never", new ParameterPart("never", "neverdata") }, 
-                    { "waylater", new ParameterPart("waylater", "waylaterdata") }, 
-                }, 
+                    {"text", new ParameterPart("text", "textdata")},
+                    {"after", new ParameterPart("after", "afterdata")},
+                    {"never", new ParameterPart("never", "neverdata")},
+                    {"waylater", new ParameterPart("waylater", "waylaterdata")},
+                },
             new Dictionary<string, FilePart>
                 {
                     {
-                        "file", 
+                        "file",
                         new FilePart(
-                        "file", 
-                        "data.txt", 
-                        TestUtil.StringToStreamNoBom("I am the first data"))
-                    }, 
+                "file",
+                "data.txt",
+                TestUtil.StringToStreamNoBom("I am the first data"))
+                    },
                     {
-                        "newfile", 
+                        "newfile",
                         new FilePart(
-                        "newfile", 
-                        "superdata.txt", 
-                        TestUtil.StringToStreamNoBom("I am the second data"))
+                "newfile",
+                "superdata.txt",
+                TestUtil.StringToStreamNoBom("I am the second data"))
                     }
                 });
 
@@ -160,22 +157,22 @@ namespace HttpMultipartParserUnitTest
         ///     The small data test case with expected outcomes
         /// </summary>
         private static readonly TestData SmallTestCase = new TestData(
-            SmallTestData, 
+            SmallTestData,
             new Dictionary<string, ParameterPart>
                 {
-                    { "textdata", new ParameterPart("textdata", "Testdata") }, 
-                    { "submit", new ParameterPart("submit", "Submit") }
-                }, 
+                    {"textdata", new ParameterPart("textdata", "Testdata")},
+                    {"submit", new ParameterPart("submit", "Submit")}
+                },
             new Dictionary<string, FilePart>
                 {
                     {
-                        "file", 
+                        "file",
                         new FilePart(
-                        "file", 
-                        "data.txt", 
-                        TestUtil.StringToStreamNoBom("This is a small file"),
-                        "application/octet-stream",
-                        "form-data")
+                "file",
+                "data.txt",
+                TestUtil.StringToStreamNoBom("This is a small file"),
+                "application/octet-stream",
+                "form-data")
                     }
                 });
 
@@ -201,18 +198,18 @@ namespace HttpMultipartParserUnitTest
         ///     The tiny data test case with expected outcomes
         /// </summary>
         private static readonly TestData TinyTestCase = new TestData(
-            TinyTestData, 
+            TinyTestData,
             new Dictionary<string, ParameterPart>
                 {
-                    { "text", new ParameterPart("text", "textdata") }, 
-                    { "after", new ParameterPart("after", "afterdata") }, 
-                }, 
+                    {"text", new ParameterPart("text", "textdata")},
+                    {"after", new ParameterPart("after", "afterdata")},
+                },
             new Dictionary<string, FilePart>
                 {
                     {
-                        "file", 
+                        "file",
                         new FilePart(
-                        "file", "data.txt", TestUtil.StringToStreamNoBom("tiny"))
+                "file", "data.txt", TestUtil.StringToStreamNoBom("tiny"))
                     }
                 });
 
@@ -238,11 +235,15 @@ namespace HttpMultipartParserUnitTest
             FileIsLastTestData,
             new Dictionary<string, ParameterPart>
                 {
-                    { "adID", new ParameterPart("adID", "1425") }
-                }, 
+                    {"adID", new ParameterPart("adID", "1425")}
+                },
             new Dictionary<string, FilePart>
                 {
-                    { "files[]", new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data") }   
+                    {
+                        "files[]",
+                        new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg",
+                                     "form-data")
+                    }
                 });
 
         private static readonly string MixedUnicodeWidthAndAsciiWidthCharactersTestData = TestUtil.TrimAllLines(
@@ -272,19 +273,23 @@ namespace HttpMultipartParserUnitTest
 
              BinaryData
              -----------------------------41952539122868--"
-        );
+            );
 
         private static readonly TestData MixedSingleByteAndMultiByteWidthTestCase = new TestData(
             MixedSingleByteAndMultiByteWidthTestData,
             new Dictionary<string, ParameterPart>
                 {
                     {"تت", new ParameterPart("تت", "1425")}
-                }, 
+                },
             new Dictionary<string, FilePart>
                 {
-                    {"files[]", new FilePart("files[]", "تست.jpg", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data")}
+                    {
+                        "files[]",
+                        new FilePart("files[]", "تست.jpg", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg",
+                                     "form-data")
+                    }
                 }
-        );
+            );
 
         private static readonly string FullPathAsFileNameTestData = TestUtil.TrimAllLines(
             @"-----------------------------7de6cc440a46
@@ -293,16 +298,19 @@ namespace HttpMultipartParserUnitTest
 
             test
             -----------------------------7de6cc440a46--"
-        );
+            );
 
         private static readonly TestData FullPathAsFileNameWithSemicolon = new TestData(
             FullPathAsFileNameTestData,
             new Dictionary<string, ParameterPart>(),
             new Dictionary<string, FilePart>
                 {
-                    {"file", new FilePart("file", "test;abc.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")}
+                    {
+                        "file",
+                        new FilePart("file", "test;abc.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")
+                    }
                 }
-        );
+            );
 
         #endregion
 
@@ -386,7 +394,7 @@ namespace HttpMultipartParserUnitTest
         [TestInitialize]
         public void Initialize()
         {
-            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase };
+            var testData = new[] {TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase};
             foreach (TestData data in testData)
             {
                 foreach (var pair in data.ExpectedFileData)
@@ -433,7 +441,6 @@ namespace HttpMultipartParserUnitTest
                 // requset header)
                 var parser = new MultipartFormDataParser(stream, "---------------------------265001916915724");
                 Assert.IsTrue(SmallTestCase.Validate(parser));
-
             }
         }
 
@@ -451,7 +458,7 @@ namespace HttpMultipartParserUnitTest
         }
 
         /// <summary>
-        /// The can handle file as last section.
+        ///     The can handle file as last section.
         /// </summary>
         [TestMethod]
         public void CanHandleFileAsLastSection()
@@ -467,8 +474,8 @@ namespace HttpMultipartParserUnitTest
         public void CanHandleUnicodeWidthAndAsciiWidthCharacters()
         {
             using (
-                var stream = TestUtil.StringToStream(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Request,
-                                                     Encoding.UTF8))
+                Stream stream = TestUtil.StringToStream(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Request,
+                                                        Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
                 Assert.IsTrue(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Validate(parser));
@@ -478,7 +485,9 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CanHandleMixedSingleByteAndMultiByteWidthCharacters()
         {
-            using (var stream = TestUtil.StringToStream(MixedSingleByteAndMultiByteWidthTestCase.Request, Encoding.UTF8))
+            using (
+                Stream stream = TestUtil.StringToStream(MixedSingleByteAndMultiByteWidthTestCase.Request, Encoding.UTF8)
+                )
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
                 Assert.IsTrue(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
@@ -488,7 +497,7 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void HandlesFullPathAsFileNameWithSemicolonCorrectly()
         {
-            using (var stream = TestUtil.StringToStream(FullPathAsFileNameWithSemicolon.Request, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(FullPathAsFileNameWithSemicolon.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
                 Assert.IsTrue(FullPathAsFileNameWithSemicolon.Validate(parser));
@@ -506,25 +515,25 @@ namespace HttpMultipartParserUnitTest
             #region Constructors and Destructors
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="TestData"/> class.
+            ///     Initializes a new instance of the <see cref="TestData" /> class.
             /// </summary>
             /// <param name="request">
-            /// The request.
+            ///     The request.
             /// </param>
             /// <param name="expectedParams">
-            /// The expected params.
+            ///     The expected params.
             /// </param>
             /// <param name="expectedFileData">
-            /// The expected file data.
+            ///     The expected file data.
             /// </param>
             public TestData(
-                string request, 
-                IDictionary<string, ParameterPart> expectedParams, 
+                string request,
+                IDictionary<string, ParameterPart> expectedParams,
                 IDictionary<string, FilePart> expectedFileData)
             {
-                this.Request = request;
-                this.ExpectedParams = expectedParams;
-                this.ExpectedFileData = expectedFileData;
+                Request = request;
+                ExpectedParams = expectedParams;
+                ExpectedFileData = expectedFileData;
             }
 
             #endregion
@@ -551,19 +560,19 @@ namespace HttpMultipartParserUnitTest
             #region Public Methods and Operators
 
             /// <summary>
-            /// Validates the output of the parser against the expected outputs for 
-            /// this test
+            ///     Validates the output of the parser against the expected outputs for
+            ///     this test
             /// </summary>
             /// <param name="parser">
-            /// The parser to validate.
+            ///     The parser to validate.
             /// </param>
             /// <returns>
-            /// The <see cref="bool"/> representing if this test passed.
+            ///     The <see cref="bool" /> representing if this test passed.
             /// </returns>
             public bool Validate(MultipartFormDataParser parser)
             {
                 // Validate parameters
-                foreach (var pair in this.ExpectedParams)
+                foreach (var pair in ExpectedParams)
                 {
                     if (!parser.Parameters.ContainsKey(pair.Key))
                     {
@@ -573,7 +582,8 @@ namespace HttpMultipartParserUnitTest
                     ParameterPart expectedPart = pair.Value;
                     ParameterPart actualPart = parser.Parameters[pair.Key];
 
-                    Console.WriteLine("Expected {0} = {1}, Found {2} = {3}", expectedPart.Name, expectedPart.Data, actualPart.Name, actualPart.Data);
+                    Console.WriteLine("Expected {0} = {1}, Found {2} = {3}", expectedPart.Name, expectedPart.Data,
+                                      actualPart.Name, actualPart.Data);
 
                     if (expectedPart.Name != actualPart.Name || expectedPart.Data != actualPart.Data)
                     {
@@ -582,10 +592,10 @@ namespace HttpMultipartParserUnitTest
                 }
 
                 // Validate files
-                foreach (var file in parser.Files)
+                foreach (FilePart file in parser.Files)
                 {
                     bool foundPairMatch = false;
-                    foreach (var pair in this.ExpectedFileData)
+                    foreach (var pair in ExpectedFileData)
                     {
                         if (pair.Key == file.Name)
                         {
@@ -599,7 +609,8 @@ namespace HttpMultipartParserUnitTest
                                 return false;
                             }
 
-                            if (expectedFile.ContentType != actualFile.ContentType || expectedFile.ContentDisposition != actualFile.ContentDisposition)
+                            if (expectedFile.ContentType != actualFile.ContentType ||
+                                expectedFile.ContentDisposition != actualFile.ContentDisposition)
                             {
                                 return false;
                             }

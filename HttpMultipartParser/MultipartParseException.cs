@@ -22,10 +22,11 @@
 //   Represents a parsing problem occurring within the MultipartFormDataParser
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
+using System;
+
 namespace HttpMultipartParser
 {
-    using System;
-
     /// <summary>
     ///     Represents a parsing problem occurring within the MultipartFormDataParser
     /// </summary>
@@ -35,10 +36,10 @@ namespace HttpMultipartParser
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MultipartParseException"/> class.
+        ///     Initializes a new instance of the <see cref="MultipartParseException" /> class.
         /// </summary>
         /// <param name="message">
-        /// The message.
+        ///     The message.
         /// </param>
         public MultipartParseException(string message)
             : base(message)

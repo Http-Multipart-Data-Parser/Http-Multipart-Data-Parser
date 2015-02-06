@@ -7,22 +7,22 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Text;
+using HttpMultipartParser;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 namespace HttpMultipartParserUnitTest
 {
-    using System;
-    using System.Text;
-    using HttpMultipartParser;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
     /// <summary>
-    /// Unit Tests for <see cref="BinaryStreamStack" />
+    ///     Unit Tests for <see cref="BinaryStreamStack" />
     /// </summary>
     [TestClass]
     public class BinaryStreamStackUnitTest
     {
         /// <summary>
-        /// Gets or sets the test context which provides
-        /// information about and functionality for the current test run.
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
         /// </summary>
         public TestContext TestContext { get; set; }
 
@@ -128,10 +128,10 @@ namespace HttpMultipartParserUnitTest
 
             var buffer = new byte[Encoding.UTF8.GetByteCount("6chars")];
             stack.Read(buffer, 0, buffer.Length);
-            var result = Encoding.UTF8.GetString(buffer);
+            string result = Encoding.UTF8.GetString(buffer);
             Assert.AreEqual(result, "6chars");
         }
-        
+
         [TestMethod]
         public void CanReadAcrossMultipleBuffers()
         {
@@ -204,9 +204,11 @@ namespace HttpMultipartParserUnitTest
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "rs");
             Assert.AreEqual(amountRead, 2);
         }
+
         #endregion
 
         #region ReadLine() Tests
+
         [TestMethod]
         public void CanReadLineSingleBuffer()
         {
@@ -223,7 +225,8 @@ namespace HttpMultipartParserUnitTest
         {
             var stack = new BinaryStreamStack(Encoding.UTF8);
             stack.Push(TestUtil.StringToByteNoBom("al" + Environment.NewLine));
-            stack.Push(TestUtil.StringToByteNoBom("6chars" + Environment.NewLine + "5char" + Environment.NewLine + "Parti"));
+            stack.Push(
+                TestUtil.StringToByteNoBom("6chars" + Environment.NewLine + "5char" + Environment.NewLine + "Parti"));
 
             Assert.AreEqual(stack.ReadLine(), "6chars");
             Assert.AreEqual(stack.ReadLine(), "5char");
@@ -269,7 +272,7 @@ namespace HttpMultipartParserUnitTest
 
             stack.Push(TestUtil.StringToByteNoBom("Interrupt "));
 
-            Assert.AreEqual(stack.ReadLine(), "Interrupt Resume"); 
+            Assert.AreEqual(stack.ReadLine(), "Interrupt Resume");
         }
 
         [TestMethod]
@@ -287,7 +290,7 @@ namespace HttpMultipartParserUnitTest
         {
             var stack = new BinaryStreamStack(Encoding.UTF8);
 
-            var noline = stack.ReadLine();
+            string noline = stack.ReadLine();
             Assert.IsNull(noline);
         }
 
@@ -300,9 +303,11 @@ namespace HttpMultipartParserUnitTest
             Assert.AreEqual(stack.ReadLine(), string.Empty);
             Assert.AreEqual(stack.ReadLine(), "--endboundary--");
         }
+
         #endregion
 
         #region Mixed Execution Tests
+
         [TestMethod]
         public void MixReadAndReadLineWithInterrupt()
         {
@@ -331,7 +336,7 @@ namespace HttpMultipartParserUnitTest
 
             Assert.AreEqual(stack.Read(), '6');
 
-            var amountRead = stack.Read(buffer, 0, buffer.Length);
+            int amountRead = stack.Read(buffer, 0, buffer.Length);
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "ch");
             Assert.AreEqual(amountRead, 2);
 

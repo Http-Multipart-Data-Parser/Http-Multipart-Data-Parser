@@ -23,6 +23,7 @@
 //   stream.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace HttpMultipartParser
 {
     /// <summary>
@@ -38,18 +39,18 @@ namespace HttpMultipartParser
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ParameterPart"/> class.
+        ///     Initializes a new instance of the <see cref="ParameterPart" /> class.
         /// </summary>
         /// <param name="name">
-        /// The name.
+        ///     The name.
         /// </param>
         /// <param name="data">
-        /// The data.
+        ///     The data.
         /// </param>
         public ParameterPart(string name, string data)
         {
-            this.Name = name;
-            this.Data = data;
+            Name = name;
+            Data = data;
         }
 
         #endregion

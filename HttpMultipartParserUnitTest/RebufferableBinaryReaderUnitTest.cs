@@ -1,47 +1,26 @@
 ﻿using System;
-using System.Text;
+using System.IO;
 using System.Linq;
-
+using System.Text;
+using HttpMultipartParser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HttpMultipartParserUnitTest
 {
-    using System.IO;
-
-    using HttpMultipartParser;
-
     /// <summary>
-    /// Summary description for RebufferableBinaryReaderUnitTest
+    ///     Summary description for RebufferableBinaryReaderUnitTest
     /// </summary>
     [TestClass]
     public class RebufferableBinaryReaderUnitTest
     {
-        public RebufferableBinaryReaderUnitTest()
-        {
-            //
-            // TODO: Add constructor logic here
-            //
-        }
-
-        private TestContext testContextInstance;
-
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
+        public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -61,9 +40,11 @@ namespace HttpMultipartParserUnitTest
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         #region Read() Tests
+
         [TestMethod]
         public void CanReadSingleCharacterBuffer()
         {
@@ -116,9 +97,11 @@ namespace HttpMultipartParserUnitTest
             Assert.AreEqual(reader.Read(), 'f');
             Assert.AreEqual(reader.Read(), 'g');
         }
+
         #endregion
 
         #region Read(buffer, index, count) Tests
+
         [TestMethod]
         public void CanReadSingleBuffer()
         {
@@ -126,10 +109,10 @@ namespace HttpMultipartParserUnitTest
 
             var buffer = new byte[Encoding.UTF8.GetByteCount("6chars")];
             reader.Read(buffer, 0, buffer.Length);
-            var result = Encoding.UTF8.GetString(buffer);
+            string result = Encoding.UTF8.GetString(buffer);
             Assert.AreEqual(result, "6chars");
         }
-        
+
         [TestMethod]
         public void CanReadAcrossMultipleBuffers()
         {
@@ -148,10 +131,10 @@ namespace HttpMultipartParserUnitTest
 
             var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
             reader.Read(buffer, 0, buffer.Length);
-            var result = Encoding.UTF8.GetString(buffer);
+            string result = Encoding.UTF8.GetString(buffer);
             Assert.AreEqual(result, "5èats");
         }
-        
+
         [TestMethod]
         public void CanReadMixedAsciiAndUTF8AcrossMultipleBuffers()
         {
@@ -160,7 +143,7 @@ namespace HttpMultipartParserUnitTest
 
             var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
             reader.Read(buffer, 0, buffer.Length);
-            var result = Encoding.UTF8.GetString(buffer);
+            string result = Encoding.UTF8.GetString(buffer);
             Assert.AreEqual(result, "5èats");
         }
 
@@ -221,14 +204,16 @@ namespace HttpMultipartParserUnitTest
             Assert.AreEqual(Encoding.UTF8.GetString(buffer), "rs");
             Assert.AreEqual(amountRead, 2);
         }
+
         #endregion
 
         #region ReadByteLine() Tests
+
         [TestMethod]
         public void CanReadByteLineOnMixedAsciiAndUTF8Text()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("Bonjour poignée"), Encoding.UTF8);
-            var bytes = reader.ReadByteLine();
+            byte[] bytes = reader.ReadByteLine();
             var expected = new byte[] {66, 111, 110, 106, 111, 117, 114, 32, 112, 111, 105, 103, 110, 195, 169, 101};
 
             foreach (var pair in expected.Zip(bytes, Tuple.Create))
@@ -236,6 +221,7 @@ namespace HttpMultipartParserUnitTest
                 Assert.AreEqual(pair.Item1, pair.Item2);
             }
         }
+
         #endregion
     }
 }

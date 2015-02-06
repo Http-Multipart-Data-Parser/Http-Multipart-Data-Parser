@@ -23,6 +23,7 @@
 //   sequence.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace HttpMultipartParser
 {
     /// <summary>
@@ -34,30 +35,30 @@ namespace HttpMultipartParser
         #region Public Methods and Operators
 
         /// <summary>
-        /// Finds if a sequence exists within another sequence.
+        ///     Finds if a sequence exists within another sequence.
         /// </summary>
         /// <remarks>
-        /// This is implemented using the
+        ///     This is implemented using the
         ///     <see href="http://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">
         ///         Knuth-Morris-Pratt
         ///     </see>
         ///     substring algorithm.
         /// </remarks>
         /// <param name="haystack">
-        /// The sequence to search
+        ///     The sequence to search
         /// </param>
         /// <param name="needle">
-        /// The sequence to look for
+        ///     The sequence to look for
         /// </param>
         /// <returns>
-        /// The start position of the found sequence or -1 if nothing was found
+        ///     The start position of the found sequence or -1 if nothing was found
         /// </returns>
         public static int Search(byte[] haystack, byte[] needle)
         {
             // Special case for size 1 needle.
             if (needle.Length == 1)
             {
-                for (int index = 0; index < haystack.Length; ++index )
+                for (int index = 0; index < haystack.Length; ++index)
                 {
                     if (haystack[index] == needle[0])
                     {
@@ -99,15 +100,15 @@ namespace HttpMultipartParser
         #region Methods
 
         /// <summary>
-        /// Generates a table that is used in the Knuth-Morris-Pratt substring algorithm
+        ///     Generates a table that is used in the Knuth-Morris-Pratt substring algorithm
         /// </summary>
         /// <param name="needle">
-        /// The search subsequence to generate a table from
+        ///     The search subsequence to generate a table from
         /// </param>
         /// <returns>
-        /// The generated search table
+        ///     The generated search table
         /// </returns>
-        /// <see cref="Search"/>
+        /// <see cref="Search" />
         private static int[] GenerateTable(byte[] needle)
         {
             var table = new int[needle.Length];

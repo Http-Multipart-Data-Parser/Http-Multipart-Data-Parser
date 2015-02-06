@@ -1,10 +1,9 @@
-﻿namespace HttpMultipartParserUnitTest
-{
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
+﻿using System.IO;
+using System.Linq;
+using System.Text;
 
+namespace HttpMultipartParserUnitTest
+{
     internal static class TestUtil
     {
         public static Stream StringToStream(string input)

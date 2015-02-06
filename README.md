@@ -17,11 +17,11 @@ The parser was built and tested for NET 4.0. Versions lower then this may work b
 
 How do I use it?
 ================
-# Non-Streaming (Simple, don't use on very large files)
+## Non-Streaming (Simple, don't use on very large files)
 1. Create a new MultipartFormDataParser with the stream containing the multipart/form-data.
 2. Access the data through the parser.
 
-# Streaming (Handles large files)
+## Streaming (Handles large files)
 1. Create a new StreamingMultipartFormDataParser with the stream containing the multipart/form-data
 2. Set up the ParameterHandler and FileHandler delegates
 3. Call parser.Run()

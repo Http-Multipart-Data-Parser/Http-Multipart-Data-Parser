@@ -324,7 +324,7 @@ namespace HttpMultipartParser
 
             foreach (var pattern in newlinePatterns)
             {
-                int position = SubsequenceFinder.Search(dataRef, pattern);
+                int position = SubsequenceFinder.Search(dataRef, pattern, maxBytes);
                 if (position != -1)
                 {
                     return position + offset;
@@ -457,9 +457,9 @@ namespace HttpMultipartParser
                 // Now we want to check for a substring within the current buffer.
                 // We need to find the closest substring greedily. That is find the
                 // closest boundary and don't miss the end --'s if it's an end boundary.
-                int endBoundaryPos = SubsequenceFinder.Search(fullBuffer, endBoundaryBinary);
+                int endBoundaryPos = SubsequenceFinder.Search(fullBuffer, endBoundaryBinary, fullBuffer.Length);
                 int endBoundaryLength = endBoundaryBinary.Length;
-                int boundaryPos = SubsequenceFinder.Search(fullBuffer, boundaryBinary);
+                int boundaryPos = SubsequenceFinder.Search(fullBuffer, boundaryBinary, fullBuffer.Length);
                 int boundaryLength = boundaryBinary.Length;
 
                 // We need to select the appropriate position and length

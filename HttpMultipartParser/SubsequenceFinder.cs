@@ -24,6 +24,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace HttpMultipartParser
 {
     /// <summary>
@@ -34,110 +37,59 @@ namespace HttpMultipartParser
     {
         #region Public Methods and Operators
 
+        public static int Search(byte[] haystack, byte[] needle)
+        {
+            return Search(haystack, needle, haystack.Length);
+        }
+
         /// <summary>
-        ///     Finds if a sequence exists within another sequence.
+        ///     Finds if a sequence exists within another sequence. 
         /// </summary>
-        /// <remarks>
-        ///     This is implemented using the
-        ///     <see href="http://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">
-        ///         Knuth-Morris-Pratt
-        ///     </see>
-        ///     substring algorithm.
-        /// </remarks>
         /// <param name="haystack">
         ///     The sequence to search
         /// </param>
         /// <param name="needle">
         ///     The sequence to look for
         /// </param>
+        /// <para name="haystackLength">
+        ///     The length of the haystack to consider for searching
+        /// </para>
         /// <returns>
         ///     The start position of the found sequence or -1 if nothing was found
         /// </returns>
-        public static int Search(byte[] haystack, byte[] needle)
+        public static int Search(byte[] haystack, byte[] needle, int haystackLength)
         {
-            // Special case for size 1 needle.
-            if (needle.Length == 1)
+            var charactersInNeedle = new HashSet<byte>(needle);
+
+            var length = needle.Length;
+            var index = 0;
+            while (index + length <= haystackLength)
             {
-                for (int index = 0; index < haystack.Length; ++index)
+                // Worst case scenario: Go back to character-by-character parsing until we find a non-match
+                // or we find the needle.
+                if (charactersInNeedle.Contains(haystack[index + length - 1]))
                 {
-                    if (haystack[index] == needle[0])
+                    var needleIndex = 0;
+                    while (haystack[index + needleIndex] == needle[needleIndex])
                     {
-                        return index;
-                    }
-                }
+                        if (needleIndex == needle.Length - 1)
+                        {
+                            // Found our match!
+                            return index;
+                        }
 
-                return -1;
-            }
-
-            int m = 0;
-            int i = 0;
-            int[] table = GenerateTable(needle);
-
-            while (m + i < haystack.Length)
-            {
-                if (needle[i] == haystack[m + i])
-                {
-                    if (i == (needle.Length - 1))
-                    {
-                        return m;
+                        needleIndex += 1;
                     }
 
-                    i += 1;
+                    index += 1;
+                    index += needleIndex;
+                    continue;
                 }
-                else
-                {
-                    m = m + i - table[i];
-                    i = table[i] > -1 ? table[i] : 0;
-                }
+
+                index += length;
             }
 
-            // No matches
             return -1;
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        ///     Generates a table that is used in the Knuth-Morris-Pratt substring algorithm
-        /// </summary>
-        /// <param name="needle">
-        ///     The search subsequence to generate a table from
-        /// </param>
-        /// <returns>
-        ///     The generated search table
-        /// </returns>
-        /// <see cref="Search" />
-        private static int[] GenerateTable(byte[] needle)
-        {
-            var table = new int[needle.Length];
-            int pos = 2;
-            int cnd = 0;
-
-            table[0] = -1;
-            table[1] = 0;
-
-            while (pos < needle.Length)
-            {
-                if (needle[pos - 1] == needle[cnd])
-                {
-                    cnd = cnd + 1;
-                    table[pos] = cnd;
-                    pos = pos + 1;
-                }
-                else if (cnd > 0)
-                {
-                    cnd = table[cnd];
-                }
-                else
-                {
-                    table[pos] = 0;
-                    pos = pos + 1;
-                }
-            }
-
-            return table;
         }
 
         #endregion

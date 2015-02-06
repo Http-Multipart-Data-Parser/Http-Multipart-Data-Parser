@@ -45,7 +45,7 @@ namespace HttpMultipartParserUnitTest
             var A = new byte[] {0x1, 0x2, 0x3, 0x4};
             var B = new byte[] {0x3, 0x4};
 
-            Assert.AreEqual(SubsequenceFinder.Search(A, B), 2);
+            Assert.AreEqual(SubsequenceFinder.Search(A, B, A.Length), 2);
         }
     }
 }

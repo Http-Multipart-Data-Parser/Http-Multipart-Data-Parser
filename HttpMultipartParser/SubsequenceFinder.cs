@@ -51,9 +51,9 @@ namespace HttpMultipartParser
         /// <param name="needle">
         ///     The sequence to look for
         /// </param>
-        /// <para name="haystackLength">
+        /// <param name="haystackLength">
         ///     The length of the haystack to consider for searching
-        /// </para>
+        /// </param>
         /// <returns>
         ///     The start position of the found sequence or -1 if nothing was found
         /// </returns>

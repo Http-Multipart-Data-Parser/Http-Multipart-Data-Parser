@@ -210,31 +210,30 @@ namespace HttpMultipartParser
         /// </summary>
         public void Run()
         {
-            using (var reader = new RebufferableBinaryReader(stream, Encoding, BinaryBufferSize))
+            var reader = new RebufferableBinaryReader(stream, Encoding, BinaryBufferSize);
+
+            // If we don't know the boundary now is the time to calculate it.
+            if (boundary == null)
             {
-                // If we don't know the boundary now is the time to calculate it.
-                if (boundary == null)
-                {
-                    boundary = DetectBoundary(reader);
-                }
-
-                // It's important to remember that the boundary given in the header has a -- appended to the start
-                // and the last one has a -- appended to the end
-                boundary = "--" + boundary;
-                endBoundary = boundary + "--";
-
-                // We add newline here because unlike reader.ReadLine() binary reading
-                // does not automatically consume the newline, we want to add it to our signature
-                // so we can automatically detect and consume newlines after the boundary
-                boundaryBinary = Encoding.GetBytes(boundary);
-                endBoundaryBinary = Encoding.GetBytes(endBoundary);
-
-                Debug.Assert(
-                    BinaryBufferSize >= endBoundaryBinary.Length,
-                    "binaryBufferSize must be bigger then the boundary");
-
-                Parse(reader);
+                boundary = DetectBoundary(reader);
             }
+
+            // It's important to remember that the boundary given in the header has a -- appended to the start
+            // and the last one has a -- appended to the end
+            boundary = "--" + boundary;
+            endBoundary = boundary + "--";
+
+            // We add newline here because unlike reader.ReadLine() binary reading
+            // does not automatically consume the newline, we want to add it to our signature
+            // so we can automatically detect and consume newlines after the boundary
+            boundaryBinary = Encoding.GetBytes(boundary);
+            endBoundaryBinary = Encoding.GetBytes(endBoundary);
+
+            Debug.Assert(
+                BinaryBufferSize >= endBoundaryBinary.Length,
+                "binaryBufferSize must be bigger then the boundary");
+
+            Parse(reader);
         }
 
         #region Public Properties

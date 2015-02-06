@@ -36,7 +36,7 @@ namespace HttpMultipartParser
     ///     data similar to a <see cref="BinaryReader" /> and provides the ability to push
     ///     data onto the front of the stream.
     /// </summary>
-    internal class RebufferableBinaryReader : IDisposable
+    internal class RebufferableBinaryReader
     {
         #region Fields
 
@@ -113,14 +113,6 @@ namespace HttpMultipartParser
         #endregion
 
         #region Public Methods and Operators
-
-        /// <summary>
-        ///     Closes the stream.
-        /// </summary>
-        public void Dispose()
-        {
-            stream.Close();
-        }
 
         /// <summary>
         ///     Adds data to the front of the stream. The most recently buffered data will

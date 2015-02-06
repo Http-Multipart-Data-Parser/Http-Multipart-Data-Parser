@@ -50,6 +50,28 @@ namespace HttpMultipartParserUnitTest
               I am the first data1
               --boundry--");
 
+
+        /// <summary>
+        ///     Test case for single files.
+        /// </summary>
+        private static readonly TestData SingleFileTestCase = new TestData(
+            SingleFileTestData, 
+            new Dictionary<string, ParameterPart>
+                {
+                }, 
+            new Dictionary<string, FilePart>
+                {
+                    {
+                        "file", 
+                        new FilePart(
+                        "file", 
+                        "data.txt", 
+                        TestUtil.StringToStreamNoBom("I am the first data1"),
+                        "text/plain",
+                        "form-data")
+                    }
+                });
+
         /// <summary>
         ///     Raw multipart/form-data for the
         ///     <see cref="TestData">
@@ -84,27 +106,6 @@ namespace HttpMultipartParserUnitTest
 
               waylaterdata 
               --boundry--");
-
-        /// <summary>
-        ///     Test case for single files.
-        /// </summary>
-        private static readonly TestData SingleFileTestCase = new TestData(
-            SingleFileTestData, 
-            new Dictionary<string, ParameterPart>
-                {
-                }, 
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "file", 
-                        new FilePart(
-                        "file", 
-                        "data.txt", 
-                        TestUtil.StringToStreamNoBom("I am the first data1"),
-                        "text/plain",
-                        "form-data")
-                    }
-                });
 
         /// <summary>
         ///     Test case for multiple parameters and files.

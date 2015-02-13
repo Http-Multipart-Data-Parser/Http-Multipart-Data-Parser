@@ -439,6 +439,7 @@ namespace HttpMultipartParser
             // file.
             var curBuffer = new byte[BinaryBufferSize];
             var prevBuffer = new byte[BinaryBufferSize];
+            var fullBuffer = new byte[BinaryBufferSize*2];
             int curLength = 0;
             int prevLength = 0;
 
@@ -449,7 +450,6 @@ namespace HttpMultipartParser
 
                 // Combine both buffers into the fullBuffer
                 // See: http://stackoverflow.com/questions/415291/best-way-to-combine-two-or-more-byte-arrays-in-c-sharp
-                var fullBuffer = new byte[BinaryBufferSize*2];
                 Buffer.BlockCopy(prevBuffer, 0, fullBuffer, 0, prevLength);
                 Buffer.BlockCopy(curBuffer, 0, fullBuffer, prevLength, curLength);
 

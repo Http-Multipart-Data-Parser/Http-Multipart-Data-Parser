@@ -205,7 +205,6 @@ namespace HttpMultipartParser
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart.Name, parameterPart);
 
-            //var files = new Dictionary<string, FilePart>();
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
                 {
                     if (Files.Count == 0 || name != Files[Files.Count - 1].Name)

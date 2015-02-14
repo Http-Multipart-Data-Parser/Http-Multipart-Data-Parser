@@ -442,6 +442,7 @@ namespace HttpMultipartParser
             var fullBuffer = new byte[BinaryBufferSize*2];
             int curLength = 0;
             int prevLength = 0;
+            int fullLength = 0;
 
             prevLength = reader.Read(prevBuffer, 0, prevBuffer.Length);
             do
@@ -452,13 +453,14 @@ namespace HttpMultipartParser
                 // See: http://stackoverflow.com/questions/415291/best-way-to-combine-two-or-more-byte-arrays-in-c-sharp
                 Buffer.BlockCopy(prevBuffer, 0, fullBuffer, 0, prevLength);
                 Buffer.BlockCopy(curBuffer, 0, fullBuffer, prevLength, curLength);
+                fullLength = prevLength + curLength;
 
                 // Now we want to check for a substring within the current buffer.
                 // We need to find the closest substring greedily. That is find the
                 // closest boundary and don't miss the end --'s if it's an end boundary.
-                int endBoundaryPos = SubsequenceFinder.Search(fullBuffer, endBoundaryBinary, fullBuffer.Length);
+                int endBoundaryPos = SubsequenceFinder.Search(fullBuffer, endBoundaryBinary, fullLength);
                 int endBoundaryLength = endBoundaryBinary.Length;
-                int boundaryPos = SubsequenceFinder.Search(fullBuffer, boundaryBinary, fullBuffer.Length);
+                int boundaryPos = SubsequenceFinder.Search(fullBuffer, boundaryBinary, fullLength);
                 int boundaryLength = boundaryBinary.Length;
 
                 // We need to select the appropriate position and length
@@ -502,7 +504,7 @@ namespace HttpMultipartParser
                     // specifies \r\n but some clients might encode with \n. Or we might get 0 if
                     // we are at the end of the file.
                     int boundaryNewlineOffset = CalculateNewlineLength(ref fullBuffer,
-                                                                       Math.Min(fullBuffer.Length - 1,
+                                                                       Math.Min(fullLength - 1,
                                                                                 endPos + endPosLength));
 
                     // We also need to check if the last n characters of the buffer to write

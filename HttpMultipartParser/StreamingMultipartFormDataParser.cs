@@ -523,6 +523,11 @@ namespace HttpMultipartParser
                     // and encoding
                     FileHandler(name, filename, contentType, contentDisposition, fullBuffer,
                                 endPos - bufferNewlineLength);
+                    if (endPos - bufferNewlineLength > 0)
+                    {
+                        // indicate end of stream to subscribers by passing zero for byte count, so they can close their stream
+                        FileHandler(name, filename, contentType, contentDisposition, new byte[0], 0);
+                    }
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;

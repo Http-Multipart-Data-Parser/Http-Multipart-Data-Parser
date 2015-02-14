@@ -605,10 +605,10 @@ namespace HttpMultipartParserUnitTest
                 }
 
                 // Validate files
-                foreach (FilePart file in parser.Files)
+                foreach (var pair in ExpectedFileData)
                 {
-                    bool foundPairMatch = false;
-                    foreach (var pair in ExpectedFileData)
+                    var foundPairMatch = false;
+                    foreach (var file in parser.Files)
                     {
                         if (pair.Key == file.Name)
                         {

@@ -205,18 +205,23 @@ namespace HttpMultipartParser
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart.Name, parameterPart);
 
-            var files = new Dictionary<string, FilePart>();
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
                 {
-                    if (!files.ContainsKey(name))
+                    if (Files.Count == 0 || name != Files[Files.Count - 1].Name)
                     {
-                        files[name] = new FilePart(name, fileName, new MemoryStream());
+                        Files.Add(new FilePart(name, fileName, new MemoryStream(), type, disposition));
                     }
 
-                    files[name].Data.Write(buffer, 0, bytes);
+                    Files[Files.Count - 1].Data.Write(buffer, 0, bytes);
                 };
 
             streamingParser.Run();
+
+            // Reset all the written memory streams so they can be read.
+            foreach (var file in Files)
+            {
+                file.Data.Position = 0;
+            }
         }
 
         #endregion

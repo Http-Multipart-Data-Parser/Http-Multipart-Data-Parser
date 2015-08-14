@@ -203,7 +203,17 @@ namespace HttpMultipartParser
             Parameters = new Dictionary<string, ParameterPart>();
 
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
-            streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart.Name, parameterPart);
+            streamingParser.ParameterHandler += parameterPart => {
+                if (Parameters.ContainsKey(parameterPart.Name))
+                {
+                    var oldValue = Parameters[parameterPart.Name].Data;
+                    Parameters[parameterPart.Name] = new ParameterPart(parameterPart.Name, oldValue + "," + parameterPart.Data);
+                }
+                else
+                {
+                    Parameters.Add(parameterPart.Name, parameterPart);
+                }
+            };
 
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
                 {

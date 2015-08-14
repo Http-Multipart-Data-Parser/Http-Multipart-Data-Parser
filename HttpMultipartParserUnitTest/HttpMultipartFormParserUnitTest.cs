@@ -312,6 +312,31 @@ namespace HttpMultipartParserUnitTest
                 }
             );
 
+        private static readonly string SeveralValuesWithSamePropertyTestData = TestUtil.TrimAllLines(
+            @"------B6u9lJxB4ByPiGPZ
+            Content-Disposition: form-data; name=""options""
+
+            value0
+            ------B6u9lJxB4ByPiGPZ
+            Content-Disposition: form-data; name=""options""
+
+            value1
+            ------B6u9lJxB4ByPiGPZ
+            Content-Disposition: form-data; name=""options""
+
+            value2
+            ------B6u9lJxB4ByPiGPZ--"
+            );
+
+        private static readonly TestData SeveralValuesWithSameProperty = new TestData(
+                SeveralValuesWithSamePropertyTestData,
+                new Dictionary<string, ParameterPart>
+                {
+                    {"options", new ParameterPart("options", "value0,value1,value2") }
+                },
+                new Dictionary<string, FilePart>()
+            );
+
         #endregion
 
         #region Public Methods and Operators
@@ -514,6 +539,16 @@ namespace HttpMultipartParserUnitTest
 
                 stream.Position = 0;
                 Assert.IsTrue(true, "A closed stream would throw ObjectDisposedException");
+            }
+        }
+
+        [TestMethod]
+        public void AcceptSeveralValuesWithSameProperty()
+        {
+            using (Stream stream = TestUtil.StringToStream(SeveralValuesWithSameProperty.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.IsTrue(SeveralValuesWithSameProperty.Validate(parser));
             }
         }
 

@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace HttpMultipartParser
 {
@@ -200,10 +201,10 @@ namespace HttpMultipartParser
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
             Files = new List<FilePart>();
-            Parameters = new Dictionary<string, ParameterPart>();
+            Parameters = new List<ParameterPart>();
 
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
-            streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart.Name, parameterPart);
+            streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
                 {
@@ -235,10 +236,49 @@ namespace HttpMultipartParser
         public List<FilePart> Files { get; private set; }
 
         /// <summary>
-        ///     Gets the mapping of the parameters. The name of a given field
-        ///     maps to the parameter data.
+        ///     Gets the parameters. Several ParameterParts may share the same name.
         /// </summary>
-        public Dictionary<string, ParameterPart> Parameters { get; private set; }
+        public List<ParameterPart> Parameters { get; private set; }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Returns true if the parameter has any values. False otherwise
+        /// </summary>
+        /// <param name="name">The name of the parameter</param>
+        /// <returns>True if the parameter exists. False otherwise</returns>
+        public bool HasParameter(string name)
+        {
+            return Parameters.Any(p => p.Name == name);
+        }
+
+        /// <summary>
+        /// Returns the value of a parameter or null if it doesn't exist. 
+        /// 
+        /// You should only use this method if you're sure the parameter has only one value. 
+        /// 
+        /// If you need to support multiple values use GetParameterValues.
+        /// </summary>
+        /// <param name="name">The name of the parameter</param>
+        /// <returns>The value of the parameter</returns>
+        public string GetParameterValue(string name)
+        {
+            return Parameters.FirstOrDefault(p => p.Name == name).Data;
+        }
+
+        /// <summary>
+        /// Returns the values of a parameter or an empty enumerable if the parameter doesn't exist.
+        /// </summary>
+        /// <param name="name">The name of the parameter</param>
+        /// <returns>The values of the parameter</returns>
+        public IEnumerable<string> GetParameterValues(string name)
+        {
+            return Parameters
+                .Where(p => p.Name == name)
+                .Select(p => p.Data);
+        }
 
         #endregion
     }

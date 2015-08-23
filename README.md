@@ -54,9 +54,9 @@ Single file
     var parser = new MultipartFormDataParser(stream);
 
     // From this point the data is parsed, we can retrieve the
-    // form data from the Parameters dictionary:
-    var username = parser.Parameters["username"].Data;
-    var email = parser.Parameters["email"].Data;
+    // form data using the GetParameterValue method.
+    var username = parser.GetParameterValue("username");
+    var email = parser.GetParameterValue("email")
 
     // Files are stored in a list:
     var file = parser.Files.First();
@@ -71,6 +71,32 @@ Single file
     {
         // Write the part of the file we've recieved to a file stream. (Or do something else)
         filestream.Write(buffer, 0, bytes);
+    }
+
+Multiple Parameters
+-------------------
+
+    // stream:
+    -----------------------------41952539122868
+    Content-Disposition: form-data; name="checkbox"
+
+    likes_cake
+    -----------------------------41952539122868
+    Content-Disposition: form-data; name="checkbox"
+
+    likes_cookies
+    -----------------------------41952539122868--
+
+    // ===== Simple Parsing ====
+    // parse:
+    var parser = new MultipartFormDataParser(stream);
+
+    // From this point the data is parsed, we can retrieve the
+    // form data from the GetParameterValues method
+    var checkboxResponses = parser.GetParameterValues("checkbox");
+    foreach(var parameter in checkboxResponses)
+    {
+        Console.WriteLine("Parameter {0} is {1}", parameter.Name, parameter.Data)
     }
 
 Multiple Files

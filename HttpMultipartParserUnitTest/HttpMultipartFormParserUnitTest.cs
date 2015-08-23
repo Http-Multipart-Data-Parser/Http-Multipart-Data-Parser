@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 using HttpMultipartParser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -53,21 +54,11 @@ namespace HttpMultipartParserUnitTest
         /// </summary>
         private static readonly TestData SingleFileTestCase = new TestData(
             SingleFileTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                },
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "file",
-                        new FilePart(
-                "file",
-                "data.txt",
-                TestUtil.StringToStreamNoBom("I am the first data1"),
-                "text/plain",
-                "form-data")
-                    }
-                });
+            new List<ParameterPart> {},
+            new List<FilePart> {
+                new FilePart("file", "data.txt", TestUtil.StringToStreamNoBom("I am the first data1"), "text/plain", "form-data")
+            }
+       );
 
         /// <summary>
         ///     Raw multipart/form-data for the
@@ -109,30 +100,17 @@ namespace HttpMultipartParserUnitTest
         /// </summary>
         private static readonly TestData MultipleParamsAndFilesTestCase = new TestData(
             MultipleParamsAndFilesTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                    {"text", new ParameterPart("text", "textdata")},
-                    {"after", new ParameterPart("after", "afterdata")},
-                    {"never", new ParameterPart("never", "neverdata")},
-                    {"waylater", new ParameterPart("waylater", "waylaterdata")},
-                },
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "file",
-                        new FilePart(
-                "file",
-                "data.txt",
-                TestUtil.StringToStreamNoBom("I am the first data"))
-                    },
-                    {
-                        "newfile",
-                        new FilePart(
-                "newfile",
-                "superdata.txt",
-                TestUtil.StringToStreamNoBom("I am the second data"))
-                    }
-                });
+            new List<ParameterPart> {
+                new ParameterPart("text", "textdata"),
+                new ParameterPart("after", "afterdata"),
+                new ParameterPart("never", "neverdata"),
+                new ParameterPart("waylater", "waylaterdata")
+            },
+            new List<FilePart> {
+                new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("I am the first data")),
+                new FilePart( "newfile", "superdata.txt", TestUtil.StringToStreamNoBom("I am the second data"))
+            }
+        );
 
         /// <summary>
         ///     The small request.
@@ -158,23 +136,14 @@ namespace HttpMultipartParserUnitTest
         /// </summary>
         private static readonly TestData SmallTestCase = new TestData(
             SmallTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                    {"textdata", new ParameterPart("textdata", "Testdata")},
-                    {"submit", new ParameterPart("submit", "Submit")}
-                },
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "file",
-                        new FilePart(
-                "file",
-                "data.txt",
-                TestUtil.StringToStreamNoBom("This is a small file"),
-                "application/octet-stream",
-                "form-data")
-                    }
-                });
+            new List<ParameterPart> {
+                new ParameterPart("textdata", "Testdata"),
+                new ParameterPart("submit", "Submit"),
+            },
+            new List<FilePart> {
+                new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("This is a small file"), "application/octet-stream", "form-data")
+            }
+        );
 
         /// <summary>
         ///     Raw multipart/form-data for the <see cref="TestData" /> object.
@@ -199,19 +168,14 @@ namespace HttpMultipartParserUnitTest
         /// </summary>
         private static readonly TestData TinyTestCase = new TestData(
             TinyTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                    {"text", new ParameterPart("text", "textdata")},
-                    {"after", new ParameterPart("after", "afterdata")},
-                },
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "file",
-                        new FilePart(
-                "file", "data.txt", TestUtil.StringToStreamNoBom("tiny"))
-                    }
-                });
+            new List<ParameterPart> {
+                new ParameterPart("text", "textdata"),
+                new ParameterPart("after", "afterdata")
+            },
+            new List<FilePart> {
+                new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("tiny"))
+            }
+        ); 
 
         /// <summary>
         ///     Raw test data for testing a multipart with the file as the last data section.
@@ -233,18 +197,13 @@ namespace HttpMultipartParserUnitTest
         /// </summary>
         private static readonly TestData FileIsLastTestCase = new TestData(
             FileIsLastTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                    {"adID", new ParameterPart("adID", "1425")}
-                },
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "files[]",
-                        new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg",
-                                     "form-data")
-                    }
-                });
+            new List<ParameterPart> {
+                new ParameterPart("adID", "1425")
+            },
+            new List<FilePart> {
+                new FilePart("files[]", "Capture.JPG", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data")
+            }
+        );
 
         private static readonly string MixedUnicodeWidthAndAsciiWidthCharactersTestData = TestUtil.TrimAllLines(
             @"--boundary_.oOo._MjQ1NTU=OTk3Ng==MjcxODE=
@@ -256,11 +215,11 @@ namespace HttpMultipartParserUnitTest
 
         private static readonly TestData MixedUnicodeWidthAndAsciiWidthCharactersTestCase = new TestData(
             MixedUnicodeWidthAndAsciiWidthCharactersTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                    {"psAdTitle", new ParameterPart("psAdTitle", "Bonjour poignée")}
-                },
-            new Dictionary<string, FilePart>());
+            new List<ParameterPart> {
+                new ParameterPart("psAdTitle", "Bonjour poignée")
+            },
+            new List<FilePart>()
+        );
 
         private static readonly string MixedSingleByteAndMultiByteWidthTestData = TestUtil.TrimAllLines(
             @"-----------------------------41952539122868
@@ -277,19 +236,13 @@ namespace HttpMultipartParserUnitTest
 
         private static readonly TestData MixedSingleByteAndMultiByteWidthTestCase = new TestData(
             MixedSingleByteAndMultiByteWidthTestData,
-            new Dictionary<string, ParameterPart>
-                {
-                    {"تت", new ParameterPart("تت", "1425")}
-                },
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "files[]",
-                        new FilePart("files[]", "تست.jpg", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg",
-                                     "form-data")
-                    }
-                }
-            );
+            new List<ParameterPart> { 
+                new ParameterPart("تت", "1425")
+            },
+            new List<FilePart> {
+                new FilePart("files[]", "تست.jpg", TestUtil.StringToStreamNoBom("BinaryData"), "image/jpeg", "form-data")
+            }
+        );
 
         private static readonly string FullPathAsFileNameTestData = TestUtil.TrimAllLines(
             @"-----------------------------7de6cc440a46
@@ -302,15 +255,37 @@ namespace HttpMultipartParserUnitTest
 
         private static readonly TestData FullPathAsFileNameWithSemicolon = new TestData(
             FullPathAsFileNameTestData,
-            new Dictionary<string, ParameterPart>(),
-            new Dictionary<string, FilePart>
-                {
-                    {
-                        "file",
-                        new FilePart("file", "test;abc.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")
-                    }
-                }
-            );
+            new List<ParameterPart>(),
+            new List<FilePart> {
+                    new FilePart("file", "test;abc.txt", TestUtil.StringToStream("test"), "text/plain", "form-data")
+            }
+        );
+
+        private static readonly string SeveralValuesWithSamePropertyTestData = TestUtil.TrimAllLines(
+            @"------B6u9lJxB4ByPiGPZ
+            Content-Disposition: form-data; name=""options""
+
+            value0
+            ------B6u9lJxB4ByPiGPZ
+            Content-Disposition: form-data; name=""options""
+
+            value1
+            ------B6u9lJxB4ByPiGPZ
+            Content-Disposition: form-data; name=""options""
+
+            value2
+            ------B6u9lJxB4ByPiGPZ--"
+        );
+
+        private static readonly TestData SeveralValuesWithSameProperty = new TestData(
+            SeveralValuesWithSamePropertyTestData,
+            new List<ParameterPart> {
+                new ParameterPart("options", "value0"),
+                new ParameterPart("options", "value1"),
+                new ParameterPart("options", "value2")
+            },
+            new List<FilePart>()
+        );
 
         #endregion
 
@@ -383,7 +358,8 @@ namespace HttpMultipartParserUnitTest
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.AreEqual(parser.Parameters["multilined"].Data, "line 1\r\nline 2\r\nline 3");
+                Assert.AreEqual(parser.GetParameterValue("multilined"), "line 1\r\nline 2\r\nline 3");
+                Assert.AreEqual(parser.GetParameterValues("multilined").First(), "line 1\r\nline 2\r\nline 3");
             }
         }
 
@@ -394,12 +370,12 @@ namespace HttpMultipartParserUnitTest
         [TestInitialize]
         public void Initialize()
         {
-            var testData = new[] {TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase};
+            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase };
             foreach (TestData data in testData)
             {
-                foreach (var pair in data.ExpectedFileData)
+                foreach (var filePart in data.ExpectedFileData)
                 {
-                    pair.Value.Data.Position = 0;
+                    filePart.Data.Position = 0;
                 }
             }
         }
@@ -505,6 +481,17 @@ namespace HttpMultipartParserUnitTest
         }
 
         [TestMethod]
+        public void AcceptSeveralValuesWithSameProperty()
+        {
+            using (Stream stream = TestUtil.StringToStream(SeveralValuesWithSameProperty.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.IsTrue(SeveralValuesWithSameProperty.Validate(parser));
+            }
+        }
+
+
+        [TestMethod]
         public void DoesNotCloseTheStream()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
@@ -527,22 +514,10 @@ namespace HttpMultipartParserUnitTest
         {
             #region Constructors and Destructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="TestData" /> class.
-            /// </summary>
-            /// <param name="request">
-            ///     The request.
-            /// </param>
-            /// <param name="expectedParams">
-            ///     The expected params.
-            /// </param>
-            /// <param name="expectedFileData">
-            ///     The expected file data.
-            /// </param>
             public TestData(
                 string request,
-                IDictionary<string, ParameterPart> expectedParams,
-                IDictionary<string, FilePart> expectedFileData)
+                List<ParameterPart> expectedParams,
+                List<FilePart> expectedFileData)
             {
                 Request = request;
                 ExpectedParams = expectedParams;
@@ -556,12 +531,12 @@ namespace HttpMultipartParserUnitTest
             /// <summary>
             ///     Gets or sets the expected file data.
             /// </summary>
-            public IDictionary<string, FilePart> ExpectedFileData { get; set; }
+            public List<FilePart> ExpectedFileData { get; set; }
 
             /// <summary>
             ///     Gets or sets the expected parameters.
             /// </summary>
-            public IDictionary<string, ParameterPart> ExpectedParams { get; set; }
+            public List<ParameterPart> ExpectedParams { get; set; }
 
             /// <summary>
             ///     Gets or sets the request.
@@ -584,37 +559,75 @@ namespace HttpMultipartParserUnitTest
             /// </returns>
             public bool Validate(MultipartFormDataParser parser)
             {
-                // Validate parameters
-                foreach (var pair in ExpectedParams)
+                // Deal with all the parameters who are only expected to have one value.
+                var expectedParametersWithSingleValue = ExpectedParams
+                    .GroupBy(p => p.Name)
+                    .Where(g => g.Count() == 0)
+                    .Select(g => g.Single());
+
+                foreach (var expectedParameter in expectedParametersWithSingleValue)
                 {
-                    if (!parser.Parameters.ContainsKey(pair.Key))
+                    if (!parser.HasParameter(expectedParameter.Name))
                     {
                         return false;
                     }
 
-                    ParameterPart expectedPart = pair.Value;
-                    ParameterPart actualPart = parser.Parameters[pair.Key];
+                    var actualValue = parser.GetParameterValue(expectedParameter.Name);
+                    var actualValueFromValues = parser.GetParameterValues(expectedParameter.Name).Single();
 
-                    Console.WriteLine("Expected {0} = {1}, Found {2} = {3}", expectedPart.Name, expectedPart.Data,
-                                      actualPart.Name, actualPart.Data);
+                    if (actualValue != actualValueFromValues)
+                    {
+                        Console.WriteLine("GetParameterValue vs. GetParameterValues mismatch! ({0} != {1})", actualValue, actualValueFromValues);
+                        return false;
+                    }
 
-                    if (expectedPart.Name != actualPart.Name || expectedPart.Data != actualPart.Data)
+                    Console.WriteLine("Expected {0} = {1}. Found {2} = {3}", expectedParameter.Name, expectedParameter.Data, expectedParameter.Name, actualValue);
+
+                    if (expectedParameter.Data != actualValue)
+                    {
+                        return false;
+                    }
+                }
+
+                // Deal with the parameters who are expected to have more then one value
+                var expectedParametersWithMultiValues = ExpectedParams
+                    .GroupBy(p => p.Name)
+                    .Where(a => a.Count() > 1);
+
+                foreach (var expectedParameters in expectedParametersWithMultiValues)
+                {
+                    var key = expectedParameters.Key;
+                    if (!parser.HasParameter(key))
+                    {
+                        return false;
+                    }
+
+                    var actualValues = parser.GetParameterValues(key);
+
+                    Console.WriteLine("Expected {0} = {1}. Found {2} = {3}", 
+                        key, 
+                        string.Join(",", expectedParameters.Select(p => p.Data)),
+                        key, 
+                        string.Join(",", actualValues)
+                    );
+
+                    if (actualValues.Count() != expectedParameters.Count() || actualValues.Zip(expectedParameters, Tuple.Create).Any(t => t.Item1 != t.Item2.Data))
                     {
                         return false;
                     }
                 }
 
                 // Validate files
-                foreach (var pair in ExpectedFileData)
+                foreach (var filePart in ExpectedFileData)
                 {
                     var foundPairMatch = false;
                     foreach (var file in parser.Files)
                     {
-                        if (pair.Key == file.Name)
+                        if (filePart.Name == file.Name)
                         {
                             foundPairMatch = true;
 
-                            FilePart expectedFile = pair.Value;
+                            FilePart expectedFile = filePart;
                             FilePart actualFile = file;
 
                             if (expectedFile.Name != actualFile.Name || expectedFile.FileName != actualFile.FileName)

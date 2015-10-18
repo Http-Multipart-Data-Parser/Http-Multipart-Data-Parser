@@ -577,7 +577,7 @@ namespace HttpMultipartParser
             {
                 if (line == null)
                 {
-                    throw new MultipartParseException("Unexpected end of section");
+                    throw new MultipartParseException("Unexpected end of stream. Is there an end boundary?");
                 }
 
                 if (firstTime)

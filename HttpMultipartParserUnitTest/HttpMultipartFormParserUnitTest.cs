@@ -287,6 +287,22 @@ namespace HttpMultipartParserUnitTest
             new List<FilePart>()
         );
 
+        private static readonly string UnclosedBoundaryTestData = TestUtil.TrimAllLines(
+            @"------51523
+              Content-Disposition: form-data; name=""value""
+              
+              my value
+              ------51523"
+        );
+
+        private static readonly TestData UnclosedBoundary = new TestData(
+            UnclosedBoundaryTestData,
+            new List<ParameterPart> {
+                new ParameterPart("value", "my value")
+            },
+            new List<FilePart>()
+        );
+
         #endregion
 
         #region Public Methods and Operators
@@ -490,6 +506,16 @@ namespace HttpMultipartParserUnitTest
             }
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(MultipartParseException))]
+        public void DoesntInfiniteLoopOnUnclosedInput()
+        {
+            using (Stream stream = TestUtil.StringToStream(UnclosedBoundary.Request, Encoding.UTF8))
+            {
+                // We expect this to throw!
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+            }
+        }
 
         [TestMethod]
         public void DoesNotCloseTheStream()

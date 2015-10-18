@@ -184,6 +184,16 @@ namespace HttpMultipartParserUnitTest
         }
 
         [TestMethod]
+        public void ReadLineReturnsNullOnNoData()
+        {
+            var reader = new RebufferableBinaryReader(new MemoryStream(new byte[6]), Encoding.UTF8);
+
+            var s = reader.ReadLine();
+            Assert.AreEqual(s, "\0\0\0\0\0\0");
+            Assert.IsNull(reader.ReadLine());
+        }
+
+        [TestMethod]
         public void ReadCanResumeInterruptedStream()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);

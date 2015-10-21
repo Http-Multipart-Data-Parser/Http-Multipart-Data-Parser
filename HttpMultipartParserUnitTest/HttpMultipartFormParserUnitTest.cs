@@ -175,6 +175,41 @@ namespace HttpMultipartParserUnitTest
             new List<FilePart> {
                 new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("tiny"))
             }
+        );
+
+        /// <summary>
+        ///     Raw multipart/form-data for the <see cref="TestData" /> object.
+        /// </summary>
+        private static readonly string TinyTestData2 = TestUtil.TrimAllLines(@"--boundry
+            Content-Disposition: form-data; name=""text""
+
+            textdata
+            --boundry
+            Content-Disposition: form-data; name=""file""; filename=""data.txt""
+            Content-Type: text/plain
+
+            12345678901234567890
+            --boundry
+            Content-Disposition: form-data; name=""after""
+
+            afterdata
+            --boundry--");
+
+        /// <summary>
+        ///     The tiny data test case with expected outcomes
+        /// </summary>
+        private static readonly TestData TinyTestCase2 = new TestData(
+            TinyTestData2,
+            new List<ParameterPart> {
+                new ParameterPart("text", "textdata"),
+                new ParameterPart("after", "afterdata")
+            },
+            new List<FilePart> {
+                new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("12345678901234567890"))
+            }
+        );
+
+            }
         ); 
 
         /// <summary>
@@ -331,6 +366,20 @@ namespace HttpMultipartParserUnitTest
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
                 Assert.IsTrue(TinyTestCase.Validate(parser));
+            }
+        }
+
+        /// <summary>
+        ///     Ensures that boundary detection works even when the boundary spans
+        ///     two different buffers.
+        /// </summary>
+        [TestMethod]
+        public void CanDetectBoundariesCrossBuffer2()
+        {
+            using (Stream stream = TestUtil.StringToStream(TinyTestCase2.Request.Replace("\n", "\r\n"), Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                Assert.IsTrue(TinyTestCase2.Validate(parser));
             }
         }
 

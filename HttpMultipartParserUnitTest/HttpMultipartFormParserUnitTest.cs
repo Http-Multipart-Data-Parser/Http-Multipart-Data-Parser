@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Text.RegularExpressions;
 using HttpMultipartParser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -307,6 +308,13 @@ namespace HttpMultipartParserUnitTest
 
         #region Public Methods and Operators
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ConstructingWithNullStreamFails()
+        {
+            new MultipartFormDataParser(Stream.Null);
+        }
+
         /// <summary>
         ///     Tests for correct detection of the boundary in the input stream.
         /// </summary>
@@ -340,6 +348,15 @@ namespace HttpMultipartParserUnitTest
         [TestMethod]
         public void CorrectlyHandleMixedNewlineFormats()
         {
+            // Replace the first '\n' with '\r\n'
+            var regex = new Regex(Regex.Escape("\n"));
+            string request = regex.Replace(TinyTestCase.Request, "\r\n", 1);
+
+            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                Assert.IsTrue(TinyTestCase.Validate(parser));
+            }
         }
 
         /// <summary>

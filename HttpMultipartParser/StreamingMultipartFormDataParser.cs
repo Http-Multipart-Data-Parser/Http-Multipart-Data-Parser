@@ -256,6 +256,8 @@ namespace HttpMultipartParser
         public delegate void FileStreamDelegate(
             string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes);
 
+        public delegate void StreamClosedDelegate();
+
         /// <summary>
         /// The ParameterDelegate defining functions that can handle multipart parameter data
         /// </summary>
@@ -281,6 +283,11 @@ namespace HttpMultipartParser
         /// The ParameterHandler. Delegates attached to this property will recieve parameter data.
         /// </summary>
         public ParameterDelegate ParameterHandler { get; set; }
+
+        /// <summary>
+        /// The StreamClosedHandler. Delegates attached to this property will be notified when the source stream is exhausted.
+        /// </summary>
+        public StreamClosedDelegate StreamClosedHandler { get; set; }
 
         #endregion
 
@@ -414,6 +421,11 @@ namespace HttpMultipartParser
                 // ParseSection will parse up to and including
                 // the next boundary.
                 ParseSection(reader);
+            }
+
+            if (StreamClosedHandler != null)
+            {
+                StreamClosedHandler();
             }
         }
 

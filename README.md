@@ -137,7 +137,11 @@ Multiple Files
         // Assume that filesreamsByName is a Dictionary<string, FileStream> of all the files
         // we are writing.
         filestreamsByName[name].Write(buffer, 0, bytes);
-    }
+    };
+    parser.StreamClosedHandler += () 
+    {
+        // Do things when my input stream is closed
+    };
 
 Licensing
 =========

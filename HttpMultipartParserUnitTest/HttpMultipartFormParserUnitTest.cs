@@ -351,7 +351,6 @@ namespace HttpMultipartParserUnitTest
             // Replace the first '\n' with '\r\n'
             var regex = new Regex(Regex.Escape("\n"));
             string request = regex.Replace(TinyTestCase.Request, "\r\n", 1);
-
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);

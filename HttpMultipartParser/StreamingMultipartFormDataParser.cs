@@ -463,8 +463,16 @@ namespace HttpMultipartParser
                 // closest boundary and don't miss the end --'s if it's an end boundary.
                 int endBoundaryPos = SubsequenceFinder.Search(fullBuffer, endBoundaryBinary, fullLength);
                 int endBoundaryLength = endBoundaryBinary.Length;
+
                 int boundaryPos = SubsequenceFinder.Search(fullBuffer, boundaryBinary, fullLength);
                 int boundaryLength = boundaryBinary.Length;
+
+                // If the boundaryPos is exactly at the end of our full buffer then ignore it as it could
+                // actually be a endBoundary that's had the '--' chopped off by the buffer.
+                if(boundaryPos + boundaryLength == fullLength)
+                {
+                    boundaryPos = -1;
+                }
 
                 // We need to select the appropriate position and length
                 // based on the smallest non-negative position.

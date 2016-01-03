@@ -178,6 +178,32 @@ namespace HttpMultipartParserUnitTest
             }
         ); 
 
+        private static readonly string ExactBufferTruncateTestData = TestUtil.TrimAllLines(@"--boundry
+            Content-Disposition: form-data; name=""text""
+
+            textdata
+            --boundry
+            Content-Disposition: form-data; name=""file""; filename=""data.txt""
+            Content-Type: text/plain
+
+            1234567890123456789012
+            --boundry--");
+
+        /// <summary>
+        ///     This test has the buffer split such that the final '--' of the end boundary
+        ///     falls into the next buffer.
+        /// </summary>
+        private static readonly TestData ExactBufferTruncateTestCase = new TestData(
+            ExactBufferTruncateTestData,
+            new List<ParameterPart> {
+                new ParameterPart("text", "textdata")
+            },
+            new List<FilePart> {
+                new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("1234567890123456789012"))
+            }
+        ); 
+
+
         /// <summary>
         ///     Raw test data for testing a multipart with the file as the last data section.
         /// </summary>
@@ -325,6 +351,19 @@ namespace HttpMultipartParserUnitTest
             {
                 var parser = new MultipartFormDataParser(stream);
                 Assert.IsTrue(TinyTestCase.Validate(parser));
+            }
+        }
+
+        /// <summary>
+        ///     Tests that the final '--' ending up in a seperate chunk doesn't break everything.
+        /// </summary>
+        [TestMethod]
+        public void CanHandleFinalDashesInSeperateBufferFromEndBinary()
+        {
+            using(Stream stream = TestUtil.StringToStream(ExactBufferTruncateTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                Assert.IsTrue(ExactBufferTruncateTestCase.Validate(parser));
             }
         }
 
@@ -604,7 +643,7 @@ namespace HttpMultipartParserUnitTest
                 // Deal with all the parameters who are only expected to have one value.
                 var expectedParametersWithSingleValue = ExpectedParams
                     .GroupBy(p => p.Name)
-                    .Where(g => g.Count() == 0)
+                    .Where(g => g.Count() == 1)
                     .Select(g => g.Single());
 
                 foreach (var expectedParameter in expectedParametersWithSingleValue)

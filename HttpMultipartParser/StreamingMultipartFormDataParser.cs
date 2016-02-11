@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -721,6 +722,15 @@ namespace HttpMultipartParser
             // and if we are don't treat a semicolon as a splitting character.
             bool inQuotes = false;
             string workingString = "";
+
+            // if the trimmed lined finnishes with a ";" this can cause a 
+            // index out of range exception to occur. because the method continues
+            // to executes and returns a empty string, trimming the line
+            // to ensure that we take off any spaces and then if it ends with a ";" removing
+            // on character from the end of the line to account for this.
+            line = line.Trim();
+            line = (line[line.Length - 1] == ';') ? line.Substring(0, line.Length - 2) : line;
+
             foreach (char c in line)
             {
                 if (c == '"')

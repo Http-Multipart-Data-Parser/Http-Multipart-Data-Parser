@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMultipartParser", "HttpMultipartParser\HttpMultipartParser.csproj", "{4691988A-CE66-40CB-AFB4-2757255E03E0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMultipartParserUnitTest", "HttpMultipartParserUnitTest\HttpMultipartParserUnitTest.csproj", "{FA7D167E-1ADE-4062-BC3C-B438993DAD8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{48EB3FB0-C9A6-4D97-9025-48D020B47380}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +23,10 @@ Global
 		{FA7D167E-1ADE-4062-BC3C-B438993DAD8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA7D167E-1ADE-4062-BC3C-B438993DAD8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA7D167E-1ADE-4062-BC3C-B438993DAD8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48EB3FB0-C9A6-4D97-9025-48D020B47380}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48EB3FB0-C9A6-4D97-9025-48D020B47380}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48EB3FB0-C9A6-4D97-9025-48D020B47380}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48EB3FB0-C9A6-4D97-9025-48D020B47380}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

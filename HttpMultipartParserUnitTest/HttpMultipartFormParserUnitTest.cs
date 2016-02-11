@@ -43,7 +43,7 @@ namespace HttpMultipartParserUnitTest
         #region Static Fields
 
         private static readonly string SingleFileTestData = TestUtil.TrimAllLines(@"--boundry
-              Content-Disposition: form-data; name=""file""; filename=""data.txt""
+              Content-Disposition: form-data; name=""file""; filename=""data.txt"";
               Content-Type: text/plain
 
               I am the first data1

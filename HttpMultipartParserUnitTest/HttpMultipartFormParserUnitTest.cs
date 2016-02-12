@@ -73,7 +73,7 @@ namespace HttpMultipartParserUnitTest
               
               textdata
               --boundry
-              Content-Disposition: form-data; name=""after""
+              Content-Disposition: form-data; name=""after"";TestForTextWithoutSplit
               
               afterdata
               --boundry
@@ -82,7 +82,7 @@ namespace HttpMultipartParserUnitTest
 
               I am the first data 
               --boundry
-              Content-Disposition: form-data; name=""newfile""; filename=""superdata.txt""
+              Content-Disposition: form-data;TestForTextWithoutSplit; name=""newfile""; filename=""superdata.txt""
               Content-Type: text/plain
 
               I am the second data

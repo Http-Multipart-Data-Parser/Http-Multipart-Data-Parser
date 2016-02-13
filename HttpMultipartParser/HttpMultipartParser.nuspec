@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>HttpMultipartParser</id>
-        <version>2.1.2</version>
+        <version>2.1.3</version>
         <title>HttpMultipartParser</title>
         <authors>Jake Woods</authors>
         <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>

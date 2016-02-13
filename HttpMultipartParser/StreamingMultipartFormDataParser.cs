@@ -672,6 +672,9 @@ namespace HttpMultipartParser
                 // ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] {':', '='}, 2))
+                    // select where the length of the array is equal to two, that way if it is only one it will
+                    // be ignored as it is invalid key-pair
+                    .Where(x=> x.Length == 2)
                     // Limit split to 2 splits so we don't accidently split characters in file paths.
                     .ToDictionary(
                         x => x[0].Trim().Replace("\"", string.Empty).ToLower(),
@@ -722,14 +725,6 @@ namespace HttpMultipartParser
             // and if we are don't treat a semicolon as a splitting character.
             bool inQuotes = false;
             string workingString = "";
-
-            // if the trimmed lined finnishes with a ";" this can cause a 
-            // index out of range exception to occur. because the method continues
-            // to executes and returns a empty string, trimming the line
-            // to ensure that we take off any spaces and then if it ends with a ";" removing
-            // on character from the end of the line to account for this.
-            line = line.Trim();
-            line = (line[line.Length - 1] == ';') ? line.Substring(0, line.Length - 2) : line;
 
             foreach (char c in line)
             {

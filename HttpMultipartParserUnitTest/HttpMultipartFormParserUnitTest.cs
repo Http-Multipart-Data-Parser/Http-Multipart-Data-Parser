@@ -585,6 +585,67 @@ namespace HttpMultipartParserUnitTest
             }
         }
 
+        [TestMethod]
+        public void HandlesFileWithLastCrLfAtBufferLength()
+        {
+            string request =
+@"------WebKitFormBoundaryphElSb1aBJGfLyAP
+Content-Disposition: form-data; name=""fileName""
+
+Testfile
+------WebKitFormBoundaryphElSb1aBJGfLyAP
+Content-Disposition: form-data; name=""file""; filename=""Testfile""
+Content-Type: application/pdf
+
+"
++ new string('\0', 8147)
++ @"
+------WebKitFormBoundaryphElSb1aBJGfLyAP--
+";
+
+            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+            }
+        }
+
+        [TestMethod]
+        public void HandlesFileWithLastCrLfImmediatlyAfterBufferLength()
+        {
+            string request =
+@"------WebKitFormBoundaryphElSb1aBJGfLyAP
+Content-Disposition: form-data; name=""fileName""
+
+Testfile
+------WebKitFormBoundaryphElSb1aBJGfLyAP
+Content-Disposition: form-data; name=""file""; filename=""Testfile""
+Content-Type: application/pdf
+
+"
++ new string('\0', 8149)
++ @"
+------WebKitFormBoundaryphElSb1aBJGfLyAP--
+";
+
+            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+            }
+        }
+
+        [TestMethod]
+        public void CanDetectBoundriesWithNewLineInNextBuffer()
+        {
+            for (int i = 16; i < TinyTestCase.Request.Length; i++)
+            {
+                using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
+                {
+                    var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, i);
+                    Assert.IsTrue(TinyTestCase.Validate(parser), $"Failure in buffer length {i}");
+                }
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -723,6 +784,11 @@ namespace HttpMultipartParserUnitTest
                             }
 
                             // Read the data from the files and see if it's the same
+                            if (expectedFile.Data.CanSeek)
+                            {
+                                expectedFile.Data.Position = 0;
+                            }
+
                             var reader = new StreamReader(expectedFile.Data);
                             string expectedFileData = reader.ReadToEnd();
 

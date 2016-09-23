@@ -367,7 +367,8 @@ namespace HttpMultipartParser
                 bool found = false;
                 for (int i = 0; i < pattern.Length; ++i)
                 {
-                    if (pattern[i] != data[offset + i])
+                    int readPos = offset + i;
+                    if (data.Length == readPos || pattern[i] != data[readPos])
                     {
                         found = false;
                         break;
@@ -481,8 +482,9 @@ namespace HttpMultipartParser
                 int boundaryLength = boundaryBinary.Length;
 
                 // If the boundaryPos is exactly at the end of our full buffer then ignore it as it could
-                // actually be a endBoundary that's had the '--' chopped off by the buffer.
-                if(boundaryPos + boundaryLength == fullLength)
+                // actually be a endBoundary that's had one or both of the '--' chopped off by the buffer.
+                if(boundaryPos + boundaryLength == fullLength ||
+                   boundaryPos + boundaryLength + 1 == fullLength)
                 {
                     boundaryPos = -1;
                 }

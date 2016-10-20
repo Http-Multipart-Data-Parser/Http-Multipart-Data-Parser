@@ -35,7 +35,7 @@ namespace HttpMultipartParser
     ///     Provides character based and byte based stream-like read operations over multiple
     ///     streams and provides methods to add data to the front of the buffer.
     /// </summary>
-    internal class BinaryStreamStack
+    public class BinaryStreamStack
     {
         #region Fields
 

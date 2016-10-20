@@ -333,7 +333,7 @@ namespace HttpMultipartParserUnitTest
         #endregion
 
         #region Public Methods and Operators
-
+        
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ConstructingWithNullStreamFails()

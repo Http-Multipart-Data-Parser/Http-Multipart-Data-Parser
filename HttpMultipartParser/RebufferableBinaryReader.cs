@@ -36,7 +36,7 @@ namespace HttpMultipartParser
     ///     data similar to a <see cref="BinaryReader" /> and provides the ability to push
     ///     data onto the front of the stream.
     /// </summary>
-    internal class RebufferableBinaryReader
+    public class RebufferableBinaryReader
     {
         #region Fields
 

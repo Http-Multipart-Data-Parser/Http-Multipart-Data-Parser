@@ -30,8 +30,10 @@ namespace HttpMultipartParser
     /// <summary>
     ///     Represents a parsing problem occurring within the MultipartFormDataParser
     /// </summary>
+#if NET40
     [Serializable]
-    internal class MultipartParseException : Exception
+#endif
+    public class MultipartParseException : Exception
     {
         #region Constructors and Destructors
 

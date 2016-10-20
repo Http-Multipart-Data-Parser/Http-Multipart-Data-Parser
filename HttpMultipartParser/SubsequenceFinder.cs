@@ -33,7 +33,7 @@ namespace HttpMultipartParser
     ///     Provides methods to find a subsequence within a
     ///     sequence.
     /// </summary>
-    internal class SubsequenceFinder
+    public class SubsequenceFinder
     {
         #region Public Methods and Operators
 

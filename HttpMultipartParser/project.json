@@ -1,22 +1,31 @@
 {
   "title": "HttpMultipartParser",
-  "version": "2.1.6-*",
+  "version": "2.2.0-*",
   "dependencies": {
     
   },
   "frameworks": {
-    "netcoreapp1.0": {
+    "netstandard1.3": {
+      "buildOptions": {
+        "define": [ "NETSTANDARD" ]
+      },
+      "imports": "dnxcore50",
       "dependencies": {
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.1"
       }
     },
-    "net40": {
+    "net452": {
+      "buildOptions": {
+        "define": [ "NET452" ]
+      },
       "frameworkAssemblies": {
        
       }
     }
   },
   "buildOptions": {
+    "emitEntryPoint": false,
+    "platform": "anycpu",
     "xmlDoc": true
   },
   "runtimes": { "win": { } },

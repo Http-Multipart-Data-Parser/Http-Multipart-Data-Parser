@@ -3,106 +3,75 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using HttpMultipartParser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace HttpMultipartParserUnitTest
 {
     /// <summary>
     ///     Summary description for RebufferableBinaryReaderUnitTest
     /// </summary>
-    [TestClass]
     public class RebufferableBinaryReaderUnitTest
     {
-        /// <summary>
-        ///     Gets or sets the test context which provides
-        ///     information about and functionality for the current test run.
-        /// </summary>
-        public TestContext TestContext { get; set; }
+         #region Read() Tests
 
-        #region Additional test attributes
-
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-
-        #endregion
-
-        #region Read() Tests
-
-        [TestMethod]
+        [Fact]
         public void CanReadSingleCharacterBuffer()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abc"), Encoding.UTF8);
 
-            Assert.AreEqual(reader.Read(), 'a');
-            Assert.AreEqual(reader.Read(), 'b');
-            Assert.AreEqual(reader.Read(), 'c');
+            Assert.Equal(reader.Read(), 'a');
+            Assert.Equal(reader.Read(), 'b');
+            Assert.Equal(reader.Read(), 'c');
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadSingleCharacterOverBuffers()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("def"), Encoding.UTF8);
             reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
-            Assert.AreEqual(reader.Read(), 'a');
-            Assert.AreEqual(reader.Read(), 'b');
-            Assert.AreEqual(reader.Read(), 'c');
-            Assert.AreEqual(reader.Read(), 'd');
-            Assert.AreEqual(reader.Read(), 'e');
-            Assert.AreEqual(reader.Read(), 'f');
+            Assert.Equal(reader.Read(), 'a');
+            Assert.Equal(reader.Read(), 'b');
+            Assert.Equal(reader.Read(), 'c');
+            Assert.Equal(reader.Read(), 'd');
+            Assert.Equal(reader.Read(), 'e');
+            Assert.Equal(reader.Read(), 'f');
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadMixedAsciiAndUTFCharacters()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abcdèfg"), Encoding.UTF8);
 
-            Assert.AreEqual(reader.Read(), 'a');
-            Assert.AreEqual(reader.Read(), 'b');
-            Assert.AreEqual(reader.Read(), 'c');
-            Assert.AreEqual(reader.Read(), 'd');
-            Assert.AreEqual(reader.Read(), 'è');
-            Assert.AreEqual(reader.Read(), 'f');
-            Assert.AreEqual(reader.Read(), 'g');
+            Assert.Equal(reader.Read(), 'a');
+            Assert.Equal(reader.Read(), 'b');
+            Assert.Equal(reader.Read(), 'c');
+            Assert.Equal(reader.Read(), 'd');
+            Assert.Equal(reader.Read(), 'è');
+            Assert.Equal(reader.Read(), 'f');
+            Assert.Equal(reader.Read(), 'g');
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadMixedAsciiAndUTFCharactersOverBuffers()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("dèfg"), Encoding.UTF8);
             reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
-            Assert.AreEqual(reader.Read(), 'a');
-            Assert.AreEqual(reader.Read(), 'b');
-            Assert.AreEqual(reader.Read(), 'c');
-            Assert.AreEqual(reader.Read(), 'd');
-            Assert.AreEqual(reader.Read(), 'è');
-            Assert.AreEqual(reader.Read(), 'f');
-            Assert.AreEqual(reader.Read(), 'g');
+            Assert.Equal(reader.Read(), 'a');
+            Assert.Equal(reader.Read(), 'b');
+            Assert.Equal(reader.Read(), 'c');
+            Assert.Equal(reader.Read(), 'd');
+            Assert.Equal(reader.Read(), 'è');
+            Assert.Equal(reader.Read(), 'f');
+            Assert.Equal(reader.Read(), 'g');
         }
 
         #endregion
 
         #region Read(buffer, index, count) Tests
 
-        [TestMethod]
+        [Fact]
         public void CanReadSingleBuffer()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
@@ -110,10 +79,10 @@ namespace HttpMultipartParserUnitTest
             var buffer = new byte[Encoding.UTF8.GetByteCount("6chars")];
             reader.Read(buffer, 0, buffer.Length);
             string result = Encoding.UTF8.GetString(buffer);
-            Assert.AreEqual(result, "6chars");
+            Assert.Equal(result, "6chars");
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadAcrossMultipleBuffers()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("ars"), Encoding.UTF8);
@@ -121,10 +90,10 @@ namespace HttpMultipartParserUnitTest
 
             var buffer = new byte[6];
             reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "6chars");
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "6chars");
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadMixedAsciiAndUTF8()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("5èats"), Encoding.UTF8);
@@ -132,10 +101,10 @@ namespace HttpMultipartParserUnitTest
             var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
             reader.Read(buffer, 0, buffer.Length);
             string result = Encoding.UTF8.GetString(buffer);
-            Assert.AreEqual(result, "5èats");
+            Assert.Equal(result, "5èats");
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadMixedAsciiAndUTF8AcrossMultipleBuffers()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("ts"), Encoding.UTF8);
@@ -144,82 +113,82 @@ namespace HttpMultipartParserUnitTest
             var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
             reader.Read(buffer, 0, buffer.Length);
             string result = Encoding.UTF8.GetString(buffer);
-            Assert.AreEqual(result, "5èats");
+            Assert.Equal(result, "5èats");
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadCorrectlyHandlesSmallerBufferThenStream()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[4];
             reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "6cha");
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "6cha");
 
             buffer = new byte[2];
             reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "rs");
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "rs");
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadCorrectlyHandlesLargerBufferThenStream()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[10];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "6chars\0\0\0\0");
-            Assert.AreEqual(amountRead, 6);
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "6chars\0\0\0\0");
+            Assert.Equal(amountRead, 6);
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadReturnsZeroOnNoData()
         {
             var reader = new RebufferableBinaryReader(new MemoryStream(), Encoding.UTF8);
 
             var buffer = new byte[6];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "\0\0\0\0\0\0");
-            Assert.AreEqual(amountRead, 0);
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "\0\0\0\0\0\0");
+            Assert.Equal(amountRead, 0);
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadLineReturnsNullOnNoData()
         {
             var reader = new RebufferableBinaryReader(new MemoryStream(new byte[6]), Encoding.UTF8);
 
             var s = reader.ReadLine();
-            Assert.AreEqual(s, "\0\0\0\0\0\0");
-            Assert.IsNull(reader.ReadLine());
+            Assert.Equal(s, "\0\0\0\0\0\0");
+            Assert.Null(reader.ReadLine());
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadCanResumeInterruptedStream()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
             var buffer = new byte[4];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "6cha");
-            Assert.AreEqual(amountRead, 4);
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "6cha");
+            Assert.Equal(amountRead, 4);
 
             reader.Buffer(TestUtil.StringToByteNoBom("14intermission"));
             buffer = new byte[14];
             amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "14intermission");
-            Assert.AreEqual(amountRead, 14);
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "14intermission");
+            Assert.Equal(amountRead, 14);
 
             buffer = new byte[2];
             amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.AreEqual(Encoding.UTF8.GetString(buffer), "rs");
-            Assert.AreEqual(amountRead, 2);
+            Assert.Equal(Encoding.UTF8.GetString(buffer), "rs");
+            Assert.Equal(amountRead, 2);
         }
 
         #endregion
 
         #region ReadByteLine() Tests
 
-        [TestMethod]
+        [Fact]
         public void CanReadByteLineOnMixedAsciiAndUTF8Text()
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("Bonjour poignée"), Encoding.UTF8);
@@ -228,7 +197,7 @@ namespace HttpMultipartParserUnitTest
 
             foreach (var pair in expected.Zip(bytes, Tuple.Create))
             {
-                Assert.AreEqual(pair.Item1, pair.Item2);
+                Assert.Equal(pair.Item1, pair.Item2);
             }
         }
 

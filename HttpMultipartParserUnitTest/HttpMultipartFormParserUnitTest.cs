@@ -30,15 +30,20 @@ using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HttpMultipartParser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace HttpMultipartParserUnitTest
 {
     /// <summary>
     ///     The http multipart form parser unit test.
     /// </summary>
-    [TestClass]
-    public class HttpMultipartFormParserUnitTest
+    /// <remarks>
+    /// It's important to implement IDisposable. It allows us to write test initialization
+    /// code in the construtor and test cleanup code in the 'Dispose' method. This is the
+    /// equivalent of decorating a method with the [TestInitialize] attribute and decorating
+    /// another method with the [TestCleanup] when using mstest. 
+    /// </remarks>
+    public class HttpMultipartFormParserUnitTest : IDisposable
     {
         #region Static Fields
 
@@ -332,38 +337,58 @@ namespace HttpMultipartParserUnitTest
 
         #endregion
 
+        #region Constructor
+
+
+        /// <summary>
+        ///     Initializes the test data before each run, this primarily
+        ///     consists of resetting data stream positions.
+        /// </summary>
+        public HttpMultipartFormParserUnitTest()
+        {
+            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase };
+            foreach (TestData data in testData)
+            {
+                foreach (var filePart in data.ExpectedFileData)
+                {
+                    filePart.Data.Position = 0;
+                }
+            }
+        }
+
+        #endregion
+
         #region Public Methods and Operators
-        
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+
+        [Fact]
         public void ConstructingWithNullStreamFails()
         {
-            new MultipartFormDataParser(Stream.Null);
+            Assert.Throws<ArgumentNullException>(() => new MultipartFormDataParser(Stream.Null));
         }
 
         /// <summary>
         ///     Tests for correct detection of the boundary in the input stream.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CanAutoDetectBoundary()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream);
-                Assert.IsTrue(TinyTestCase.Validate(parser));
+                Assert.True(TinyTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     Tests that the final '--' ending up in a seperate chunk doesn't break everything.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CanHandleFinalDashesInSeperateBufferFromEndBinary()
         {
             using(Stream stream = TestUtil.StringToStream(ExactBufferTruncateTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
-                Assert.IsTrue(ExactBufferTruncateTestCase.Validate(parser));
+                Assert.True(ExactBufferTruncateTestCase.Validate(parser));
             }
         }
 
@@ -371,20 +396,20 @@ namespace HttpMultipartParserUnitTest
         ///     Ensures that boundary detection works even when the boundary spans
         ///     two different buffers.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CanDetectBoundariesCrossBuffer()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
-                Assert.IsTrue(TinyTestCase.Validate(parser));
+                Assert.True(TinyTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     The correctly handle mixed newline formats.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CorrectlyHandleMixedNewlineFormats()
         {
             // Replace the first '\n' with '\r\n'
@@ -393,28 +418,28 @@ namespace HttpMultipartParserUnitTest
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
-                Assert.IsTrue(TinyTestCase.Validate(parser));
+                Assert.True(TinyTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     Tests for correct handling of <c>crlf (\r\n)</c> in the input stream.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CorrectlyHandlesCRLF()
         {
             string request = TinyTestCase.Request.Replace("\n", "\r\n");
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
-                Assert.IsTrue(TinyTestCase.Validate(parser));
+                Assert.True(TinyTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     Tests for correct handling of a multiline parameter.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CorrectlyHandlesMultilineParameter()
         {
             string request = TestUtil.TrimAllLines(
@@ -429,25 +454,8 @@ namespace HttpMultipartParserUnitTest
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.AreEqual(parser.GetParameterValue("multilined"), "line 1\r\nline 2\r\nline 3");
-                Assert.AreEqual(parser.GetParameterValues("multilined").First(), "line 1\r\nline 2\r\nline 3");
-            }
-        }
-
-        /// <summary>
-        ///     Initializes the test data before each run, this primarily
-        ///     consists of resetting data stream positions.
-        /// </summary>
-        [TestInitialize]
-        public void Initialize()
-        {
-            var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase };
-            foreach (TestData data in testData)
-            {
-                foreach (var filePart in data.ExpectedFileData)
-                {
-                    filePart.Data.Position = 0;
-                }
+                Assert.Equal(parser.GetParameterValue("multilined"), "line 1\r\nline 2\r\nline 3");
+                Assert.Equal(parser.GetParameterValues("multilined").First(), "line 1\r\nline 2\r\nline 3");
             }
         }
 
@@ -455,30 +463,30 @@ namespace HttpMultipartParserUnitTest
         ///     Checks that multiple files don't get in the way of parsing each other
         ///     and that everything parses correctly.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void MultipleFilesAndParamsTest()
         {
             using (Stream stream = TestUtil.StringToStream(MultipleParamsAndFilesTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
-                Assert.IsTrue(MultipleParamsAndFilesTestCase.Validate(parser));
+                Assert.True(MultipleParamsAndFilesTestCase.Validate(parser));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void SingleFileTest()
         {
             using (Stream stream = TestUtil.StringToStream(SingleFileTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
-                Assert.IsTrue(SingleFileTestCase.Validate(parser));
+                Assert.True(SingleFileTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     The small data test.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void SmallDataTest()
         {
             using (Stream stream = TestUtil.StringToStream(SmallTestCase.Request))
@@ -487,37 +495,37 @@ namespace HttpMultipartParserUnitTest
                 // spec. (A -- is added by the parser, this boundry is what would be sent in the
                 // requset header)
                 var parser = new MultipartFormDataParser(stream, "---------------------------265001916915724");
-                Assert.IsTrue(SmallTestCase.Validate(parser));
+                Assert.True(SmallTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     The tiny data test.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TinyDataTest()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
-                Assert.IsTrue(TinyTestCase.Validate(parser));
+                Assert.True(TinyTestCase.Validate(parser));
             }
         }
 
         /// <summary>
         ///     The can handle file as last section.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void CanHandleFileAsLastSection()
         {
             using (Stream stream = TestUtil.StringToStream(FileIsLastTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.IsTrue(FileIsLastTestCase.Validate(parser));
+                Assert.True(FileIsLastTestCase.Validate(parser));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanHandleUnicodeWidthAndAsciiWidthCharacters()
         {
             using (
@@ -525,11 +533,11 @@ namespace HttpMultipartParserUnitTest
                                                         Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.IsTrue(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Validate(parser));
+                Assert.True(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Validate(parser));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanHandleMixedSingleByteAndMultiByteWidthCharacters()
         {
             using (
@@ -537,55 +545,54 @@ namespace HttpMultipartParserUnitTest
                 )
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.IsTrue(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
+                Assert.True(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void HandlesFullPathAsFileNameWithSemicolonCorrectly()
         {
             using (Stream stream = TestUtil.StringToStream(FullPathAsFileNameWithSemicolon.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.IsTrue(FullPathAsFileNameWithSemicolon.Validate(parser));
+                Assert.True(FullPathAsFileNameWithSemicolon.Validate(parser));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void AcceptSeveralValuesWithSameProperty()
         {
             using (Stream stream = TestUtil.StringToStream(SeveralValuesWithSameProperty.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.IsTrue(SeveralValuesWithSameProperty.Validate(parser));
+                Assert.True(SeveralValuesWithSameProperty.Validate(parser));
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(MultipartParseException))]
+        [Fact]
         public void DoesntInfiniteLoopOnUnclosedInput()
         {
             using (Stream stream = TestUtil.StringToStream(UnclosedBoundary.Request, Encoding.UTF8))
             {
                 // We expect this to throw!
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                Assert.Throws<MultipartParseException>(() => new MultipartFormDataParser(stream, Encoding.UTF8));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DoesNotCloseTheStream()
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
-                Assert.IsTrue(TinyTestCase.Validate(parser));
+                Assert.True(TinyTestCase.Validate(parser));
 
                 stream.Position = 0;
-                Assert.IsTrue(true, "A closed stream would throw ObjectDisposedException");
+                Assert.True(true, "A closed stream would throw ObjectDisposedException");
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void HandlesFileWithLastCrLfAtBufferLength()
         {
             string request =
@@ -609,7 +616,7 @@ Content-Type: application/pdf
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void HandlesFileWithLastCrLfImmediatlyAfterBufferLength()
         {
             string request =
@@ -633,7 +640,7 @@ Content-Type: application/pdf
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanDetectBoundriesWithNewLineInNextBuffer()
         {
             for (int i = 16; i < TinyTestCase.Request.Length; i++)
@@ -641,9 +648,13 @@ Content-Type: application/pdf
                 using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
                 {
                     var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, i);
-                    Assert.IsTrue(TinyTestCase.Validate(parser), $"Failure in buffer length {i}");
+                    Assert.True(TinyTestCase.Validate(parser), $"Failure in buffer length {i}");
                 }
             }
+        }
+
+        public void Dispose()
+        {
         }
 
         #endregion

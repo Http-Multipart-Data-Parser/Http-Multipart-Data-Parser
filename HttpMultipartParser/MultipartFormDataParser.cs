@@ -265,7 +265,8 @@ namespace HttpMultipartParser
         /// <returns>The value of the parameter</returns>
         public string GetParameterValue(string name)
         {
-            return Parameters.FirstOrDefault(p => p.Name == name).Data;
+            var parameter = Parameters.FirstOrDefault(p => p.Name == name);
+            return parameter != null ? parameter.Data : null;
         }
 
         /// <summary>

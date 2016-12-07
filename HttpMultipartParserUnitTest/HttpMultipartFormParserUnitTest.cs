@@ -593,6 +593,16 @@ namespace HttpMultipartParserUnitTest
         }
 
         [Fact]
+        public void GetParameterValueReturnsNullIfNoParameterFound()
+        {
+            using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
+            {
+                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                Assert.Null(parser.GetParameterValue("does not exist"));
+            }
+        }
+
+        [Fact]
         public void HandlesFileWithLastCrLfAtBufferLength()
         {
             string request =

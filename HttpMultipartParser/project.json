@@ -1,6 +1,6 @@
 {
   "title": "HttpMultipartParser",
-  "version": "2.2.0-*",
+  "version": "2.2.2-*",
   "dependencies": {
     
   },
@@ -14,21 +14,15 @@
         "NETStandard.Library": "1.6.1"
       }
     },
-    "net452": {
-      "buildOptions": {
-        "define": [ "NET452" ]
-      },
-      "frameworkAssemblies": {
-       
-      }
-    }
+    "net45": {},
+    "net451": {},
+    "net452": {}
   },
   "buildOptions": {
     "emitEntryPoint": false,
     "platform": "anycpu",
     "xmlDoc": true
   },
-  "runtimes": { "win": { } },
   "scripts": {
     "postcompile": [
       "dotnet pack --no-build --configuration %compile:Configuration%"

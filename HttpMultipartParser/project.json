@@ -1,6 +1,6 @@
 {
   "title": "HttpMultipartParser",
-  "version": "2.2.2-*",
+  "version": "2.2.3-*",
   "dependencies": {
     
   },
@@ -16,7 +16,8 @@
     },
     "net45": {},
     "net451": {},
-    "net452": {}
+    "net452": {},
+    "net46": {}
   },
   "buildOptions": {
     "emitEntryPoint": false,

@@ -13,7 +13,7 @@ There is also a NuGet package provided.
 
 Dependencies
 ============
-The parser was built and tested for NET 4.0. Versions lower then this may work but are untested.
+The parser was built for and tested on NET 4.0. Versions lower then this may work but are untested.
 
 How do I use it?
 ================

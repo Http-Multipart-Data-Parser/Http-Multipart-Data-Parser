@@ -1,6 +1,6 @@
 {
   "title": "HttpMultipartParser",
-  "version": "2.2.3-*",
+  "version": "2.2.4-*",
   "dependencies": {
     
   },
@@ -21,6 +21,7 @@
   },
   "buildOptions": {
     "emitEntryPoint": false,
+    "keyFile": "HttpMultipartParser.snk",
     "platform": "anycpu",
     "xmlDoc": true
   },

@@ -700,14 +700,27 @@ namespace HttpMultipartParser
                 line = reader.ReadLine();
             }
 
+            // Parser expects name parameter to always present, but it's not always the case
+            // https://github.com/Vodurden/Http-Multipart-Data-Parser/issues/58
+            if (!parameters.ContainsKey("name"))
+                parameters.Add("name", Guid.NewGuid().ToString("N"));
+
             // Now that we've consumed all the parameters we're up to the body. We're going to do
             // different things depending on if we're parsing a, relatively small, form value or a
             // potentially large file.
+
+
             if (parameters.ContainsKey("filename"))
             {
                 // Right now we assume that if a section contains filename then it is a file.
                 // This assumption needs to be checked, it holds true in firefox but is untested for other 
                 // browsers.
+                ParseFilePart(parameters, reader);
+            } 
+            else if (parameters.ContainsKey("content-type") && parameters["content-type"].Contains("octet-stream"))
+            {
+                // Posible issue: presens of filename is a wrong assumption, I guess more reliable is to check content type
+                parameters.Add("filename", "na");
                 ParseFilePart(parameters, reader);
             }
             else

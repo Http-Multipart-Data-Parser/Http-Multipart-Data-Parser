@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26114.2
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMultipartParser", "HttpMultipartParser\HttpMultipartParser.csproj", "{EA2AE348-5520-4FEE-815B-02D90322804D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMultipartParser", "HttpMultipartParser\HttpMultipartParser.csproj", "{EA2AE348-5520-4FEE-815B-02D90322804D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMultipartParserUnitTest", "HttpMultipartParserUnitTest\HttpMultipartParserUnitTest.csproj", "{5E49EE76-62B3-40E3-BEFC-3F0CB8BEE523}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMultipartParserUnitTest", "HttpMultipartParserUnitTest\HttpMultipartParserUnitTest.csproj", "{5E49EE76-62B3-40E3-BEFC-3F0CB8BEE523}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5DA81F7F-C5C0-43F3-81CE-1513B3FEAA06}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D51F3380-641A-41EC-9397-D16B2196A24A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5D8E3C6B-9DC8-4D8D-BAA4-6D739906AFE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +30,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EA2AE348-5520-4FEE-815B-02D90322804D} = {D51F3380-641A-41EC-9397-D16B2196A24A}
+		{5E49EE76-62B3-40E3-BEFC-3F0CB8BEE523} = {5D8E3C6B-9DC8-4D8D-BAA4-6D739906AFE5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EC47708C-FE9B-4234-8622-7049B6B01005}
 	EndGlobalSection
 EndGlobal

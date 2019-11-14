@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -197,8 +196,8 @@ namespace HttpMultipartParser
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
-            if(stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
-            if(encoding == null) { throw new ArgumentNullException("encoding"); }
+            if (stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
+            if (encoding == null) { throw new ArgumentNullException("encoding"); }
 
             this.stream = stream;
             this.boundary = boundary;
@@ -323,7 +322,7 @@ namespace HttpMultipartParser
         /// <returns>The offset of the next newline</returns>
         private int FindNextNewline(ref byte[] data, int offset, int maxBytes)
         {
-            byte[][] newlinePatterns = {Encoding.GetBytes("\r\n"), Encoding.GetBytes("\n")};
+            byte[][] newlinePatterns = { Encoding.GetBytes("\r\n"), Encoding.GetBytes("\n") };
             Array.Sort(newlinePatterns, (first, second) => second.Length.CompareTo(first.Length));
 
             byte[] dataRef = data;
@@ -359,7 +358,7 @@ namespace HttpMultipartParser
         /// </returns>
         private int CalculateNewlineLength(ref byte[] data, int offset)
         {
-            byte[][] newlinePatterns = {Encoding.GetBytes("\r\n"), Encoding.GetBytes("\n")};
+            byte[][] newlinePatterns = { Encoding.GetBytes("\r\n"), Encoding.GetBytes("\n") };
 
             // Go through each pattern and find which one matches.
             foreach (var pattern in newlinePatterns)
@@ -456,7 +455,7 @@ namespace HttpMultipartParser
             // file.
             var curBuffer = new byte[BinaryBufferSize];
             var prevBuffer = new byte[BinaryBufferSize];
-            var fullBuffer = new byte[BinaryBufferSize*2];
+            var fullBuffer = new byte[BinaryBufferSize * 2];
             int curLength = 0;
             int prevLength = 0;
             int fullLength = 0;
@@ -483,7 +482,7 @@ namespace HttpMultipartParser
 
                 // If the boundaryPos is exactly at the end of our full buffer then ignore it as it could
                 // actually be a endBoundary that's had one or both of the '--' chopped off by the buffer.
-                if(boundaryPos + boundaryLength == fullLength ||
+                if (boundaryPos + boundaryLength == fullLength ||
                    boundaryPos + boundaryLength + 1 == fullLength)
                 {
                     boundaryPos = -1;
@@ -673,10 +672,10 @@ namespace HttpMultipartParser
                 // Content-Type: text/plain 
                 // ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
-                    .Select(x => x.Split(new[] {':', '='}, 2))
+                    .Select(x => x.Split(new[] { ':', '=' }, 2))
                     // select where the length of the array is equal to two, that way if it is only one it will
                     // be ignored as it is invalid key-pair
-                    .Where(x=> x.Length == 2)
+                    .Where(x => x.Length == 2)
                     // Limit split to 2 splits so we don't accidently split characters in file paths.
                     .ToDictionary(
                         x => x[0].Trim().Replace("\"", string.Empty).ToLower(),

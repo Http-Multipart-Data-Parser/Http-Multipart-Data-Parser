@@ -7,9 +7,9 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HttpMultipartParser;
 using System;
 using System.Text;
-using HttpMultipartParser;
 using Xunit;
 
 namespace HttpMultipartParserUnitTests

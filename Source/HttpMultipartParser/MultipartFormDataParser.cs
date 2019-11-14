@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="MultipartFormDataParser.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
 //
@@ -22,8 +22,8 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
+using System.Text;
 
 namespace HttpMultipartParser
 {

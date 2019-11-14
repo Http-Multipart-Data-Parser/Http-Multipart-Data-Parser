@@ -23,13 +23,13 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using HttpMultipartParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using HttpMultipartParser;
 using Xunit;
 
 namespace HttpMultipartParserUnitTests
@@ -60,7 +60,7 @@ namespace HttpMultipartParserUnitTests
         /// </summary>
         private static readonly TestData SingleFileTestCase = new TestData(
             SingleFileTestData,
-            new List<ParameterPart> {},
+            new List<ParameterPart> { },
             new List<FilePart> {
                 new FilePart("file", "data.txt", TestUtil.StringToStreamNoBom("I am the first data1"), "text/plain", "form-data")
             }
@@ -181,7 +181,7 @@ namespace HttpMultipartParserUnitTests
             new List<FilePart> {
                 new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("tiny"))
             }
-        ); 
+        );
 
         private static readonly string ExactBufferTruncateTestData = TestUtil.TrimAllLines(@"--boundry
             Content-Disposition: form-data; name=""text""
@@ -206,7 +206,7 @@ namespace HttpMultipartParserUnitTests
             new List<FilePart> {
                 new FilePart( "file", "data.txt", TestUtil.StringToStreamNoBom("1234567890123456789012"))
             }
-        ); 
+        );
 
 
         /// <summary>
@@ -268,7 +268,7 @@ namespace HttpMultipartParserUnitTests
 
         private static readonly TestData MixedSingleByteAndMultiByteWidthTestCase = new TestData(
             MixedSingleByteAndMultiByteWidthTestData,
-            new List<ParameterPart> { 
+            new List<ParameterPart> {
                 new ParameterPart("تت", "1425")
             },
             new List<FilePart> {
@@ -385,7 +385,7 @@ namespace HttpMultipartParserUnitTests
         [Fact]
         public void CanHandleFinalDashesInSeperateBufferFromEndBinary()
         {
-            using(Stream stream = TestUtil.StringToStream(ExactBufferTruncateTestCase.Request, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(ExactBufferTruncateTestCase.Request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(ExactBufferTruncateTestCase.Validate(parser));
@@ -767,10 +767,10 @@ Content-Type: application/pdf
 
                     var actualValues = parser.GetParameterValues(key);
 
-                    Console.WriteLine("Expected {0} = {1}. Found {2} = {3}", 
-                        key, 
+                    Console.WriteLine("Expected {0} = {1}. Found {2} = {3}",
+                        key,
                         string.Join(",", expectedParameters.Select(p => p.Data)),
-                        key, 
+                        key,
                         string.Join(",", actualValues)
                     );
 

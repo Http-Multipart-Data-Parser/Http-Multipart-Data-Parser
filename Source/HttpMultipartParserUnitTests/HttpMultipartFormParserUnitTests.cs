@@ -810,11 +810,17 @@ Content-Type: application/pdf
                                 expectedFile.Data.Position = 0;
                             }
 
-                            var reader = new StreamReader(expectedFile.Data);
-                            string expectedFileData = reader.ReadToEnd();
+                            string expectedFileData;
+                            using (var reader = new StreamReader(expectedFile.Data))
+                            {
+                                expectedFileData = reader.ReadToEnd();
+                            }
 
-                            reader = new StreamReader(actualFile.Data);
-                            string actualFileData = reader.ReadToEnd();
+                            string actualFileData;
+                            using (var reader = new StreamReader(actualFile.Data))
+                            {
+                                actualFileData = reader.ReadToEnd();
+                            }
 
                             if (expectedFileData != actualFileData)
                             {

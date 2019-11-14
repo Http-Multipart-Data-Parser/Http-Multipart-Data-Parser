@@ -4,7 +4,7 @@
     <AssemblyTitle>HttpMultipartParserUnitTest</AssemblyTitle>
     <TargetFrameworks>netcoreapp1.0;net452</TargetFrameworks>
     <PlatformTarget>anycpu</PlatformTarget>
-    <AssemblyName>HttpMultipartParserUnitTest</AssemblyName>
+    <AssemblyName>HttpMultipartParserUnitTests</AssemblyName>
     <PackageId>HttpMultipartParserUnitTest</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>

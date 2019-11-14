@@ -1,12 +1,12 @@
-﻿using HttpMultipartParser;
+using HttpMultipartParser;
 using Xunit;
 
-namespace HttpMultipartParserUnitTest
+namespace HttpMultipartParserUnitTests
 {
     /// <summary>
     ///     Summary description for SubsequenceFinderUnitTest
     /// </summary>
-    public class SubsequenceFinderUnitTest
+    public class SubsequenceFinderUnitTests
     {
         [Fact]
         public void SmokeTest()

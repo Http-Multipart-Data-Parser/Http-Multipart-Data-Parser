@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using HttpMultipartParser;
 using Xunit;
 
-namespace HttpMultipartParserUnitTest
+namespace HttpMultipartParserUnitTests
 {
     /// <summary>
     ///     Summary description for RebufferableBinaryReaderUnitTest
     /// </summary>
-    public class RebufferableBinaryReaderUnitTest
+    public class RebufferableBinaryReaderUnitTests
     {
          #region Read() Tests
 

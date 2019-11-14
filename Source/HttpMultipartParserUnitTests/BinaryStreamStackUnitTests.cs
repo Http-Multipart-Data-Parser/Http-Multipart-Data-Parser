@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BinaryStreamStackUnitTest.cs" company="Jake Woods">
 //   Copyright (c) Jake Woods. All rights reserved.
 // </copyright>
@@ -12,12 +12,12 @@ using System.Text;
 using HttpMultipartParser;
 using Xunit;
 
-namespace HttpMultipartParserUnitTest
+namespace HttpMultipartParserUnitTests
 {
     /// <summary>
     ///     Unit Tests for <see cref="BinaryStreamStack" />
     /// </summary>
-    public class BinaryStreamStackUnitTest
+    public class BinaryStreamStackUnitTests
     {
         #region Read() Tests
 

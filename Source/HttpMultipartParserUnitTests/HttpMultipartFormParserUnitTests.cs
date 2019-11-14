@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="HttpMultipartFormParserUnitTest.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
 //   
@@ -32,7 +32,7 @@ using System.Text.RegularExpressions;
 using HttpMultipartParser;
 using Xunit;
 
-namespace HttpMultipartParserUnitTest
+namespace HttpMultipartParserUnitTests
 {
     /// <summary>
     ///     The http multipart form parser unit test.
@@ -43,7 +43,7 @@ namespace HttpMultipartParserUnitTest
     /// equivalent of decorating a method with the [TestInitialize] attribute and decorating
     /// another method with the [TestCleanup] when using mstest. 
     /// </remarks>
-    public class HttpMultipartFormParserUnitTest : IDisposable
+    public class HttpMultipartFormParserUnitTests : IDisposable
     {
         #region Static Fields
 

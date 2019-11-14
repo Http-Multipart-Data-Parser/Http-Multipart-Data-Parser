@@ -23,7 +23,6 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HttpMultipartParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +31,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xunit;
 
-namespace HttpMultipartParserUnitTests
+namespace HttpMultipartParser.UnitTests
 {
     /// <summary>
     ///     The http multipart form parser unit test.

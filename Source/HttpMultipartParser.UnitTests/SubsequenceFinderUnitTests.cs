@@ -1,7 +1,6 @@
-using HttpMultipartParser;
 using Xunit;
 
-namespace HttpMultipartParserUnitTests
+namespace HttpMultipartParser.UnitTests
 {
     /// <summary>
     ///     Summary description for SubsequenceFinderUnitTest

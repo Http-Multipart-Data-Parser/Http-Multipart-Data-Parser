@@ -7,12 +7,11 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using HttpMultipartParser;
 using System;
 using System.Text;
 using Xunit;
 
-namespace HttpMultipartParserUnitTests
+namespace HttpMultipartParser.UnitTests
 {
     /// <summary>
     ///     Unit Tests for <see cref="BinaryStreamStack" />

@@ -1,0 +1,16 @@
+mode: ContinuousDelivery
+branches:
+  develop:
+    regex: dev(elop)?(ment)?$
+    mode: ContinuousDeployment
+    tag: alpha
+  hotfix:
+    regex: hotfix(es)?[/-]
+    mode: ContinuousDeployment
+    tag: beta
+  release:
+    regex: release(s)?[/-]
+    mode: ContinuousDeployment
+    tag: rc
+ignore:
+  sha: []

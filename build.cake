@@ -22,7 +22,7 @@ var configuration = Argument<string>("configuration", "Release");
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
-var libraryName = "Http-Multipart-Data-Parser";
+var libraryName = "HttpMultipartParser";
 var gitHubRepo = "Http-Multipart-Data-Parser";
 
 var testCoverageFilter = "+[Http-Multipart-Data-Parser]* -[Http-Multipart-Data-Parser]Http-Multipart-Data-Parser.Properties.* -[Http-Multipart-Data-Parser]Http-Multipart-Data-Parser.Models.* -[Http-Multipart-Data-Parser]Http-Multipart-Data-Parser.Logging.*";

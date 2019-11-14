@@ -344,7 +344,7 @@ namespace HttpMultipartParserUnitTests
         ///     Initializes the test data before each run, this primarily
         ///     consists of resetting data stream positions.
         /// </summary>
-        public HttpMultipartFormParserUnitTest()
+        public HttpMultipartFormParserUnitTests()
         {
             var testData = new[] { TinyTestCase, SmallTestCase, MultipleParamsAndFilesTestCase, SingleFileTestCase };
             foreach (TestData data in testData)

@@ -256,6 +256,9 @@ namespace HttpMultipartParser
         public delegate void FileStreamDelegate(
             string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes);
 
+        /// <summary>
+        /// The StreamClosedDelegate defining functions that can handle stream being closed.
+        /// </summary>
         public delegate void StreamClosedDelegate();
 
         /// <summary>

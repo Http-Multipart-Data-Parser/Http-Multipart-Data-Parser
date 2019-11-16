@@ -36,6 +36,18 @@ namespace HttpMultipartParser
     {
         #region Public Methods and Operators
 
+        /// <summary>
+        ///     Finds if a sequence exists within another sequence.
+        /// </summary>
+        /// <param name="haystack">
+        ///     The sequence to search.
+        /// </param>
+        /// <param name="needle">
+        ///     The sequence to look for.
+        /// </param>
+        /// <returns>
+        ///     The start position of the found sequence or -1 if nothing was found.
+        /// </returns>
         public static int Search(byte[] haystack, byte[] needle)
         {
             return Search(haystack, needle, haystack.Length);

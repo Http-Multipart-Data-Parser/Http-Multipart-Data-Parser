@@ -524,15 +524,12 @@ namespace HttpMultipartParser
                     // Now we need to check if the endPos is followed by \r\n or just \n. HTTP
                     // specifies \r\n but some clients might encode with \n. Or we might get 0 if
                     // we are at the end of the file.
-                    int boundaryNewlineOffset = CalculateNewlineLength(ref fullBuffer,
-                                                                       Math.Min(fullLength - 1,
-                                                                                endPos + endPosLength));
+                    int boundaryNewlineOffset = CalculateNewlineLength(ref fullBuffer, Math.Min(fullLength - 1, endPos + endPosLength));
 
                     // We also need to check if the last n characters of the buffer to write
                     // are a newline and if they are ignore them.
                     int maxNewlineBytes = Encoding.GetMaxByteCount(2);
-                    int bufferNewlineOffset = FindNextNewline(
-                        ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
+                    int bufferNewlineOffset = FindNextNewline(ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
                     int bufferNewlineLength = CalculateNewlineLength(ref fullBuffer, bufferNewlineOffset);
 
                     // We've found an end. We need to consume all the binary up to it
@@ -542,8 +539,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer,
-                                endPos - bufferNewlineLength);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;

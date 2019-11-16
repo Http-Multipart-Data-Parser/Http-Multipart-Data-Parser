@@ -725,7 +725,7 @@ namespace HttpMultipartParser
             // Loop over the line looking for a semicolon. Keep track of if we're currently inside quotes
             // and if we are don't treat a semicolon as a splitting character.
             bool inQuotes = false;
-            string workingString = "";
+            string workingString = string.Empty;
 
             foreach (char c in line)
             {
@@ -737,7 +737,7 @@ namespace HttpMultipartParser
                 if (c == ';' && !inQuotes)
                 {
                     yield return workingString;
-                    workingString = "";
+                    workingString = string.Empty;
                 }
                 else
                 {

@@ -275,17 +275,17 @@ namespace HttpMultipartParser
         public Encoding Encoding { get; private set; }
 
         /// <summary>
-        /// The FileHandler. Delegates attached to this property will recieve sequential file stream data from this parser.
+        /// Gets or sets the FileHandler. Delegates attached to this property will recieve sequential file stream data from this parser.
         /// </summary>
         public FileStreamDelegate FileHandler { get; set; }
 
         /// <summary>
-        /// The ParameterHandler. Delegates attached to this property will recieve parameter data.
+        /// Gets or sets the ParameterHandler. Delegates attached to this property will recieve parameter data.
         /// </summary>
         public ParameterDelegate ParameterHandler { get; set; }
 
         /// <summary>
-        /// The StreamClosedHandler. Delegates attached to this property will be notified when the source stream is exhausted.
+        /// Gets or sets the StreamClosedHandler. Delegates attached to this property will be notified when the source stream is exhausted.
         /// </summary>
         public StreamClosedDelegate StreamClosedHandler { get; set; }
 

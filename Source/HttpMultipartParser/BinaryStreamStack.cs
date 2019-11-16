@@ -285,57 +285,58 @@ namespace HttpMultipartParser
             byte[] ignore = CurrentEncoding.GetBytes(new[] { '\r' });
             byte[] search = CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
-            var builder = new MemoryStream();
-
-            while (true)
+            using (var builder = new MemoryStream())
             {
-                // First we need to read a byte from one of the streams
-                var bytes = new byte[search.Length];
-                int amountRead = top.Read(bytes, 0, bytes.Length);
-                while (amountRead == 0)
+                while (true)
                 {
-                    streams.Pop();
-                    if (!streams.Any())
+                    // First we need to read a byte from one of the streams
+                    var bytes = new byte[search.Length];
+                    int amountRead = top.Read(bytes, 0, bytes.Length);
+                    while (amountRead == 0)
                     {
-                        hitStreamEnd = true;
-                        return builder.ToArray();
-                    }
-
-                    top.Dispose();
-                    top = streams.Peek();
-                    amountRead = top.Read(bytes, 0, bytes.Length);
-                }
-
-                // Now we've got some bytes, we need to check it against the search array.
-                foreach (byte b in bytes)
-                {
-                    if (ignore.Contains(b))
-                    {
-                        continue;
-                    }
-
-                    if (b == search[searchPos])
-                    {
-                        searchPos += 1;
-                    }
-                    else
-                    {
-                        // We only want to append the information if it's
-                        // not part of the newline sequence
-                        if (searchPos != 0)
+                        streams.Pop();
+                        if (!streams.Any())
                         {
-                            byte[] append = search.Take(searchPos).ToArray();
-                            builder.Write(append, 0, append.Length);
+                            hitStreamEnd = true;
+                            return builder.ToArray();
                         }
 
-                        builder.Write(new[] { b }, 0, 1);
-                        searchPos = 0;
+                        top.Dispose();
+                        top = streams.Peek();
+                        amountRead = top.Read(bytes, 0, bytes.Length);
                     }
 
-                    // Finally if we've found our string
-                    if (searchPos == search.Length)
+                    // Now we've got some bytes, we need to check it against the search array.
+                    foreach (byte b in bytes)
                     {
-                        return builder.ToArray();
+                        if (ignore.Contains(b))
+                        {
+                            continue;
+                        }
+
+                        if (b == search[searchPos])
+                        {
+                            searchPos += 1;
+                        }
+                        else
+                        {
+                            // We only want to append the information if it's
+                            // not part of the newline sequence
+                            if (searchPos != 0)
+                            {
+                                byte[] append = search.Take(searchPos).ToArray();
+                                builder.Write(append, 0, append.Length);
+                            }
+
+                            builder.Write(new[] { b }, 0, 1);
+                            searchPos = 0;
+                        }
+
+                        // Finally if we've found our string
+                        if (searchPos == search.Length)
+                        {
+                            return builder.ToArray();
+                        }
                     }
                 }
             }

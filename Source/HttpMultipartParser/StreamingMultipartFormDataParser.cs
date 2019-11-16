@@ -439,9 +439,6 @@ namespace HttpMultipartParser
         /// <param name="reader">
         ///     The StreamReader to read the data from.
         /// </param>
-        /// <returns>
-        ///     The <see cref="FilePart" /> con[]              taining the parsed data (name, filename, stream containing file).
-        /// </returns>
         private void ParseFilePart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
         {
             string name = parameters["name"];
@@ -584,9 +581,6 @@ namespace HttpMultipartParser
         /// <param name="reader">
         ///     The StreamReader to read the data from.
         /// </param>
-        /// <returns>
-        ///     The <see cref="ParameterPart" /> containing the parsed data (name, value).
-        /// </returns>
         /// <exception cref="MultipartParseException">
         ///     thrown if unexpected data is found such as running out of stream before hitting the boundary.
         /// </exception>

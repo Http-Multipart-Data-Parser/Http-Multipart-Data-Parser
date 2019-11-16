@@ -366,8 +366,7 @@ namespace HttpMultipartParser
         /// </returns>
         public string ReadLine(out bool hitStreamEnd)
         {
-            bool foundEnd;
-            byte[] result = ReadByteLine(out foundEnd);
+            byte[] result = ReadByteLine(out bool foundEnd);
             hitStreamEnd = foundEnd;
 
             if (result == null)

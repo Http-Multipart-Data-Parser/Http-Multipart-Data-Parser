@@ -572,7 +572,8 @@ namespace HttpMultipartParser
                 // curLength will be overwritten in the next
                 // iteration of the loop.
                 prevLength = curLength;
-            } while (prevLength != 0);
+            }
+            while (prevLength != 0);
         }
 
         /// <summary>

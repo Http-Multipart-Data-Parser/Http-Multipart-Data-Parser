@@ -615,6 +615,7 @@ namespace HttpMultipartParser
                     data.Append(Environment.NewLine);
                     data.Append(line);
                 }
+
                 line = reader.ReadLine();
             }
 

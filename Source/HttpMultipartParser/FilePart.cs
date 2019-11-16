@@ -49,8 +49,8 @@ namespace HttpMultipartParser
         /// <param name="data">
         ///     The file data.
         /// </param>
-        public FilePart(string name, string fileName, Stream data) :
-            this(name, fileName, data, "text/plain", "form-data")
+        public FilePart(string name, string fileName, Stream data)
+            : this(name, fileName, data, "text/plain", "form-data")
         {
         }
 

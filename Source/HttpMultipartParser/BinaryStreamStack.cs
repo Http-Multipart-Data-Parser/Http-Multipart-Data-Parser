@@ -105,7 +105,7 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        ///     Returns the reader on the top of the stack and removes it
+        ///     Returns the reader on the top of the stack and removes it.
         /// </summary>
         /// <returns>
         ///     The <see cref="BinaryReader" />.
@@ -261,7 +261,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <param name="hitStreamEnd">
         ///     This will be set to true if we did not end on a newline but instead found the end of
@@ -343,7 +343,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <returns>
         ///     The <see cref="string" /> containing the line.
@@ -356,7 +356,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <param name="hitStreamEnd">
         ///     This will be set to true if we did not end on a newline but instead found the end of

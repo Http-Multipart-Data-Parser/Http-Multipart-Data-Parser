@@ -28,7 +28,7 @@ using System;
 namespace HttpMultipartParser
 {
     /// <summary>
-    ///     Represents a parsing problem occurring within the MultipartFormDataParser
+    ///     Represents a parsing problem occurring within the MultipartFormDataParser.
     /// </summary>
 #if NET40
     [Serializable]

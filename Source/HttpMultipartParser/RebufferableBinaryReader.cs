@@ -45,7 +45,7 @@ namespace HttpMultipartParser
         private readonly int bufferSize;
 
         /// <summary>
-        ///     The encoding to use for character based operations
+        ///     The encoding to use for character based operations.
         /// </summary>
         private readonly Encoding encoding;
 
@@ -269,7 +269,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <returns>
         ///     The <see cref="string" /> containing the line or null if end of stream.
@@ -313,7 +313,7 @@ namespace HttpMultipartParser
         ///     Reads more data from the stream into the stream stack.
         /// </summary>
         /// <returns>
-        ///     The number of bytes read into the stream stack as an <see cref="int" />
+        ///     The number of bytes read into the stream stack as an <see cref="int" />.
         /// </returns>
         private int StreamData()
         {

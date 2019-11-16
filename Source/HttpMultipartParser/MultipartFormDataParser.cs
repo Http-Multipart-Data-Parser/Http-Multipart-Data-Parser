@@ -99,7 +99,7 @@ namespace HttpMultipartParser
         ///     first line of input.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         public MultipartFormDataParser(Stream stream)
             : this(stream, null, Encoding.UTF8, DefaultBufferSize)
@@ -111,7 +111,7 @@ namespace HttpMultipartParser
         ///     with the boundary and input stream.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
@@ -128,10 +128,10 @@ namespace HttpMultipartParser
         ///     detected.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         public MultipartFormDataParser(Stream stream, Encoding encoding)
             : this(stream, null, encoding, DefaultBufferSize)
@@ -143,14 +143,14 @@ namespace HttpMultipartParser
         ///     with the boundary, input stream and stream encoding.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
         ///     returned by the request header.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
             : this(stream, boundary, encoding, DefaultBufferSize)
@@ -166,10 +166,10 @@ namespace HttpMultipartParser
         ///     detected.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         /// <param name="binaryBufferSize">
         ///     The size of the buffer to use for parsing the multipart form data. This must be larger
@@ -185,14 +185,14 @@ namespace HttpMultipartParser
         ///     with the boundary, stream, input encoding and buffer size.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
         ///     returned by the request header.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         /// <param name="binaryBufferSize">
         ///     The size of the buffer to use for parsing the multipart form data. This must be larger
@@ -245,10 +245,10 @@ namespace HttpMultipartParser
         #region Public Methods
 
         /// <summary>
-        /// Returns true if the parameter has any values. False otherwise
+        /// Returns true if the parameter has any values. False otherwise.
         /// </summary>
-        /// <param name="name">The name of the parameter</param>
-        /// <returns>True if the parameter exists. False otherwise</returns>
+        /// <param name="name">The name of the parameter.</param>
+        /// <returns>True if the parameter exists. False otherwise.</returns>
         public bool HasParameter(string name)
         {
             return Parameters.Any(p => p.Name == name);
@@ -261,8 +261,8 @@ namespace HttpMultipartParser
         ///
         /// If you need to support multiple values use GetParameterValues.
         /// </summary>
-        /// <param name="name">The name of the parameter</param>
-        /// <returns>The value of the parameter</returns>
+        /// <param name="name">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
         public string GetParameterValue(string name)
         {
             var parameter = Parameters.FirstOrDefault(p => p.Name == name);
@@ -272,8 +272,8 @@ namespace HttpMultipartParser
         /// <summary>
         /// Returns the values of a parameter or an empty enumerable if the parameter doesn't exist.
         /// </summary>
-        /// <param name="name">The name of the parameter</param>
-        /// <returns>The values of the parameter</returns>
+        /// <param name="name">The name of the parameter.</param>
+        /// <returns>The values of the parameter.</returns>
         public IEnumerable<string> GetParameterValues(string name)
         {
             return Parameters

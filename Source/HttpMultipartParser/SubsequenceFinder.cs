@@ -45,16 +45,16 @@ namespace HttpMultipartParser
         ///     Finds if a sequence exists within another sequence.
         /// </summary>
         /// <param name="haystack">
-        ///     The sequence to search
+        ///     The sequence to search.
         /// </param>
         /// <param name="needle">
-        ///     The sequence to look for
+        ///     The sequence to look for.
         /// </param>
         /// <param name="haystackLength">
-        ///     The length of the haystack to consider for searching
+        ///     The length of the haystack to consider for searching.
         /// </param>
         /// <returns>
-        ///     The start position of the found sequence or -1 if nothing was found
+        ///     The start position of the found sequence or -1 if nothing was found.
         /// </returns>
         public static int Search(byte[] haystack, byte[] needle, int haystackLength)
         {

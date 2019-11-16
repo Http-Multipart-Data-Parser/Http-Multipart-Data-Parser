@@ -660,7 +660,6 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-
                 // This line parses the header values into a set of key/value pairs. For example:
                 // Content-Disposition: form-data; name="textdata"
                 // ["content-disposition"] = "form-data"
@@ -680,7 +679,6 @@ namespace HttpMultipartParser
                     .ToDictionary(
                         x => x[0].Trim().Replace("\"", string.Empty).ToLower(),
                         x => x[1].Trim().Replace("\"", string.Empty));
-
 
                 // Here we just want to push all the values that we just retrieved into the
                 // parameters dictionary.

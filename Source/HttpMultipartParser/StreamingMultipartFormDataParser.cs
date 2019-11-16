@@ -26,12 +26,12 @@ namespace HttpMultipartParser
     ///     </para>
     /// </remarks>
     /// <example>
-    ///     <code lang="C#"> 
+    ///     <code lang="C#">
     ///       Stream multipartStream = GetTheMultipartStream();
     ///       string boundary = GetTheBoundary();
     ///       var parser = new StreamingMultipartFormDataParser(multipartStream, boundary, Encoding.UTF8);
     ///
-    ///       // Set up our delegates for how we want to handle recieved data. 
+    ///       // Set up our delegates for how we want to handle recieved data.
     ///       // In our case parameters will be written to a dictionary and files
     ///       // will be written to a filestream
     ///       parser.ParameterHandler += parameter => AddToDictionary(parameter);
@@ -415,7 +415,7 @@ namespace HttpMultipartParser
                 }
             }
 
-            // Now that we've found the initial boundary we know where to start. 
+            // Now that we've found the initial boundary we know where to start.
             // We need parse each individual section
             while (!readEndBoundary)
             {
@@ -511,7 +511,7 @@ namespace HttpMultipartParser
                 }
                 else if (boundaryPos >= 0 && endBoundaryPos < 0)
                 {
-                    // Select boundary    
+                    // Select boundary
                     endPos = boundaryPos;
                     endPosLength = boundaryLength;
                 }
@@ -539,7 +539,7 @@ namespace HttpMultipartParser
                         ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
                     int bufferNewlineLength = CalculateNewlineLength(ref fullBuffer, bufferNewlineOffset);
 
-                    // We've found an end. We need to consume all the binary up to it 
+                    // We've found an end. We need to consume all the binary up to it
                     // and then write the remainder back to the original stream. Then we
                     // need to modify the original streams position to take into account
                     // the new data.
@@ -558,7 +558,7 @@ namespace HttpMultipartParser
                     break;
                 }
 
-                // No end, consume the entire previous buffer    
+                // No end, consume the entire previous buffer
                 FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength);
 
                 // Now we want to swap the two buffers, we don't care
@@ -662,14 +662,14 @@ namespace HttpMultipartParser
 
 
                 // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata" 
+                // Content-Disposition: form-data; name="textdata"
                 // ["content-disposition"] = "form-data"
                 // ["name"] = "textdata"
                 // Content-Disposition: form-data; name="file"; filename="data.txt"
                 // ["content-disposition"] = "form-data"
                 // ["name"] = "file"
                 // ["filename"] = "data.txt"
-                // Content-Type: text/plain 
+                // Content-Type: text/plain
                 // ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] { ':', '=' }, 2))
@@ -682,7 +682,7 @@ namespace HttpMultipartParser
                         x => x[1].Trim().Replace("\"", string.Empty));
 
 
-                // Here we just want to push all the values that we just retrieved into the 
+                // Here we just want to push all the values that we just retrieved into the
                 // parameters dictionary.
                 try
                 {
@@ -705,7 +705,7 @@ namespace HttpMultipartParser
             if (parameters.ContainsKey("filename"))
             {
                 // Right now we assume that if a section contains filename then it is a file.
-                // This assumption needs to be checked, it holds true in firefox but is untested for other 
+                // This assumption needs to be checked, it holds true in firefox but is untested for other
                 // browsers.
                 ParseFilePart(parameters, reader);
             }

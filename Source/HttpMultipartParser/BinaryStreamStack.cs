@@ -255,8 +255,7 @@ namespace HttpMultipartParser
         /// </returns>
         public byte[] ReadByteLine()
         {
-            bool dummy;
-            return ReadByteLine(out dummy);
+            return ReadByteLine(out _);
         }
 
         /// <summary>
@@ -351,8 +350,7 @@ namespace HttpMultipartParser
         /// </returns>
         public string ReadLine()
         {
-            bool dummy;
-            return ReadLine(out dummy);
+            return ReadLine(out _);
         }
 
         /// <summary>

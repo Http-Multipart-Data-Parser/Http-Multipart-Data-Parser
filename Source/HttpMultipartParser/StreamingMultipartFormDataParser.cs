@@ -452,9 +452,9 @@ namespace HttpMultipartParser
             var curBuffer = new byte[BinaryBufferSize];
             var prevBuffer = new byte[BinaryBufferSize];
             var fullBuffer = new byte[BinaryBufferSize * 2];
-            int curLength = 0;
-            int prevLength = 0;
-            int fullLength = 0;
+            int curLength;
+            int prevLength;
+            int fullLength;
 
             prevLength = reader.Read(prevBuffer, 0, prevBuffer.Length);
             do

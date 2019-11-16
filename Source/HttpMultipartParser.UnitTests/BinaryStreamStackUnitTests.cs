@@ -207,7 +207,6 @@ namespace HttpMultipartParser.UnitTests
             var stack = new BinaryStreamStack(Encoding.UTF8);
             stack.Push(TestUtil.StringToByteNoBom("6chars" + Environment.NewLine));
 
-            var buffer = new byte[Encoding.UTF8.GetByteCount("6chars" + Environment.NewLine)];
             string result = stack.ReadLine();
             Assert.Equal("6chars", result);
         }
@@ -217,8 +216,7 @@ namespace HttpMultipartParser.UnitTests
         {
             var stack = new BinaryStreamStack(Encoding.UTF8);
             stack.Push(TestUtil.StringToByteNoBom("al" + Environment.NewLine));
-            stack.Push(
-                TestUtil.StringToByteNoBom("6chars" + Environment.NewLine + "5char" + Environment.NewLine + "Parti"));
+            stack.Push(TestUtil.StringToByteNoBom("6chars" + Environment.NewLine + "5char" + Environment.NewLine + "Parti"));
 
             Assert.Equal("6chars", stack.ReadLine());
             Assert.Equal("5char", stack.ReadLine());

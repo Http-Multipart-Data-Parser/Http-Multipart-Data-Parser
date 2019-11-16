@@ -427,10 +427,7 @@ namespace HttpMultipartParser
                 ParseSection(reader);
             }
 
-            if (StreamClosedHandler != null)
-            {
-                StreamClosedHandler();
-            }
+            StreamClosedHandler?.Invoke();
         }
 
         /// <summary>

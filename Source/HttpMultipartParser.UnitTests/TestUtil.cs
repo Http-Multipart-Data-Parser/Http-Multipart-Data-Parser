@@ -1,8 +1,8 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace HttpMultipartParserUnitTest
+namespace HttpMultipartParser.UnitTests
 {
     internal static class TestUtil
     {

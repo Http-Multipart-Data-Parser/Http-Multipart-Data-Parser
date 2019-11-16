@@ -1,5 +1,5 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterPart.cs" company="Jake Woods">
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MultipartParseException.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
 //   
 //   Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
@@ -19,53 +19,34 @@
 // </copyright>
 // <author>Jake Woods</author>
 // <summary>
-//   Represents a single parameter extracted from a multipart/form-data
-//   stream.
+//   Represents a parsing problem occurring within the MultipartFormDataParser
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
+using System;
 
 namespace HttpMultipartParser
 {
     /// <summary>
-    ///     Represents a single parameter extracted from a multipart/form-data
-    ///     stream.
+    ///     Represents a parsing problem occurring within the MultipartFormDataParser
     /// </summary>
-    /// <remarks>
-    ///     For our purposes a "parameter" is defined as any non-file data
-    ///     in the multipart/form-data stream.
-    /// </remarks>
-    public class ParameterPart
+#if NET40
+    [Serializable]
+#endif
+    public class MultipartParseException : Exception
     {
         #region Constructors and Destructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ParameterPart" /> class.
+        ///     Initializes a new instance of the <see cref="MultipartParseException" /> class.
         /// </summary>
-        /// <param name="name">
-        ///     The name.
+        /// <param name="message">
+        ///     The message.
         /// </param>
-        /// <param name="data">
-        ///     The data.
-        /// </param>
-        public ParameterPart(string name, string data)
+        public MultipartParseException(string message)
+            : base(message)
         {
-            Name = name;
-            Data = data;
         }
-
-        #endregion
-
-        #region Public Properties
-
-        /// <summary>
-        ///     Gets the data.
-        /// </summary>
-        public string Data { get; private set; }
-
-        /// <summary>
-        ///     Gets or sets the name.
-        /// </summary>
-        public string Name { get; set; }
 
         #endregion
     }

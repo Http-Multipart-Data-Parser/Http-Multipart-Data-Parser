@@ -1,18 +1,17 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using HttpMultipartParser;
 using Xunit;
 
-namespace HttpMultipartParserUnitTest
+namespace HttpMultipartParser.UnitTests
 {
     /// <summary>
     ///     Summary description for RebufferableBinaryReaderUnitTest
     /// </summary>
-    public class RebufferableBinaryReaderUnitTest
+    public class RebufferableBinaryReaderUnitTests
     {
-         #region Read() Tests
+        #region Read() Tests
 
         [Fact]
         public void CanReadSingleCharacterBuffer()
@@ -193,7 +192,7 @@ namespace HttpMultipartParserUnitTest
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("Bonjour poignée"), Encoding.UTF8);
             byte[] bytes = reader.ReadByteLine();
-            var expected = new byte[] {66, 111, 110, 106, 111, 117, 114, 32, 112, 111, 105, 103, 110, 195, 169, 101};
+            var expected = new byte[] { 66, 111, 110, 106, 111, 117, 114, 32, 112, 111, 105, 103, 110, 195, 169, 101 };
 
             foreach (var pair in expected.Zip(bytes, Tuple.Create))
             {

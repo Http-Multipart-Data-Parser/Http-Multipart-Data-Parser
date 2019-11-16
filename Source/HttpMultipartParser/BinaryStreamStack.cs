@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BinaryStreamStack.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
 //   
@@ -282,8 +282,8 @@ namespace HttpMultipartParser
             // This is horribly inefficient, consider profiling here if
             // it becomes an issue.
             BinaryReader top = streams.Peek();
-            byte[] ignore = CurrentEncoding.GetBytes(new[] {'\r'});
-            byte[] search = CurrentEncoding.GetBytes(new[] {'\n'});
+            byte[] ignore = CurrentEncoding.GetBytes(new[] { '\r' });
+            byte[] search = CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
             var builder = new MemoryStream();
 
@@ -328,7 +328,7 @@ namespace HttpMultipartParser
                             builder.Write(append, 0, append.Length);
                         }
 
-                        builder.Write(new[] {b}, 0, 1);
+                        builder.Write(new[] { b }, 0, 1);
                         searchPos = 0;
                     }
 

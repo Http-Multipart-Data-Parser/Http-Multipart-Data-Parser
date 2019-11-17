@@ -26,12 +26,12 @@ namespace HttpMultipartParser
     ///     </para>
     /// </remarks>
     /// <example>
-    ///     <code lang="C#"> 
+    ///     <code lang="C#">
     ///       Stream multipartStream = GetTheMultipartStream();
     ///       string boundary = GetTheBoundary();
     ///       var parser = new StreamingMultipartFormDataParser(multipartStream, boundary, Encoding.UTF8);
     ///
-    ///       // Set up our delegates for how we want to handle recieved data. 
+    ///       // Set up our delegates for how we want to handle recieved data.
     ///       // In our case parameters will be written to a dictionary and files
     ///       // will be written to a filestream
     ///       parser.ParameterHandler += parameter => AddToDictionary(parameter);
@@ -64,7 +64,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     The boundary of the multipart message as a byte string
-        ///     encoded with CurrentEncoding
+        ///     encoded with CurrentEncoding.
         /// </summary>
         private byte[] boundaryBinary;
 
@@ -75,7 +75,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     The end boundary of the multipart message as a byte string
-        ///     encoded with CurrentEncoding
+        ///     encoded with CurrentEncoding.
         /// </summary>
         private byte[] endBoundaryBinary;
 
@@ -95,7 +95,7 @@ namespace HttpMultipartParser
         ///     first line of input.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream)
             : this(stream, null, Encoding.UTF8, DefaultBufferSize)
@@ -107,7 +107,7 @@ namespace HttpMultipartParser
         ///     with the boundary and input stream.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
@@ -124,10 +124,10 @@ namespace HttpMultipartParser
         ///     detected.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding)
             : this(stream, null, encoding, DefaultBufferSize)
@@ -139,14 +139,14 @@ namespace HttpMultipartParser
         ///     with the boundary, input stream and stream encoding.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
         ///     returned by the request header.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
             : this(stream, boundary, encoding, DefaultBufferSize)
@@ -162,10 +162,10 @@ namespace HttpMultipartParser
         ///     detected.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         /// <param name="binaryBufferSize">
         ///     The size of the buffer to use for parsing the multipart form data. This must be larger
@@ -181,14 +181,14 @@ namespace HttpMultipartParser
         ///     with the boundary, stream, input encoding and buffer size.
         /// </summary>
         /// <param name="stream">
-        ///     The stream containing the multipart data
+        ///     The stream containing the multipart data.
         /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
         ///     returned by the request header.
         /// </param>
         /// <param name="encoding">
-        ///     The encoding of the multipart data
+        ///     The encoding of the multipart data.
         /// </param>
         /// <param name="binaryBufferSize">
         ///     The size of the buffer to use for parsing the multipart form data. This must be larger
@@ -197,11 +197,10 @@ namespace HttpMultipartParser
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
             if (stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
-            if (encoding == null) { throw new ArgumentNullException("encoding"); }
 
             this.stream = stream;
             this.boundary = boundary;
-            Encoding = encoding;
+            Encoding = encoding ?? throw new ArgumentNullException("encoding");
             BinaryBufferSize = binaryBufferSize;
             readEndBoundary = false;
         }
@@ -247,21 +246,24 @@ namespace HttpMultipartParser
         /// Delegates can assume that the data is sequential i.e. the data recieved by any delegates will be
         /// the data immediately following any previously recieved data.
         /// </summary>
-        /// <param name="name">The name of the multipart data</param>
-        /// <param name="fileName">The name of the file</param>
-        /// <param name="contentType">The content type of the multipart data</param>
-        /// <param name="contentDisposition">The content disposition of the multipart data</param>
-        /// <param name="buffer">Some of the data from the file (not neccecarily all of the data)</param>
-        /// <param name="bytes">The length of data in buffer</param>
+        /// <param name="name">The name of the multipart data.</param>
+        /// <param name="fileName">The name of the file.</param>
+        /// <param name="contentType">The content type of the multipart data.</param>
+        /// <param name="contentDisposition">The content disposition of the multipart data.</param>
+        /// <param name="buffer">Some of the data from the file (not neccecarily all of the data).</param>
+        /// <param name="bytes">The length of data in buffer.</param>
         public delegate void FileStreamDelegate(
             string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes);
 
+        /// <summary>
+        /// The StreamClosedDelegate defining functions that can handle stream being closed.
+        /// </summary>
         public delegate void StreamClosedDelegate();
 
         /// <summary>
-        /// The ParameterDelegate defining functions that can handle multipart parameter data
+        /// The ParameterDelegate defining functions that can handle multipart parameter data.
         /// </summary>
-        /// <param name="part">The parsed parameter part</param>
+        /// <param name="part">The parsed parameter part.</param>
         public delegate void ParameterDelegate(ParameterPart part);
 
         /// <summary>
@@ -275,17 +277,17 @@ namespace HttpMultipartParser
         public Encoding Encoding { get; private set; }
 
         /// <summary>
-        /// The FileHandler. Delegates attached to this property will recieve sequential file stream data from this parser.
+        /// Gets or sets the FileHandler. Delegates attached to this property will recieve sequential file stream data from this parser.
         /// </summary>
         public FileStreamDelegate FileHandler { get; set; }
 
         /// <summary>
-        /// The ParameterHandler. Delegates attached to this property will recieve parameter data.
+        /// Gets or sets the ParameterHandler. Delegates attached to this property will recieve parameter data.
         /// </summary>
         public ParameterDelegate ParameterHandler { get; set; }
 
         /// <summary>
-        /// The StreamClosedHandler. Delegates attached to this property will be notified when the source stream is exhausted.
+        /// Gets or sets the StreamClosedHandler. Delegates attached to this property will be notified when the source stream is exhausted.
         /// </summary>
         public StreamClosedDelegate StreamClosedHandler { get; set; }
 
@@ -299,10 +301,10 @@ namespace HttpMultipartParser
         ///     the beginning of the boundary.
         /// </summary>
         /// <param name="reader">
-        ///     The binary reader to parse
+        ///     The binary reader to parse.
         /// </param>
         /// <returns>
-        ///     The boundary string
+        ///     The boundary string.
         /// </returns>
         private static string DetectBoundary(RebufferableBinaryReader reader)
         {
@@ -316,10 +318,10 @@ namespace HttpMultipartParser
         /// <summary>
         ///     Finds the next sequence of newlines in the input stream.
         /// </summary>
-        /// <param name="data">The data to search</param>
-        /// <param name="offset">The offset to start searching at</param>
+        /// <param name="data">The data to search.</param>
+        /// <param name="offset">The offset to start searching at.</param>
         /// <param name="maxBytes">The maximum number of bytes (starting from offset) to search.</param>
-        /// <returns>The offset of the next newline</returns>
+        /// <returns>The offset of the next newline.</returns>
         private int FindNextNewline(ref byte[] data, int offset, int maxBytes)
         {
             byte[][] newlinePatterns = { Encoding.GetBytes("\r\n"), Encoding.GetBytes("\n") };
@@ -348,13 +350,13 @@ namespace HttpMultipartParser
         ///     data[offset] is the start of the space to search.
         /// </summary>
         /// <param name="data">
-        ///     The data containing the newline
+        ///     The data containing the newline.
         /// </param>
         /// <param name="offset">
-        ///     The offset of the start of the newline
+        ///     The offset of the start of the newline.
         /// </param>
         /// <returns>
-        ///     The length in bytes of the newline sequence
+        ///     The length in bytes of the newline sequence.
         /// </returns>
         private int CalculateNewlineLength(ref byte[] data, int offset)
         {
@@ -415,7 +417,7 @@ namespace HttpMultipartParser
                 }
             }
 
-            // Now that we've found the initial boundary we know where to start. 
+            // Now that we've found the initial boundary we know where to start.
             // We need parse each individual section
             while (!readEndBoundary)
             {
@@ -424,24 +426,18 @@ namespace HttpMultipartParser
                 ParseSection(reader);
             }
 
-            if (StreamClosedHandler != null)
-            {
-                StreamClosedHandler();
-            }
+            StreamClosedHandler?.Invoke();
         }
 
         /// <summary>
         ///     Parses a section of the stream that is known to be file data.
         /// </summary>
         /// <param name="parameters">
-        ///     The header parameters of this file, expects "name" and "filename" to be valid keys
+        ///     The header parameters of this file, expects "name" and "filename" to be valid keys.
         /// </param>
         /// <param name="reader">
-        ///     The StreamReader to read the data from
+        ///     The StreamReader to read the data from.
         /// </param>
-        /// <returns>
-        ///     The <see cref="FilePart" /> con[]              taining the parsed data (name, filename, stream containing file).
-        /// </returns>
         private void ParseFilePart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
         {
             string name = parameters["name"];
@@ -456,9 +452,9 @@ namespace HttpMultipartParser
             var curBuffer = new byte[BinaryBufferSize];
             var prevBuffer = new byte[BinaryBufferSize];
             var fullBuffer = new byte[BinaryBufferSize * 2];
-            int curLength = 0;
-            int prevLength = 0;
-            int fullLength = 0;
+            int curLength;
+            int prevLength;
+            int fullLength;
 
             prevLength = reader.Read(prevBuffer, 0, prevBuffer.Length);
             do
@@ -511,7 +507,7 @@ namespace HttpMultipartParser
                 }
                 else if (boundaryPos >= 0 && endBoundaryPos < 0)
                 {
-                    // Select boundary    
+                    // Select boundary
                     endPos = boundaryPos;
                     endPosLength = boundaryLength;
                 }
@@ -528,26 +524,22 @@ namespace HttpMultipartParser
                     // Now we need to check if the endPos is followed by \r\n or just \n. HTTP
                     // specifies \r\n but some clients might encode with \n. Or we might get 0 if
                     // we are at the end of the file.
-                    int boundaryNewlineOffset = CalculateNewlineLength(ref fullBuffer,
-                                                                       Math.Min(fullLength - 1,
-                                                                                endPos + endPosLength));
+                    int boundaryNewlineOffset = CalculateNewlineLength(ref fullBuffer, Math.Min(fullLength - 1, endPos + endPosLength));
 
                     // We also need to check if the last n characters of the buffer to write
                     // are a newline and if they are ignore them.
                     int maxNewlineBytes = Encoding.GetMaxByteCount(2);
-                    int bufferNewlineOffset = FindNextNewline(
-                        ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
+                    int bufferNewlineOffset = FindNextNewline(ref fullBuffer, Math.Max(0, endPos - maxNewlineBytes), maxNewlineBytes);
                     int bufferNewlineLength = CalculateNewlineLength(ref fullBuffer, bufferNewlineOffset);
 
-                    // We've found an end. We need to consume all the binary up to it 
+                    // We've found an end. We need to consume all the binary up to it
                     // and then write the remainder back to the original stream. Then we
                     // need to modify the original streams position to take into account
                     // the new data.
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer,
-                                endPos - bufferNewlineLength);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -558,7 +550,7 @@ namespace HttpMultipartParser
                     break;
                 }
 
-                // No end, consume the entire previous buffer    
+                // No end, consume the entire previous buffer
                 FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength);
 
                 // Now we want to swap the two buffers, we don't care
@@ -572,7 +564,8 @@ namespace HttpMultipartParser
                 // curLength will be overwritten in the next
                 // iteration of the loop.
                 prevLength = curLength;
-            } while (prevLength != 0);
+            }
+            while (prevLength != 0);
         }
 
         /// <summary>
@@ -582,11 +575,8 @@ namespace HttpMultipartParser
         ///     The header parameters of this section. "name" must be a valid key.
         /// </param>
         /// <param name="reader">
-        ///     The StreamReader to read the data from
+        ///     The StreamReader to read the data from.
         /// </param>
-        /// <returns>
-        ///     The <see cref="ParameterPart" /> containing the parsed data (name, value).
-        /// </returns>
         /// <exception cref="MultipartParseException">
         ///     thrown if unexpected data is found such as running out of stream before hitting the boundary.
         /// </exception>
@@ -615,6 +605,7 @@ namespace HttpMultipartParser
                     data.Append(Environment.NewLine);
                     data.Append(line);
                 }
+
                 line = reader.ReadLine();
             }
 
@@ -660,29 +651,29 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-
                 // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata" 
+                // Content-Disposition: form-data; name="textdata"
                 // ["content-disposition"] = "form-data"
                 // ["name"] = "textdata"
                 // Content-Disposition: form-data; name="file"; filename="data.txt"
                 // ["content-disposition"] = "form-data"
                 // ["name"] = "file"
                 // ["filename"] = "data.txt"
-                // Content-Type: text/plain 
+                // Content-Type: text/plain
                 // ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] { ':', '=' }, 2))
+
                     // select where the length of the array is equal to two, that way if it is only one it will
                     // be ignored as it is invalid key-pair
                     .Where(x => x.Length == 2)
+
                     // Limit split to 2 splits so we don't accidently split characters in file paths.
                     .ToDictionary(
                         x => x[0].Trim().Replace("\"", string.Empty).ToLower(),
                         x => x[1].Trim().Replace("\"", string.Empty));
 
-
-                // Here we just want to push all the values that we just retrieved into the 
+                // Here we just want to push all the values that we just retrieved into the
                 // parameters dictionary.
                 try
                 {
@@ -705,7 +696,7 @@ namespace HttpMultipartParser
             if (parameters.ContainsKey("filename"))
             {
                 // Right now we assume that if a section contains filename then it is a file.
-                // This assumption needs to be checked, it holds true in firefox but is untested for other 
+                // This assumption needs to be checked, it holds true in firefox but is untested for other
                 // browsers.
                 ParseFilePart(parameters, reader);
             }
@@ -718,14 +709,14 @@ namespace HttpMultipartParser
         /// <summary>
         ///     Splits a line by semicolons but ignores semicolons in quotes.
         /// </summary>
-        /// <param name="line">The line to split</param>
-        /// <returns>The split strings</returns>
+        /// <param name="line">The line to split.</param>
+        /// <returns>The split strings.</returns>
         private IEnumerable<string> SplitBySemicolonIgnoringSemicolonsInQuotes(string line)
         {
             // Loop over the line looking for a semicolon. Keep track of if we're currently inside quotes
             // and if we are don't treat a semicolon as a splitting character.
             bool inQuotes = false;
-            string workingString = "";
+            string workingString = string.Empty;
 
             foreach (char c in line)
             {
@@ -737,7 +728,7 @@ namespace HttpMultipartParser
                 if (c == ';' && !inQuotes)
                 {
                     yield return workingString;
-                    workingString = "";
+                    workingString = string.Empty;
                 }
                 else
                 {

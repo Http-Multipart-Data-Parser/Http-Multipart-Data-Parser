@@ -18,9 +18,9 @@ namespace HttpMultipartParser.UnitTests
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abc"), Encoding.UTF8);
 
-            Assert.Equal(reader.Read(), 'a');
-            Assert.Equal(reader.Read(), 'b');
-            Assert.Equal(reader.Read(), 'c');
+            Assert.Equal('a', reader.Read());
+            Assert.Equal('b', reader.Read());
+            Assert.Equal('c', reader.Read());
         }
 
         [Fact]
@@ -29,12 +29,12 @@ namespace HttpMultipartParser.UnitTests
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("def"), Encoding.UTF8);
             reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
-            Assert.Equal(reader.Read(), 'a');
-            Assert.Equal(reader.Read(), 'b');
-            Assert.Equal(reader.Read(), 'c');
-            Assert.Equal(reader.Read(), 'd');
-            Assert.Equal(reader.Read(), 'e');
-            Assert.Equal(reader.Read(), 'f');
+            Assert.Equal('a', reader.Read());
+            Assert.Equal('b', reader.Read());
+            Assert.Equal('c', reader.Read());
+            Assert.Equal('d', reader.Read());
+            Assert.Equal('e', reader.Read());
+            Assert.Equal('f', reader.Read());
         }
 
         [Fact]
@@ -42,13 +42,13 @@ namespace HttpMultipartParser.UnitTests
         {
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abcdèfg"), Encoding.UTF8);
 
-            Assert.Equal(reader.Read(), 'a');
-            Assert.Equal(reader.Read(), 'b');
-            Assert.Equal(reader.Read(), 'c');
-            Assert.Equal(reader.Read(), 'd');
-            Assert.Equal(reader.Read(), 'è');
-            Assert.Equal(reader.Read(), 'f');
-            Assert.Equal(reader.Read(), 'g');
+            Assert.Equal('a', reader.Read());
+            Assert.Equal('b', reader.Read());
+            Assert.Equal('c', reader.Read());
+            Assert.Equal('d', reader.Read());
+            Assert.Equal('è', reader.Read());
+            Assert.Equal('f', reader.Read());
+            Assert.Equal('g', reader.Read());
         }
 
         [Fact]
@@ -57,13 +57,13 @@ namespace HttpMultipartParser.UnitTests
             var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("dèfg"), Encoding.UTF8);
             reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
-            Assert.Equal(reader.Read(), 'a');
-            Assert.Equal(reader.Read(), 'b');
-            Assert.Equal(reader.Read(), 'c');
-            Assert.Equal(reader.Read(), 'd');
-            Assert.Equal(reader.Read(), 'è');
-            Assert.Equal(reader.Read(), 'f');
-            Assert.Equal(reader.Read(), 'g');
+            Assert.Equal('a', reader.Read());
+            Assert.Equal('b', reader.Read());
+            Assert.Equal('c', reader.Read());
+            Assert.Equal('d', reader.Read());
+            Assert.Equal('è', reader.Read());
+            Assert.Equal('f', reader.Read());
+            Assert.Equal('g', reader.Read());
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace HttpMultipartParser.UnitTests
             var buffer = new byte[Encoding.UTF8.GetByteCount("6chars")];
             reader.Read(buffer, 0, buffer.Length);
             string result = Encoding.UTF8.GetString(buffer);
-            Assert.Equal(result, "6chars");
+            Assert.Equal("6chars", result);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace HttpMultipartParser.UnitTests
 
             var buffer = new byte[6];
             reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "6chars");
+            Assert.Equal("6chars", Encoding.UTF8.GetString(buffer));
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace HttpMultipartParser.UnitTests
             var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
             reader.Read(buffer, 0, buffer.Length);
             string result = Encoding.UTF8.GetString(buffer);
-            Assert.Equal(result, "5èats");
+            Assert.Equal("5èats", result);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace HttpMultipartParser.UnitTests
             var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
             reader.Read(buffer, 0, buffer.Length);
             string result = Encoding.UTF8.GetString(buffer);
-            Assert.Equal(result, "5èats");
+            Assert.Equal("5èats", result);
         }
 
         [Fact]
@@ -122,11 +122,11 @@ namespace HttpMultipartParser.UnitTests
 
             var buffer = new byte[4];
             reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "6cha");
+            Assert.Equal("6cha", Encoding.UTF8.GetString(buffer));
 
             buffer = new byte[2];
             reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "rs");
+            Assert.Equal("rs", Encoding.UTF8.GetString(buffer));
         }
 
         [Fact]
@@ -136,8 +136,8 @@ namespace HttpMultipartParser.UnitTests
 
             var buffer = new byte[10];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "6chars\0\0\0\0");
-            Assert.Equal(amountRead, 6);
+            Assert.Equal("6chars\0\0\0\0", Encoding.UTF8.GetString(buffer));
+            Assert.Equal(6, amountRead);
         }
 
         [Fact]
@@ -147,8 +147,8 @@ namespace HttpMultipartParser.UnitTests
 
             var buffer = new byte[6];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "\0\0\0\0\0\0");
-            Assert.Equal(amountRead, 0);
+            Assert.Equal("\0\0\0\0\0\0", Encoding.UTF8.GetString(buffer));
+            Assert.Equal(0, amountRead);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace HttpMultipartParser.UnitTests
             var reader = new RebufferableBinaryReader(new MemoryStream(new byte[6]), Encoding.UTF8);
 
             var s = reader.ReadLine();
-            Assert.Equal(s, "\0\0\0\0\0\0");
+            Assert.Equal("\0\0\0\0\0\0", s);
             Assert.Null(reader.ReadLine());
         }
 
@@ -168,19 +168,19 @@ namespace HttpMultipartParser.UnitTests
 
             var buffer = new byte[4];
             int amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "6cha");
-            Assert.Equal(amountRead, 4);
+            Assert.Equal("6cha", Encoding.UTF8.GetString(buffer));
+            Assert.Equal(4, amountRead);
 
             reader.Buffer(TestUtil.StringToByteNoBom("14intermission"));
             buffer = new byte[14];
             amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "14intermission");
-            Assert.Equal(amountRead, 14);
+            Assert.Equal("14intermission", Encoding.UTF8.GetString(buffer));
+            Assert.Equal(14, amountRead);
 
             buffer = new byte[2];
             amountRead = reader.Read(buffer, 0, buffer.Length);
-            Assert.Equal(Encoding.UTF8.GetString(buffer), "rs");
-            Assert.Equal(amountRead, 2);
+            Assert.Equal("rs", Encoding.UTF8.GetString(buffer));
+            Assert.Equal(2, amountRead);
         }
 
         #endregion

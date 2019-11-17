@@ -53,7 +53,6 @@ namespace HttpMultipartParser.UnitTests
               I am the first data1
               --boundry--");
 
-
         /// <summary>
         ///     Test case for single files.
         /// </summary>
@@ -207,7 +206,6 @@ namespace HttpMultipartParser.UnitTests
             }
         );
 
-
         /// <summary>
         ///     Raw test data for testing a multipart with the file as the last data section.
         /// </summary>
@@ -338,7 +336,6 @@ namespace HttpMultipartParser.UnitTests
 
         #region Constructor
 
-
         /// <summary>
         ///     Initializes the test data before each run, this primarily
         ///     consists of resetting data stream positions.
@@ -453,8 +450,8 @@ namespace HttpMultipartParser.UnitTests
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
-                Assert.Equal(parser.GetParameterValue("multilined"), "line 1\r\nline 2\r\nline 3");
-                Assert.Equal(parser.GetParameterValues("multilined").First(), "line 1\r\nline 2\r\nline 3");
+                Assert.Equal("line 1\r\nline 2\r\nline 3", parser.GetParameterValue("multilined"));
+                Assert.Equal("line 1\r\nline 2\r\nline 3", parser.GetParameterValues("multilined").First());
             }
         }
 
@@ -810,13 +807,15 @@ Content-Type: application/pdf
                             }
 
                             string expectedFileData;
-                            using (var reader = new StreamReader(expectedFile.Data))
+                            // The last boolean parameter MUST be set to true: it ensures the stream is left open
+                            using (var reader = new StreamReader(expectedFile.Data, Encoding.UTF8, false, 1024, true))
                             {
                                 expectedFileData = reader.ReadToEnd();
                             }
 
                             string actualFileData;
-                            using (var reader = new StreamReader(actualFile.Data))
+                            // The last boolean parameter MUST be set to true: it ensures the stream is left open
+                            using (var reader = new StreamReader(actualFile.Data, Encoding.UTF8, false, 1024, true))
                             {
                                 actualFileData = reader.ReadToEnd();
                             }

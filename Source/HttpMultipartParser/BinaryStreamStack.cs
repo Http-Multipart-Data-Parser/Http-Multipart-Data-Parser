@@ -1,20 +1,20 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="BinaryStreamStack.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
-//   
-//   Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-//   and associated documentation files (the "Software"), to deal in the Software without restriction, 
-//   including without limitation the rights to use, copy, modify, merge, publish, distribute, 
-//   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
+//
+//   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+//   and associated documentation files (the "Software"), to deal in the Software without restriction,
+//   including without limitation the rights to use, copy, modify, merge, publish, distribute,
+//   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
 //   is furnished to do so, subject to the following conditions:
-//   
-//   The above copyright notice and this permission notice shall be included in all copies 
+//
+//   The above copyright notice and this permission notice shall be included in all copies
 //   or substantial portions of the Software.
-//   
-//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-//   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
-//   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//
+//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+//   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+//   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+//   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 //   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // </copyright>
 // <author>Jake Woods</author>
@@ -105,7 +105,7 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        ///     Returns the reader on the top of the stack and removes it
+        ///     Returns the reader on the top of the stack and removes it.
         /// </summary>
         /// <returns>
         ///     The <see cref="BinaryReader" />.
@@ -255,13 +255,12 @@ namespace HttpMultipartParser
         /// </returns>
         public byte[] ReadByteLine()
         {
-            bool dummy;
-            return ReadByteLine(out dummy);
+            return ReadByteLine(out _);
         }
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <param name="hitStreamEnd">
         ///     This will be set to true if we did not end on a newline but instead found the end of
@@ -285,57 +284,58 @@ namespace HttpMultipartParser
             byte[] ignore = CurrentEncoding.GetBytes(new[] { '\r' });
             byte[] search = CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
-            var builder = new MemoryStream();
-
-            while (true)
+            using (var builder = new MemoryStream())
             {
-                // First we need to read a byte from one of the streams
-                var bytes = new byte[search.Length];
-                int amountRead = top.Read(bytes, 0, bytes.Length);
-                while (amountRead == 0)
+                while (true)
                 {
-                    streams.Pop();
-                    if (!streams.Any())
+                    // First we need to read a byte from one of the streams
+                    var bytes = new byte[search.Length];
+                    int amountRead = top.Read(bytes, 0, bytes.Length);
+                    while (amountRead == 0)
                     {
-                        hitStreamEnd = true;
-                        return builder.ToArray();
-                    }
-
-                    top.Dispose();
-                    top = streams.Peek();
-                    amountRead = top.Read(bytes, 0, bytes.Length);
-                }
-
-                // Now we've got some bytes, we need to check it against the search array.
-                foreach (byte b in bytes)
-                {
-                    if (ignore.Contains(b))
-                    {
-                        continue;
-                    }
-
-                    if (b == search[searchPos])
-                    {
-                        searchPos += 1;
-                    }
-                    else
-                    {
-                        // We only want to append the information if it's
-                        // not part of the newline sequence
-                        if (searchPos != 0)
+                        streams.Pop();
+                        if (!streams.Any())
                         {
-                            byte[] append = search.Take(searchPos).ToArray();
-                            builder.Write(append, 0, append.Length);
+                            hitStreamEnd = true;
+                            return builder.ToArray();
                         }
 
-                        builder.Write(new[] { b }, 0, 1);
-                        searchPos = 0;
+                        top.Dispose();
+                        top = streams.Peek();
+                        amountRead = top.Read(bytes, 0, bytes.Length);
                     }
 
-                    // Finally if we've found our string
-                    if (searchPos == search.Length)
+                    // Now we've got some bytes, we need to check it against the search array.
+                    foreach (byte b in bytes)
                     {
-                        return builder.ToArray();
+                        if (ignore.Contains(b))
+                        {
+                            continue;
+                        }
+
+                        if (b == search[searchPos])
+                        {
+                            searchPos += 1;
+                        }
+                        else
+                        {
+                            // We only want to append the information if it's
+                            // not part of the newline sequence
+                            if (searchPos != 0)
+                            {
+                                byte[] append = search.Take(searchPos).ToArray();
+                                builder.Write(append, 0, append.Length);
+                            }
+
+                            builder.Write(new[] { b }, 0, 1);
+                            searchPos = 0;
+                        }
+
+                        // Finally if we've found our string
+                        if (searchPos == search.Length)
+                        {
+                            return builder.ToArray();
+                        }
                     }
                 }
             }
@@ -343,20 +343,19 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <returns>
         ///     The <see cref="string" /> containing the line.
         /// </returns>
         public string ReadLine()
         {
-            bool dummy;
-            return ReadLine(out dummy);
+            return ReadLine(out _);
         }
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <param name="hitStreamEnd">
         ///     This will be set to true if we did not end on a newline but instead found the end of
@@ -367,8 +366,7 @@ namespace HttpMultipartParser
         /// </returns>
         public string ReadLine(out bool hitStreamEnd)
         {
-            bool foundEnd;
-            byte[] result = ReadByteLine(out foundEnd);
+            byte[] result = ReadByteLine(out bool foundEnd);
             hitStreamEnd = foundEnd;
 
             if (result == null)

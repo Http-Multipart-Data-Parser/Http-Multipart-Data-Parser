@@ -1,20 +1,20 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="RebufferableBinaryReader.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
-//   
-//   Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-//   and associated documentation files (the "Software"), to deal in the Software without restriction, 
-//   including without limitation the rights to use, copy, modify, merge, publish, distribute, 
-//   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
+//
+//   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+//   and associated documentation files (the "Software"), to deal in the Software without restriction,
+//   including without limitation the rights to use, copy, modify, merge, publish, distribute,
+//   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
 //   is furnished to do so, subject to the following conditions:
-//   
-//   The above copyright notice and this permission notice shall be included in all copies 
+//
+//   The above copyright notice and this permission notice shall be included in all copies
 //   or substantial portions of the Software.
-//   
-//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-//   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
-//   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//
+//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+//   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+//   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+//   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 //   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // </copyright>
 // <author>Jake Woods</author>
@@ -45,7 +45,7 @@ namespace HttpMultipartParser
         private readonly int bufferSize;
 
         /// <summary>
-        ///     The encoding to use for character based operations
+        ///     The encoding to use for character based operations.
         /// </summary>
         private readonly Encoding encoding;
 
@@ -269,7 +269,7 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a line from the stack delimited by the newline for this platform. The newline
-        ///     characters will not be included in the stream
+        ///     characters will not be included in the stream.
         /// </summary>
         /// <returns>
         ///     The <see cref="string" /> containing the line or null if end of stream.
@@ -313,7 +313,7 @@ namespace HttpMultipartParser
         ///     Reads more data from the stream into the stream stack.
         /// </summary>
         /// <returns>
-        ///     The number of bytes read into the stream stack as an <see cref="int" />
+        ///     The number of bytes read into the stream stack as an <see cref="int" />.
         /// </returns>
         private int StreamData()
         {

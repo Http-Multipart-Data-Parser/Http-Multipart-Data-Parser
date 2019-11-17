@@ -1,20 +1,20 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SubsequenceFinder.cs" company="Jake Woods">
 //   Copyright (c) 2013 Jake Woods
-//   
-//   Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-//   and associated documentation files (the "Software"), to deal in the Software without restriction, 
-//   including without limitation the rights to use, copy, modify, merge, publish, distribute, 
-//   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software 
+//
+//   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+//   and associated documentation files (the "Software"), to deal in the Software without restriction,
+//   including without limitation the rights to use, copy, modify, merge, publish, distribute,
+//   sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
 //   is furnished to do so, subject to the following conditions:
-//   
-//   The above copyright notice and this permission notice shall be included in all copies 
+//
+//   The above copyright notice and this permission notice shall be included in all copies
 //   or substantial portions of the Software.
-//   
-//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-//   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-//   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
-//   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+//
+//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+//   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+//   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+//   ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 //   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // </copyright>
 // <author>Jake Woods</author>
@@ -36,25 +36,37 @@ namespace HttpMultipartParser
     {
         #region Public Methods and Operators
 
+        /// <summary>
+        ///     Finds if a sequence exists within another sequence.
+        /// </summary>
+        /// <param name="haystack">
+        ///     The sequence to search.
+        /// </param>
+        /// <param name="needle">
+        ///     The sequence to look for.
+        /// </param>
+        /// <returns>
+        ///     The start position of the found sequence or -1 if nothing was found.
+        /// </returns>
         public static int Search(byte[] haystack, byte[] needle)
         {
             return Search(haystack, needle, haystack.Length);
         }
 
         /// <summary>
-        ///     Finds if a sequence exists within another sequence. 
+        ///     Finds if a sequence exists within another sequence.
         /// </summary>
         /// <param name="haystack">
-        ///     The sequence to search
+        ///     The sequence to search.
         /// </param>
         /// <param name="needle">
-        ///     The sequence to look for
+        ///     The sequence to look for.
         /// </param>
         /// <param name="haystackLength">
-        ///     The length of the haystack to consider for searching
+        ///     The length of the haystack to consider for searching.
         /// </param>
         /// <returns>
-        ///     The start position of the found sequence or -1 if nothing was found
+        ///     The start position of the found sequence or -1 if nothing was found.
         /// </returns>
         public static int Search(byte[] haystack, byte[] needle, int haystackLength)
         {

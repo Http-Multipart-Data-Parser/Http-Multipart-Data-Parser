@@ -238,31 +238,32 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Reads a series of bytes delimited by the byte encoding of newline for this platform.
-        ///     the newline bytes will not be included in the return data.
+        ///     The newline bytes will not be included in the return data.
         /// </summary>
         /// <returns>
         ///     A byte array containing all the data up to but not including the next newline in the stack.
         /// </returns>
         public byte[] ReadByteLine()
         {
-            var builder = new MemoryStream();
-            while (true)
+            using (var builder = new MemoryStream())
             {
-                if (!streamStack.HasData())
+                while (true)
                 {
-                    if (StreamData() == 0)
+                    if (!streamStack.HasData())
                     {
-                        return builder.Length > 0 ? builder.ToArray() : null;
+                        if (StreamData() == 0)
+                        {
+                            return builder.Length > 0 ? builder.ToArray() : null;
+                        }
                     }
-                }
 
-                bool hitStreamEnd;
-                byte[] line = streamStack.ReadByteLine(out hitStreamEnd);
+                    byte[] line = streamStack.ReadByteLine(out bool hitStreamEnd);
 
-                builder.Write(line, 0, line.Length);
-                if (!hitStreamEnd)
-                {
-                    return builder.ToArray();
+                    builder.Write(line, 0, line.Length);
+                    if (!hitStreamEnd)
+                    {
+                        return builder.ToArray();
+                    }
                 }
             }
         }

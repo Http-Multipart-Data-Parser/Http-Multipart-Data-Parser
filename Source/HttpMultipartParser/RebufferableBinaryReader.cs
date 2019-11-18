@@ -300,7 +300,8 @@ namespace HttpMultipartParser
             {
                 if (!streamStack.HasData())
                 {
-                    if (await StreamDataAsync(cancellationToken).ConfigureAwait(false) == 0)
+                    var bytesRead = await StreamDataAsync(cancellationToken).ConfigureAwait(false);
+                    if (bytesRead == 0)
                     {
                         return -1;
                     }
@@ -339,7 +340,8 @@ namespace HttpMultipartParser
             {
                 if (!streamStack.HasData())
                 {
-                    if (await StreamDataAsync(cancellationToken).ConfigureAwait(false) == 0)
+                    var bytesRead = await StreamDataAsync(cancellationToken).ConfigureAwait(false);
+                    if (bytesRead == 0)
                     {
                         return amountRead;
                     }
@@ -379,7 +381,8 @@ namespace HttpMultipartParser
             {
                 if (!streamStack.HasData())
                 {
-                    if (await StreamDataAsync(cancellationToken).ConfigureAwait(false) == 0)
+                    var bytesRead = await StreamDataAsync(cancellationToken).ConfigureAwait(false);
+                    if (bytesRead == 0)
                     {
                         return amountRead;
                     }
@@ -409,7 +412,8 @@ namespace HttpMultipartParser
                 {
                     if (!streamStack.HasData())
                     {
-                        if (await StreamDataAsync(cancellationToken).ConfigureAwait(false) == 0)
+                    	var bytesRead = await StreamDataAsync(cancellationToken).ConfigureAwait(false);
+                    	if (bytesRead == 0)
                         {
                             return builder.Length > 0 ? builder.ToArray() : null;
                         }

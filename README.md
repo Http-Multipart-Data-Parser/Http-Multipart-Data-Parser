@@ -50,8 +50,11 @@ Single file
     -----------------------------41952539122868--
 
     // ===== Simple Parsing ====
-    // parse:
-    var parser = new MultipartFormDataParser(stream);
+    // You can parse synchronously:
+    var parser = MultipartFormDataParser.Parse(stream);
+
+    // Or you can parse asynchronously:
+    var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
 
     // From this point the data is parsed, we can retrieve the
     // form data using the GetParameterValue method.
@@ -64,7 +67,6 @@ Single file
     Stream data = file.Data;
 
     // ==== Advanced Parsing ====
-    // parse:
     var parser = new StreamingMultipartFormDataParser(stream);
     parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
     parser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
@@ -72,6 +74,12 @@ Single file
         // Write the part of the file we've recieved to a file stream. (Or do something else)
         filestream.Write(buffer, 0, bytes);
     }
+
+    // You can parse synchronously:
+    parser.Run();
+
+    // Or you can parse asynchronously:
+    await parser.RunAsync().ConfigureAwait(false);
 
 Multiple Parameters
 -------------------
@@ -88,8 +96,11 @@ Multiple Parameters
     -----------------------------41952539122868--
 
     // ===== Simple Parsing ====
-    // parse:
-    var parser = new MultipartFormDataParser(stream);
+    // You can parse synchronously:
+    var parser = MultipartFormDataParser.Parse(stream);
+
+    // Or you can parse asynchronously:
+    var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
 
     // From this point the data is parsed, we can retrieve the
     // form data from the GetParameterValues method
@@ -116,8 +127,11 @@ Multiple Files
     -----------------------------41111539122868--
 
     // ===== Simple Parsing ====
-    // parse:
-    var parser = new MultipartFormDataParser(stream);
+    // You can parse synchronously:
+    var parser = MultipartFormDataParser.Parse(stream);
+
+    // Or you can parse asynchronously:
+    var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
 
     // Loop through all the files
     foreach(var file in parser.Files)
@@ -128,7 +142,6 @@ Multiple Files
     }
 
     // ==== Advanced Parsing ====
-    // parse:
     var parser = new StreamingMultipartFormDataParser(stream);
     parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
     parser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
@@ -142,6 +155,12 @@ Multiple Files
     {
         // Do things when my input stream is closed
     };
+
+    // You can parse synchronously:
+    parser.Run();
+
+    // Or you can parse asynchronously:
+    await parser.RunAsync().ConfigureAwait(false);
 
 Licensing
 =========

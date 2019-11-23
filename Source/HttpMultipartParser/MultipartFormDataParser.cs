@@ -101,13 +101,6 @@ namespace HttpMultipartParser
         #region Constructors and Destructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </summary>
-        private MultipartFormDataParser()
-        {
-        }
-
-        /// <summary>
         ///     Initializes a new instance of the <see cref="MultipartFormDataParser" /> class
         ///     with an input stream. Boundary will be automatically detected based on the
         ///     first line of input.
@@ -218,6 +211,13 @@ namespace HttpMultipartParser
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
             ParseStream(stream, boundary, encoding, binaryBufferSize);
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MultipartFormDataParser"/> class.
+        /// </summary>
+        private MultipartFormDataParser()
+        {
         }
 
         #endregion

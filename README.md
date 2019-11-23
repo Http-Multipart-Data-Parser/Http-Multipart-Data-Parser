@@ -145,4 +145,4 @@ Multiple Files
 
 Licensing
 =========
-Please see LICENSE
+This project is licensed under MIT.

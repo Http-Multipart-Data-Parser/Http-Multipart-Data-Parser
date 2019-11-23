@@ -103,7 +103,7 @@ namespace HttpMultipartParser
         /// <summary>
         ///     Initializes a new instance of the <see cref="MultipartFormDataParser"/> class.
         /// </summary>
-        public MultipartFormDataParser()
+        private MultipartFormDataParser()
         {
         }
 

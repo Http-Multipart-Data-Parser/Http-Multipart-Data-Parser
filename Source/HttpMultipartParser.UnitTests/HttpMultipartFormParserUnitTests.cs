@@ -736,11 +736,8 @@ Content-Type: application/pdf
 
                     if (actualValue != actualValueFromValues)
                     {
-                        Console.WriteLine("GetParameterValue vs. GetParameterValues mismatch! ({0} != {1})", actualValue, actualValueFromValues);
                         return false;
                     }
-
-                    Console.WriteLine("Expected {0} = {1}. Found {2} = {3}", expectedParameter.Name, expectedParameter.Data, expectedParameter.Name, actualValue);
 
                     if (expectedParameter.Data != actualValue)
                     {
@@ -762,13 +759,6 @@ Content-Type: application/pdf
                     }
 
                     var actualValues = parser.GetParameterValues(key);
-
-                    Console.WriteLine("Expected {0} = {1}. Found {2} = {3}",
-                        key,
-                        string.Join(",", expectedParameters.Select(p => p.Data)),
-                        key,
-                        string.Join(",", actualValues)
-                    );
 
                     if (actualValues.Count() != expectedParameters.Count() || actualValues.Zip(expectedParameters, Tuple.Create).Any(t => t.Item1 != t.Item2.Data))
                     {

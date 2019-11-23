@@ -14,11 +14,11 @@ namespace HttpMultipartParser.UnitTests
         public static Stream StringToStream(string input, Encoding encoding)
         {
             var stream = new MemoryStream();
-            using (var writer = new StreamWriter(stream, encoding))
-            {
-                writer.Write(input);
-                writer.Flush();
-            }
+#pragma warning disable IDE0067 // Dispose objects before losing scope
+            var writer = new StreamWriter(stream, encoding);
+#pragma warning restore IDE0067 // Dispose objects before losing scope
+            writer.Write(input);
+            writer.Flush();
             stream.Position = 0;
             return stream;
         }
@@ -27,11 +27,11 @@ namespace HttpMultipartParser.UnitTests
         public static Stream StringToStreamNoBom(string input)
         {
             var stream = new MemoryStream();
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-            {
-                writer.Write(input);
-                writer.Flush();
-            }
+#pragma warning disable IDE0067 // Dispose objects before losing scope
+            var writer = new StreamWriter(stream, new UTF8Encoding(false));
+#pragma warning restore IDE0067 // Dispose objects before losing scope
+            writer.Write(input);
+            writer.Flush();
             stream.Position = 0;
             return stream;
         }

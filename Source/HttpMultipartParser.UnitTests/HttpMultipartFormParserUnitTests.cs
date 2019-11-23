@@ -359,7 +359,7 @@ namespace HttpMultipartParser.UnitTests
         [Fact]
         public void ConstructingWithNullStreamFails()
         {
-            Assert.Throws<ArgumentNullException>(() => new MultipartFormDataParser(Stream.Null));
+            Assert.Throws<ArgumentNullException>(() => MultipartFormDataParser.Parse(Stream.Null));
         }
 
         /// <summary>
@@ -370,7 +370,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream);
+                var parser = MultipartFormDataParser.Parse(stream);
                 Assert.True(TinyTestCase.Validate(parser));
             }
         }
@@ -383,7 +383,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(ExactBufferTruncateTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(ExactBufferTruncateTestCase.Validate(parser));
             }
         }
@@ -397,7 +397,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(TinyTestCase.Validate(parser));
             }
         }
@@ -413,7 +413,7 @@ namespace HttpMultipartParser.UnitTests
             string request = regex.Replace(TinyTestCase.Request, "\r\n", 1);
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
                 Assert.True(TinyTestCase.Validate(parser));
             }
         }
@@ -427,7 +427,7 @@ namespace HttpMultipartParser.UnitTests
             string request = TinyTestCase.Request.Replace("\n", "\r\n");
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
                 Assert.True(TinyTestCase.Validate(parser));
             }
         }
@@ -449,7 +449,7 @@ namespace HttpMultipartParser.UnitTests
 
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
                 Assert.Equal("line 1\r\nline 2\r\nline 3", parser.GetParameterValue("multilined"));
                 Assert.Equal("line 1\r\nline 2\r\nline 3", parser.GetParameterValues("multilined").First());
             }
@@ -464,7 +464,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(MultipleParamsAndFilesTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(MultipleParamsAndFilesTestCase.Validate(parser));
             }
         }
@@ -474,7 +474,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(SingleFileTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, 16);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(SingleFileTestCase.Validate(parser));
             }
         }
@@ -490,7 +490,7 @@ namespace HttpMultipartParser.UnitTests
                 // The boundry is missing the first two -- in accordance with the multipart
                 // spec. (A -- is added by the parser, this boundry is what would be sent in the
                 // requset header)
-                var parser = new MultipartFormDataParser(stream, "---------------------------265001916915724");
+                var parser = MultipartFormDataParser.Parse(stream, "---------------------------265001916915724");
                 Assert.True(SmallTestCase.Validate(parser));
             }
         }
@@ -503,7 +503,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
                 Assert.True(TinyTestCase.Validate(parser));
             }
         }
@@ -516,7 +516,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(FileIsLastTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
                 Assert.True(FileIsLastTestCase.Validate(parser));
             }
         }
@@ -528,7 +528,7 @@ namespace HttpMultipartParser.UnitTests
                 Stream stream = TestUtil.StringToStream(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Request,
                                                         Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
                 Assert.True(MixedUnicodeWidthAndAsciiWidthCharactersTestCase.Validate(parser));
             }
         }
@@ -540,7 +540,7 @@ namespace HttpMultipartParser.UnitTests
                 Stream stream = TestUtil.StringToStream(MixedSingleByteAndMultiByteWidthTestCase.Request, Encoding.UTF8)
                 )
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
                 Assert.True(MixedSingleByteAndMultiByteWidthTestCase.Validate(parser));
             }
         }
@@ -550,7 +550,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(FullPathAsFileNameWithSemicolon.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
                 Assert.True(FullPathAsFileNameWithSemicolon.Validate(parser));
             }
         }
@@ -560,7 +560,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(SeveralValuesWithSameProperty.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
                 Assert.True(SeveralValuesWithSameProperty.Validate(parser));
             }
         }
@@ -571,7 +571,7 @@ namespace HttpMultipartParser.UnitTests
             using (Stream stream = TestUtil.StringToStream(UnclosedBoundary.Request, Encoding.UTF8))
             {
                 // We expect this to throw!
-                Assert.Throws<MultipartParseException>(() => new MultipartFormDataParser(stream, Encoding.UTF8));
+                Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, Encoding.UTF8));
             }
         }
 
@@ -580,7 +580,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
                 Assert.True(TinyTestCase.Validate(parser));
 
                 stream.Position = 0;
@@ -593,7 +593,7 @@ namespace HttpMultipartParser.UnitTests
         {
             using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
                 Assert.Null(parser.GetParameterValue("does not exist"));
             }
         }
@@ -618,7 +618,7 @@ Content-Type: application/pdf
 
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
             }
         }
 
@@ -642,7 +642,7 @@ Content-Type: application/pdf
 
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
-                var parser = new MultipartFormDataParser(stream, Encoding.UTF8);
+                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
             }
         }
 
@@ -653,7 +653,7 @@ Content-Type: application/pdf
             {
                 using (Stream stream = TestUtil.StringToStream(TinyTestCase.Request, Encoding.UTF8))
                 {
-                    var parser = new MultipartFormDataParser(stream, "boundry", Encoding.UTF8, i);
+                    var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, i);
                     Assert.True(TinyTestCase.Validate(parser), $"Failure in buffer length {i}");
                 }
             }

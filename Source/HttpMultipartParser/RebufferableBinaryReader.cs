@@ -412,8 +412,8 @@ namespace HttpMultipartParser
                 {
                     if (!streamStack.HasData())
                     {
-                    	var bytesRead = await StreamDataAsync(cancellationToken).ConfigureAwait(false);
-                    	if (bytesRead == 0)
+                        var bytesRead = await StreamDataAsync(cancellationToken).ConfigureAwait(false);
+                        if (bytesRead == 0)
                         {
                             return builder.Length > 0 ? builder.ToArray() : null;
                         }

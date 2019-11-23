@@ -14,4 +14,4 @@ branches:
     tag: rc
 ignore:
   sha: []
-next-version: 2.3.0
+next-version: 3.0.0

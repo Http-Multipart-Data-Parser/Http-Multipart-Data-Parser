@@ -14,9 +14,11 @@ namespace HttpMultipartParser.UnitTests
         public static Stream StringToStream(string input, Encoding encoding)
         {
             var stream = new MemoryStream();
-            var writer = new StreamWriter(stream, encoding);
-            writer.Write(input);
-            writer.Flush();
+            using (var writer = new StreamWriter(stream, encoding))
+            {
+                writer.Write(input);
+                writer.Flush();
+            }
             stream.Position = 0;
             return stream;
         }
@@ -25,9 +27,11 @@ namespace HttpMultipartParser.UnitTests
         public static Stream StringToStreamNoBom(string input)
         {
             var stream = new MemoryStream();
-            var writer = new StreamWriter(stream, new UTF8Encoding(false));
-            writer.Write(input);
-            writer.Flush();
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
+            {
+                writer.Write(input);
+                writer.Flush();
+            }
             stream.Position = 0;
             return stream;
         }

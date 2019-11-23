@@ -31,7 +31,7 @@
     <Summary>The Http Multipart Parser does it exactly what it claims on the tin: parses multipart/form-data. This particular parser is well suited to parsing large data from streams as it doesn't attempt to read the entire stream at once and produces a set of streams for file data.</Summary>
     <Copyright>Copyright © Jake Woods and contributors 2013 - Present</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Vodurden/Http-Multipart-Data-Parser</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Http-Multipart-Data-Parser/Http-Multipart-Data-Parser</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>http multipart parser form data</PackageTags>
   </PropertyGroup>

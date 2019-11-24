@@ -70,7 +70,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
         }
 
         /// <summary>
-        ///     The correctly handle mixed newline formats.
+        ///     Ensure that mixed newline formats are correctly handled.
         /// </summary>
         [Fact]
         public void CorrectlyHandleMixedNewlineFormats()

@@ -44,6 +44,10 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             }
         }
 
+
+        /// <summary>
+        ///     Tests that the final '--' ending up in a seperate chunk doesn't break everything.
+        /// </summary>
         [Fact]
         public void CanHandleFinalDashesInSeperateBufferFromEndBinary()
         {
@@ -54,6 +58,10 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             }
         }
 
+
+        /// <summary>
+        ///     Tests that the final '--' ending up in a seperate chunk doesn't break everything.
+        /// </summary>
         [Fact]
         public async Task CanHandleFinalDashesInSeperateBufferFromEndBinaryAsync()
         {

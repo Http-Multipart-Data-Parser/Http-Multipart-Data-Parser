@@ -43,10 +43,6 @@ namespace HttpMultipartParser.UnitTests
                          .Select(x => x.Trim())
                          .Aggregate((first, second) => first + '\n' + second)
                          .Where(x => x != '\r'));
-            /*return Regex.Split(input, "\n")
-                        .Select(x => x.Trim())
-                        .Where(x => x != "\r")
-                        .Aggregate((first, second) => first + System.Environment.NewLine + second);*/
         }
     }
 }

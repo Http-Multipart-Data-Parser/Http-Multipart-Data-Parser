@@ -26,14 +26,7 @@ namespace HttpMultipartParser.UnitTests
         // Assumes UTF8
         public static Stream StringToStreamNoBom(string input)
         {
-            var stream = new MemoryStream();
-#pragma warning disable IDE0067 // Dispose objects before losing scope
-            var writer = new StreamWriter(stream, new UTF8Encoding(false));
-#pragma warning restore IDE0067 // Dispose objects before losing scope
-            writer.Write(input);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
+            return StringToStream(input, new UTF8Encoding(false));
         }
 
         public static byte[] StringToByteNoBom(string input)

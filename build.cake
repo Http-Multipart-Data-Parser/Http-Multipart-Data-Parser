@@ -38,7 +38,7 @@ var myGetApiKey = EnvironmentVariable("MYGET_API_KEY");
 var gitHubToken = EnvironmentVariable("GITHUB_TOKEN");
 var gitHubUserName = EnvironmentVariable("GITHUB_USERNAME");
 var gitHubPassword = EnvironmentVariable("GITHUB_PASSWORD");
-var gitHubRepoOwner = EnvironmentVariable("GITHUB_REPOOWNER") ?? EnvironmentVariable("GITHUB_USERNAME");
+var gitHubRepoOwner = Argument<string>("repoowner", EnvironmentVariable("GITHUB_REPOOWNER") ?? gitHubUserName);
 
 var sourceFolder = "./Source/";
 

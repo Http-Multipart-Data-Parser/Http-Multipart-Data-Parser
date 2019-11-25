@@ -3,7 +3,7 @@
 
 // Install tools.
 #tool nuget:?package=GitVersion.CommandLine&version=5.1.2
-#tool nuget:?package=GitReleaseManager&version=0.8.0
+#tool nuget:?package=GitReleaseManager&version=0.9.0
 #tool nuget:?package=OpenCover&version=4.7.922
 #tool nuget:?package=ReportGenerator&version=4.3.6
 #tool nuget:?package=coveralls.io&version=1.4.2
@@ -29,16 +29,16 @@ var testCoverageFilter = "+[HttpMultipartParser]* -[HttpMultipartParser]HttpMult
 var testCoverageExcludeByAttribute = "*.ExcludeFromCodeCoverage*";
 var testCoverageExcludeByFile = "*/*Designer.cs;*/*AssemblyInfo.cs";
 
-var nuGetApiUrl = EnvironmentVariable("NUGET_API_URL");
-var nuGetApiKey = EnvironmentVariable("NUGET_API_KEY");
+var nuGetApiUrl = Argument<string>("NUGET_API_URL", EnvironmentVariable("NUGET_API_URL"));
+var nuGetApiKey = Argument<string>("NUGET_API_KEY", EnvironmentVariable("NUGET_API_KEY"));
 
-var myGetApiUrl = EnvironmentVariable("MYGET_API_URL");
-var myGetApiKey = EnvironmentVariable("MYGET_API_KEY");
+var myGetApiUrl = Argument<string>("MYGET_API_URL", EnvironmentVariable("MYGET_API_URL"));
+var myGetApiKey = Argument<string>("MYGET_API_KEY", EnvironmentVariable("MYGET_API_KEY"));
 
-var gitHubToken = EnvironmentVariable("GITHUB_TOKEN");
-var gitHubUserName = EnvironmentVariable("GITHUB_USERNAME");
-var gitHubPassword = EnvironmentVariable("GITHUB_PASSWORD");
-var gitHubRepoOwner = Argument<string>("repoowner", EnvironmentVariable("GITHUB_REPOOWNER") ?? gitHubUserName);
+var gitHubToken = Argument<string>("GITHUB_TOKEN", EnvironmentVariable("GITHUB_TOKEN"));
+var gitHubUserName = Argument<string>("GITHUB_USERNAME", EnvironmentVariable("GITHUB_USERNAME"));
+var gitHubPassword = Argument<string>("GITHUB_PASSWORD", EnvironmentVariable("GITHUB_PASSWORD"));
+var gitHubRepoOwner = Argument<string>("GITHUB_REPOOWNER", EnvironmentVariable("GITHUB_REPOOWNER") ?? gitHubUserName);
 
 var sourceFolder = "./Source/";
 

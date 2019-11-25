@@ -1,37 +1,50 @@
-What is it?
-===========
+# Http Multipart Parser
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://httpmultipartparser.mit-license.org/)
+![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)
+[![Build status](https://ci.appveyor.com/api/projects/status/t547jmcf10s53h2u?svg=true)](https://ci.appveyor.com/project/Jericho/http-multipart-data-parser)
+![tests](https://img.shields.io/appveyor/tests/jericho/http-multipart-data-parser)
+
+[![Coverage Status](https://coveralls.io/repos/github/Http-Multipart-Data-Parser/Http-Multipart-Data-Parser/badge.svg?branch=master)](https://coveralls.io/github/Http-Multipart-Data-Parser/Http-Multipart-Data-Parser?branch=master)
+[![CodeFactor](https://www.codefactor.io/repository/github/http-multipart-data-parser/http-multipart-data-parser/badge)](https://www.codefactor.io/repository/github/http-multipart-data-parser/http-multipart-data-parser)
+
+| Release Notes| NuGet (stable) | MyGet (prerelease) |
+|--------------|----------------|--------------------|
+| [![GitHub release](https://img.shields.io/github/release/jericho/http-multipart-data-parser.svg)](https://github.com/http-multipart-data-parser/http-multipart-data-parser/releases) | [![NuGet Version](http://img.shields.io/nuget/v/HttpMultipartDataParser.svg)](https://www.nuget.org/packages/HttpMultipartParser/) | [![MyGet Pre Release](https://img.shields.io/myget/jericho/vpre/HttpMultipartParser.svg)](http://myget.org/gallery/jericho) |
+
+## About
 
 The Http Multipart Parser does it exactly what it claims on the tin: parses multipart/form-data. This particular
 parser is well suited to parsing large data from streams as it doesn't attempt to read the entire stream at once and
 procudes a set of streams for file data.
 
-Installation
-=============
-Simply add the HttpMultipartParser project to your solution and reference it in the projects you want to use it in.
+## Installation
 
-There is also a NuGet package provided.
+The easiest way to include HttpMultipartParser in your project is by adding the nuget package to your project:
 
-Dependencies
-============
-The parser was built for and tested on NET 4.0. Versions lower then this may work but are untested.
+```
+PM> Install-Package HttpMultipartParser
+```
 
-How do I use it?
-================
-## Non-Streaming (Simple, don't use on very large files)
-1. Create a new MultipartFormDataParser with the stream containing the multipart/form-data.
+## .NET framework suport
+
+The parser was built for and tested on NET 4.6.1, NET 4,7,2 and NETSTANDARD 2.0. Versions 2.2.4 was the last version of HttpMultipartParser that supported older .NET platforms such as NET 4.5 and NETSTANDARD 1.3.
+
+## Usage
+
+### Non-Streaming (Simple, don't use on very large files)
+1. Parse the stream containing the multipart/form-data by invoking `MultipartFormDataParser.Parse` (or it's asynchronous counterpart `MultipartFormDataParser.ParseAsync`).
 2. Access the data through the parser.
 
 ## Streaming (Handles large files)
 1. Create a new StreamingMultipartFormDataParser with the stream containing the multipart/form-data
 2. Set up the ParameterHandler and FileHandler delegates
-3. Call parser.Run()
+3. Call `parser.Run()` (or it's asynchronous counterpart `parser.RunAsync()`)
 4. The delegates will be called as data streams in.
 
-Examples
-========
+## Examples
 
-Single file
------------
+### Single file
 
     // stream:
     -----------------------------41952539122868
@@ -81,8 +94,7 @@ Single file
     // Or you can parse asynchronously:
     await parser.RunAsync().ConfigureAwait(false);
 
-Multiple Parameters
--------------------
+### Multiple Parameters
 
     // stream:
     -----------------------------41952539122868
@@ -110,8 +122,7 @@ Multiple Parameters
         Console.WriteLine("Parameter {0} is {1}", parameter.Name, parameter.Data)
     }
 
-Multiple Files
------------
+### Multiple Files
 
     // stream:
     -----------------------------41111539122868
@@ -162,6 +173,6 @@ Multiple Files
     // Or you can parse asynchronously:
     await parser.RunAsync().ConfigureAwait(false);
 
-Licensing
-=========
+## Licensing
+
 This project is licensed under MIT.

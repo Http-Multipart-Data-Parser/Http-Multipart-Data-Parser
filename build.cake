@@ -2,7 +2,7 @@
 #addin nuget:?package=Cake.Coveralls&version=0.10.1
 
 // Install tools.
-#tool nuget:?package=GitVersion.CommandLine&version=5.1.2
+#tool nuget:?package=GitVersion.CommandLine&version=5.1.3-beta1.28
 #tool nuget:?package=GitReleaseManager&version=0.9.0
 #tool nuget:?package=OpenCover&version=4.7.922
 #tool nuget:?package=ReportGenerator&version=4.3.6

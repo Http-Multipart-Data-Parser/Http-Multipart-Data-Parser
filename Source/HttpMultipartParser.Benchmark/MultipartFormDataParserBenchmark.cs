@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 namespace HttpMultipartParser.Benchmark
 {
     [MemoryDiagnoser]
+    [HtmlExporter]
+    [JsonExporter]
+    [MarkdownExporter]
     public class MultipartFormDataParserBenchmark
     {
         private readonly Stream small;

@@ -124,8 +124,26 @@ namespace HttpMultipartParser
         /// </param>
         public void Push(byte[] data)
         {
+            Push(data, 0, data.Length);
+        }
+
+        /// <summary>
+        ///     Pushes data to the front of the stack. The most recently pushed data will
+        ///     be read first.
+        /// </summary>
+        /// <param name="data">
+        ///     The data to add to the stack.
+        /// </param>
+        /// <param name="offset">
+        ///     The zero-based byte offset in buffer at which to begin copying bytes to the current stream.
+        /// </param>
+        /// <param name="count">
+        ///     The maximum number of bytes to write.
+        /// </param>
+        public void Push(byte[] data, int offset, int count)
+        {
             var stream = Utilities.MemoryStreamManager.GetStream();
-            stream.Write(data, 0, data.Length);
+            stream.Write(data, offset, count);
             stream.Position = 0;
 
             streams.Push(new BinaryReader(stream, CurrentEncoding));

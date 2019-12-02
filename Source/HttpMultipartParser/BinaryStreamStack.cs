@@ -293,8 +293,8 @@ namespace HttpMultipartParser
                 while (true)
                 {
                     // First we need to read a byte from one of the streams
-                    var bytes = new byte[search.Length];
-                    int amountRead = top.Read(bytes, 0, bytes.Length);
+                    var bytes = Utilities.ArrayPool.Rent(search.Length);
+                    int amountRead = top.Read(bytes, 0, search.Length);
                     while (amountRead == 0)
                     {
                         streams.Pop();
@@ -306,12 +306,14 @@ namespace HttpMultipartParser
 
                         top.Dispose();
                         top = streams.Peek();
-                        amountRead = top.Read(bytes, 0, bytes.Length);
+                        amountRead = top.Read(bytes, 0, search.Length);
                     }
 
                     // Now we've got some bytes, we need to check it against the search array.
-                    foreach (byte b in bytes)
+                    for (int i = 0; i < search.Length; i++)
                     {
+                        var b = bytes[i];
+
                         if (ignore.Contains(b))
                         {
                             continue;
@@ -341,6 +343,8 @@ namespace HttpMultipartParser
                             return builder.ToArray();
                         }
                     }
+
+                    Utilities.ArrayPool.Return(bytes);
                 }
             }
         }

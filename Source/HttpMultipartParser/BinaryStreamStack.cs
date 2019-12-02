@@ -124,7 +124,11 @@ namespace HttpMultipartParser
         /// </param>
         public void Push(byte[] data)
         {
-            streams.Push(new BinaryReader(new MemoryStream(data), CurrentEncoding));
+            var stream = Utilities.MemoryStreamManager.GetStream();
+            stream.Write(data, 0, data.Length);
+            stream.Position = 0;
+
+            streams.Push(new BinaryReader(stream, CurrentEncoding));
         }
 
         /// <summary>
@@ -284,7 +288,7 @@ namespace HttpMultipartParser
             byte[] ignore = CurrentEncoding.GetBytes(new[] { '\r' });
             byte[] search = CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
-            using (var builder = new MemoryStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream())
             {
                 while (true)
                 {

@@ -247,7 +247,7 @@ namespace HttpMultipartParser
         /// </returns>
         public byte[] ReadByteLine()
         {
-            using (var builder = new MemoryStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream())
             {
                 while (true)
                 {
@@ -406,7 +406,7 @@ namespace HttpMultipartParser
         /// </returns>
         public async Task<byte[]> ReadByteLineAsync(CancellationToken cancellationToken = default)
         {
-            using (var builder = new MemoryStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream())
             {
                 while (true)
                 {

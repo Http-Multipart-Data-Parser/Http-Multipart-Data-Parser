@@ -561,7 +561,7 @@ namespace HttpMultipartParser
             {
                 if (Files.Count == 0 || name != Files[Files.Count - 1].Name)
                 {
-                    Files.Add(new FilePart(name, fileName, new MemoryStream(), type, disposition));
+                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);
@@ -605,7 +605,7 @@ namespace HttpMultipartParser
             {
                 if (Files.Count == 0 || name != Files[Files.Count - 1].Name)
                 {
-                    Files.Add(new FilePart(name, fileName, new MemoryStream(), type, disposition));
+                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);

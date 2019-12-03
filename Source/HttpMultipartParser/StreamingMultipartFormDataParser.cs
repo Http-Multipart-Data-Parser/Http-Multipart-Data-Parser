@@ -562,17 +562,17 @@ namespace HttpMultipartParser
 
             // We want to create a stream and fill it with the data from the
             // file.
-            var curBuffer = new byte[BinaryBufferSize];
-            var prevBuffer = new byte[BinaryBufferSize];
-            var fullBuffer = new byte[BinaryBufferSize * 2];
+            var curBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
+            var prevBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
+            var fullBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize * 2);
             int curLength;
             int prevLength;
             int fullLength;
 
-            prevLength = reader.Read(prevBuffer, 0, prevBuffer.Length);
+            prevLength = reader.Read(prevBuffer, 0, BinaryBufferSize);
             do
             {
-                curLength = reader.Read(curBuffer, 0, curBuffer.Length);
+                curLength = reader.Read(curBuffer, 0, BinaryBufferSize);
 
                 // Combine both buffers into the fullBuffer
                 // See: http://stackoverflow.com/questions/415291/best-way-to-combine-two-or-more-byte-arrays-in-c-sharp
@@ -656,9 +656,7 @@ namespace HttpMultipartParser
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
-                    var writeBackBuffer = new byte[writeBackAmount];
-                    Buffer.BlockCopy(fullBuffer, writeBackOffset, writeBackBuffer, 0, writeBackAmount);
-                    reader.Buffer(writeBackBuffer);
+                    reader.Buffer(fullBuffer, writeBackOffset, writeBackAmount);
 
                     break;
                 }
@@ -668,7 +666,7 @@ namespace HttpMultipartParser
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
-                // curBuffer to it so it gets overwrited.
+                // curBuffer to it so it gets overwritten.
                 byte[] tempBuffer = curBuffer;
                 curBuffer = prevBuffer;
                 prevBuffer = tempBuffer;
@@ -679,6 +677,10 @@ namespace HttpMultipartParser
                 prevLength = curLength;
             }
             while (prevLength != 0);
+
+            Utilities.ArrayPool.Return(curBuffer);
+            Utilities.ArrayPool.Return(prevBuffer);
+            Utilities.ArrayPool.Return(fullBuffer);
         }
 
         /// <summary>
@@ -709,17 +711,17 @@ namespace HttpMultipartParser
 
             // We want to create a stream and fill it with the data from the
             // file.
-            var curBuffer = new byte[BinaryBufferSize];
-            var prevBuffer = new byte[BinaryBufferSize];
-            var fullBuffer = new byte[BinaryBufferSize * 2];
+            var curBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
+            var prevBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
+            var fullBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize * 2);
             int curLength;
             int prevLength;
             int fullLength;
 
-            prevLength = await reader.ReadAsync(prevBuffer, 0, prevBuffer.Length, cancellationToken).ConfigureAwait(false);
+            prevLength = await reader.ReadAsync(prevBuffer, 0, BinaryBufferSize, cancellationToken).ConfigureAwait(false);
             do
             {
-                curLength = await reader.ReadAsync(curBuffer, 0, curBuffer.Length, cancellationToken).ConfigureAwait(false);
+                curLength = await reader.ReadAsync(curBuffer, 0, BinaryBufferSize, cancellationToken).ConfigureAwait(false);
 
                 // Combine both buffers into the fullBuffer
                 // See: http://stackoverflow.com/questions/415291/best-way-to-combine-two-or-more-byte-arrays-in-c-sharp
@@ -803,9 +805,7 @@ namespace HttpMultipartParser
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
-                    var writeBackBuffer = new byte[writeBackAmount];
-                    Buffer.BlockCopy(fullBuffer, writeBackOffset, writeBackBuffer, 0, writeBackAmount);
-                    reader.Buffer(writeBackBuffer);
+                    reader.Buffer(fullBuffer, writeBackOffset, writeBackAmount);
 
                     break;
                 }
@@ -815,7 +815,7 @@ namespace HttpMultipartParser
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
-                // curBuffer to it so it gets overwrited.
+                // curBuffer to it so it gets overwritten.
                 byte[] tempBuffer = curBuffer;
                 curBuffer = prevBuffer;
                 prevBuffer = tempBuffer;
@@ -826,6 +826,10 @@ namespace HttpMultipartParser
                 prevLength = curLength;
             }
             while (prevLength != 0);
+
+            Utilities.ArrayPool.Return(curBuffer);
+            Utilities.ArrayPool.Return(prevBuffer);
+            Utilities.ArrayPool.Return(fullBuffer);
         }
 
         /// <summary>

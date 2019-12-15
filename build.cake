@@ -8,7 +8,7 @@
 #tool nuget:?package=GitVersion.CommandLine&version=5.1.3-beta1.29&prerelease
 #tool nuget:?package=GitReleaseManager&version=0.9.0
 #tool nuget:?package=OpenCover&version=4.7.922
-#tool nuget:?package=ReportGenerator&version=4.3.6
+#tool nuget:?package=ReportGenerator&version=4.3.8
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
@@ -394,7 +394,18 @@ Task("Generate-Benchmark-Report")
 
     var assemblyLocation = MakeAbsolute(File($"{publishDirectory}{libraryName}.Benchmark.dll")).FullPath;
     var artifactsLocation = MakeAbsolute(File(benchmarkDir)).FullPath;
-    DotNetCoreTool(benchmarkProject, "benchmark", $"{assemblyLocation} -f * --artifacts={artifactsLocation}");
+	var benchmarkToolLocation = Context.Tools.Resolve("dotnet-benchmark.exe");
+
+	var processResult = StartProcess(
+		benchmarkToolLocation,
+		new ProcessSettings()
+		{
+			Arguments = $"{assemblyLocation} -f * --artifacts={artifactsLocation}"
+		});
+    if (processResult != 0)
+    {
+        throw new Exception($"dotnet-benchmark.exe did not complete successfully. Result code: {processResult}");
+    }
 });
 
 

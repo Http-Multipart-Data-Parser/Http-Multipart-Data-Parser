@@ -3,14 +3,13 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://httpmultipartparser.mit-license.org/)
 ![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)
 [![Build status](https://ci.appveyor.com/api/projects/status/t547jmcf10s53h2u?svg=true)](https://ci.appveyor.com/project/Jericho/http-multipart-data-parser)
-![tests](https://img.shields.io/appveyor/tests/jericho/http-multipart-data-parser)
-
+[![tests](https://img.shields.io/appveyor/tests/jericho/http-multipart-data-parser)](https://ci.appveyor.com/project/jericho/http-multipart-data-parser/build/tests)
 [![Coverage Status](https://coveralls.io/repos/github/Http-Multipart-Data-Parser/Http-Multipart-Data-Parser/badge.svg?branch=master)](https://coveralls.io/github/Http-Multipart-Data-Parser/Http-Multipart-Data-Parser?branch=master)
 [![CodeFactor](https://www.codefactor.io/repository/github/http-multipart-data-parser/http-multipart-data-parser/badge)](https://www.codefactor.io/repository/github/http-multipart-data-parser/http-multipart-data-parser)
 
 | Release Notes| NuGet (stable) | MyGet (prerelease) |
 |--------------|----------------|--------------------|
-| [![GitHub release](https://img.shields.io/github/release/jericho/http-multipart-data-parser.svg)](https://github.com/http-multipart-data-parser/http-multipart-data-parser/releases) | [![NuGet Version](http://img.shields.io/nuget/v/HttpMultipartDataParser.svg)](https://www.nuget.org/packages/HttpMultipartParser/) | [![MyGet Pre Release](https://img.shields.io/myget/jericho/vpre/HttpMultipartParser.svg)](http://myget.org/gallery/jericho) |
+| [![GitHub release](https://img.shields.io/github/release/http-multipart-data-parser/http-multipart-data-parser.svg)](https://github.com/http-multipart-data-parser/http-multipart-data-parser/releases) | [![Nuget](https://img.shields.io/nuget/v/HttpMultipartParser.svg)](https://www.nuget.org/packages/HttpMultipartParser/) | [![MyGet Pre Release](https://img.shields.io/myget/jericho/vpre/HttpMultipartParser.svg)](http://myget.org/gallery/jericho) |
 
 ## About
 

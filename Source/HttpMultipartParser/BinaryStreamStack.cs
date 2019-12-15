@@ -124,7 +124,29 @@ namespace HttpMultipartParser
         /// </param>
         public void Push(byte[] data)
         {
-            streams.Push(new BinaryReader(new MemoryStream(data), CurrentEncoding));
+            Push(data, 0, data.Length);
+        }
+
+        /// <summary>
+        ///     Pushes data to the front of the stack. The most recently pushed data will
+        ///     be read first.
+        /// </summary>
+        /// <param name="data">
+        ///     The data to add to the stack.
+        /// </param>
+        /// <param name="offset">
+        ///     The zero-based byte offset in buffer at which to begin copying bytes to the current stream.
+        /// </param>
+        /// <param name="count">
+        ///     The maximum number of bytes to write.
+        /// </param>
+        public void Push(byte[] data, int offset, int count)
+        {
+            var stream = Utilities.MemoryStreamManager.GetStream();
+            stream.Write(data, offset, count);
+            stream.Position = 0;
+
+            streams.Push(new BinaryReader(stream, CurrentEncoding));
         }
 
         /// <summary>
@@ -284,13 +306,13 @@ namespace HttpMultipartParser
             byte[] ignore = CurrentEncoding.GetBytes(new[] { '\r' });
             byte[] search = CurrentEncoding.GetBytes(new[] { '\n' });
             int searchPos = 0;
-            using (var builder = new MemoryStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream())
             {
                 while (true)
                 {
                     // First we need to read a byte from one of the streams
-                    var bytes = new byte[search.Length];
-                    int amountRead = top.Read(bytes, 0, bytes.Length);
+                    var bytes = Utilities.ArrayPool.Rent(search.Length);
+                    int amountRead = top.Read(bytes, 0, search.Length);
                     while (amountRead == 0)
                     {
                         streams.Pop();
@@ -302,12 +324,14 @@ namespace HttpMultipartParser
 
                         top.Dispose();
                         top = streams.Peek();
-                        amountRead = top.Read(bytes, 0, bytes.Length);
+                        amountRead = top.Read(bytes, 0, search.Length);
                     }
 
                     // Now we've got some bytes, we need to check it against the search array.
-                    foreach (byte b in bytes)
+                    for (int i = 0; i < search.Length; i++)
                     {
+                        var b = bytes[i];
+
                         if (ignore.Contains(b))
                         {
                             continue;
@@ -337,6 +361,8 @@ namespace HttpMultipartParser
                             return builder.ToArray();
                         }
                     }
+
+                    Utilities.ArrayPool.Return(bytes);
                 }
             }
         }

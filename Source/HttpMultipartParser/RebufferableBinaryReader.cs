@@ -128,6 +128,24 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
+        ///     Adds data to the front of the stream. The most recently buffered data will
+        ///     be read first.
+        /// </summary>
+        /// <param name="data">
+        ///     The data to buffer.
+        /// </param>
+        /// <param name="offset">
+        ///     The zero-based byte offset in buffer at which to begin copying bytes to the current stream.
+        /// </param>
+        /// <param name="count">
+        ///     The maximum number of bytes to write.
+        /// </param>
+        public void Buffer(byte[] data, int offset, int count)
+        {
+            streamStack.Push(data, offset, count);
+        }
+
+        /// <summary>
         ///     Adds the string to the front of the stream. The most recently buffered data will
         ///     be read first.
         /// </summary>
@@ -247,7 +265,7 @@ namespace HttpMultipartParser
         /// </returns>
         public byte[] ReadByteLine()
         {
-            using (var builder = new MemoryStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream())
             {
                 while (true)
                 {
@@ -406,7 +424,7 @@ namespace HttpMultipartParser
         /// </returns>
         public async Task<byte[]> ReadByteLineAsync(CancellationToken cancellationToken = default)
         {
-            using (var builder = new MemoryStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream())
             {
                 while (true)
                 {
@@ -483,10 +501,12 @@ namespace HttpMultipartParser
         /// </returns>
         private int StreamData()
         {
-            var buffer = new byte[bufferSize];
-            int amountRead = stream.Read(buffer, 0, buffer.Length);
+            var buffer = Utilities.ArrayPool.Rent(bufferSize);
+            int amountRead = stream.Read(buffer, 0, bufferSize);
 
             PushToStack(buffer, amountRead);
+
+            Utilities.ArrayPool.Return(buffer);
 
             return amountRead;
         }
@@ -502,10 +522,12 @@ namespace HttpMultipartParser
         /// </returns>
         private async Task<int> StreamDataAsync(CancellationToken cancellationToken = default)
         {
-            var buffer = new byte[bufferSize];
-            int amountRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+            var buffer = Utilities.ArrayPool.Rent(bufferSize);
+            int amountRead = await stream.ReadAsync(buffer, 0, bufferSize, cancellationToken).ConfigureAwait(false);
 
             PushToStack(buffer, amountRead);
+
+            Utilities.ArrayPool.Return(buffer);
 
             return amountRead;
         }
@@ -529,16 +551,7 @@ namespace HttpMultipartParser
             // for the reader:
             if (amountRead - bomOffset > 0)
             {
-                if (amountRead != buffer.Length || bomOffset > 0)
-                {
-                    var smallBuffer = new byte[amountRead - bomOffset];
-                    System.Buffer.BlockCopy(buffer, bomOffset, smallBuffer, 0, amountRead - bomOffset);
-                    streamStack.Push(smallBuffer);
-                }
-                else
-                {
-                    streamStack.Push(buffer);
-                }
+                streamStack.Push(buffer, bomOffset, amountRead - bomOffset);
             }
         }
 

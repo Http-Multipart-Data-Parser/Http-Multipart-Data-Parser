@@ -394,18 +394,7 @@ Task("Generate-Benchmark-Report")
 
     var assemblyLocation = MakeAbsolute(File($"{publishDirectory}{libraryName}.Benchmark.dll")).FullPath;
     var artifactsLocation = MakeAbsolute(File(benchmarkDir)).FullPath;
-    var benchmarkToolLocation = Context.Tools.Resolve("dotnet-benchmark.exe");
-
-   	var processResult = StartProcess(
-		benchmarkToolLocation,
-		new ProcessSettings()
-		{
-			Arguments = $"{assemblyLocation} -f * --artifacts={artifactsLocation}"
-		});
-	if (processResult != 0)
-	{
-		throw new Exception($"dotnet-benchmark.exe did not complete successfully. Result code: {processResult}");
-	}
+    DotNetCoreTool(benchmarkProject, "benchmark", $"{assemblyLocation} -f * --artifacts={artifactsLocation}");
 });
 
 

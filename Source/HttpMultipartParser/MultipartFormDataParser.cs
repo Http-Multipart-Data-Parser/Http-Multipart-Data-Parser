@@ -605,7 +605,6 @@ namespace HttpMultipartParser
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
             {
                 if (partNumber == 0)
-
                 {
                     // create file with first partNo
                     Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));

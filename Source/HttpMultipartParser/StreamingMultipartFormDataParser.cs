@@ -292,7 +292,6 @@ namespace HttpMultipartParser
         /// <param name="buffer">Some of the data from the file (not neccecarily all of the data).</param>
         /// <param name="bytes">The length of data in buffer.</param>
         /// <param name="partNumber">Each chunk (or "part") in a given file is sequentially numbered, starting at zero.</param>
-
         public delegate void FileStreamDelegate(
             string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes, int partNumber);
 

@@ -293,7 +293,7 @@ namespace HttpMultipartParser
         /// <param name="bytes">The length of data in buffer.</param>
         /// <param name="partNo">Serial number of long file part (begins from 0).</param>
         public delegate void FileStreamDelegate(
-            string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes, int partNo);
+            string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes, int partNumber);
 
         /// <summary>
         /// The StreamClosedDelegate defining functions that can handle stream being closed.

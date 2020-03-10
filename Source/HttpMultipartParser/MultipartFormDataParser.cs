@@ -557,10 +557,11 @@ namespace HttpMultipartParser
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
-            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
+            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
             {
-                if (Files.Count == 0 || name != Files[Files.Count - 1].Name)
+                if (partNumber == 0)
                 {
+                    // create file with first partNo
                     Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));
                 }
 
@@ -601,10 +602,11 @@ namespace HttpMultipartParser
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
-            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes) =>
+            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
             {
-                if (Files.Count == 0 || name != Files[Files.Count - 1].Name)
+                if (partNumber == 0)
                 {
+                    // create file with first partNo
                     Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));
                 }
 

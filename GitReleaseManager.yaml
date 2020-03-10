@@ -4,6 +4,17 @@ create:
   footer-content: You can download this release from [nuget.org](https://www.nuget.org/packages/Http-Multipart-Data-Parser/{milestone})
   footer-includes-milestone: true
   milestone-replace-text: '{milestone}'
+close:
+  use-issue-comments: true
+  issue-comment: |-
+    :tada: This issue has been resolved in version {milestone} :tada:
+
+    The release is available on:
+
+    - [GitHub Release](https://github.com/{owner}/{repository}/releases/tag/{milestone})
+    - [NuGet Package](https://www.nuget.org/packages/Http-Multipart-Data-Parser/{milestone})
+
+    Your **[GitReleaseManager](https://github.com/GitTools/GitReleaseManager)** bot :package::rocket:
 export:
   include-created-date-in-title: true
   created-date-string-format: MMMM dd, yyyy
@@ -11,17 +22,20 @@ export:
   regex-text: '### Where to get it(\r\n)*You can .*\)'
   multiline-regex: true
 issue-labels-include:
-- Breaking Change
-- Bug
-- New Feature
-- Improvement
-- Documentation
+  - Breaking Change
+  - Bug
+  - New Feature
+  - Improvement
+  - Documentation
+  - Security
 issue-labels-exclude:
-- Question
-- Duplicate
-- Invalid
-- Wontfix
+  - Question
+  - Duplicate
+  - Invalid
+  - Wontfix
+  - Build
+  - Internal Refactoring
 issue-labels-alias:
-    - name:    Documentation
-      header:  Documentation
-      plural:  Documentation
+  - name:    Documentation
+    header:  Documentation
+    plural:  Documentation

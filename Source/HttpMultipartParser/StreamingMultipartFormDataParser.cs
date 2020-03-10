@@ -291,8 +291,9 @@ namespace HttpMultipartParser
         /// <param name="contentDisposition">The content disposition of the multipart data.</param>
         /// <param name="buffer">Some of the data from the file (not neccecarily all of the data).</param>
         /// <param name="bytes">The length of data in buffer.</param>
+        /// <param name="partNumber">Each chunk (or "part") in a given file is sequentially numbered, starting at zero.</param>
         public delegate void FileStreamDelegate(
-            string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes);
+            string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes, int partNumber);
 
         /// <summary>
         /// The StreamClosedDelegate defining functions that can handle stream being closed.
@@ -551,6 +552,8 @@ namespace HttpMultipartParser
         /// </param>
         private void ParseFilePart(Dictionary<string, string> parameters, RebufferableBinaryReader reader)
         {
+            int partNumber = 0; // begins count parts of file from 0
+
             string name = parameters["name"];
             string filename = parameters["filename"];
 
@@ -652,7 +655,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -662,7 +665,8 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength);
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber);
+                partNumber++; // increase part counter
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -700,6 +704,8 @@ namespace HttpMultipartParser
         /// </returns>
         private async Task ParseFilePartAsync(Dictionary<string, string> parameters, RebufferableBinaryReader reader, CancellationToken cancellationToken = default)
         {
+            int partNumber = 0; // begins count parts of file from 0
+
             string name = parameters["name"];
             string filename = parameters["filename"];
 
@@ -801,7 +807,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -811,7 +817,8 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength);
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber);
+                partNumber++; // increase part counter
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set

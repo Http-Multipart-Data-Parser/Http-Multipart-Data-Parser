@@ -59,7 +59,20 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
         /// </returns>
         public bool Validate(MultipartFormDataParser parser)
         {
-            // Deal with all the parameters who are only expected to have one value.
+            var result = ValidateSingleValueParameters(parser);
+            result &= ValidateMultipleValuesParameters(parser);
+            result &= ValidateFiles(parser);
+
+            return result;
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private bool ValidateSingleValueParameters(MultipartFormDataParser parser)
+        {
+            // Deal with the parameters that are expected to have only one value.
             var expectedParametersWithSingleValue = ExpectedParams
                 .GroupBy(p => p.Name)
                 .Where(g => g.Count() == 1)
@@ -86,10 +99,15 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
                 }
             }
 
-            // Deal with the parameters who are expected to have more then one value
+            return true;
+        }
+
+        private bool ValidateMultipleValuesParameters(MultipartFormDataParser parser)
+        {
+            // Deal with the parameters that are expected to have more than one value
             var expectedParametersWithMultiValues = ExpectedParams
-                .GroupBy(p => p.Name)
-                .Where(a => a.Count() > 1);
+                    .GroupBy(p => p.Name)
+                    .Where(a => a.Count() > 1);
 
             foreach (var expectedParameters in expectedParametersWithMultiValues)
             {
@@ -107,60 +125,48 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
                 }
             }
 
-            // Validate files
-            foreach (var filePart in ExpectedFileData)
+            return true;
+        }
+
+        private bool ValidateFiles(MultipartFormDataParser parser)
+        {
+            // Validate files.
+
+            // PLEASE NOTE: we can't rely on the name and/or the file name because they are not guaranteed to be unique.
+            // Therefore we assume that the first expected file should match the first actual file,
+            // the second expected file should match the second actual files, etc.
+
+            if (ExpectedFileData.Count != parser.Files.Count) return false;
+
+            for (int i = 0; i < ExpectedFileData.Count; i++)
             {
-                var foundPairMatch = false;
-                foreach (var file in parser.Files)
+                var expectedFile = ExpectedFileData[i];
+                var actualFile = parser.Files[i];
+
+                if (expectedFile.Name != actualFile.Name) return false;
+                if (expectedFile.FileName != actualFile.FileName) return false;
+                if (expectedFile.ContentType != actualFile.ContentType) return false;
+                if (expectedFile.ContentDisposition != actualFile.ContentDisposition) return false;
+
+                // Read the data from the files and see if it's the same
+                if (expectedFile.Data.CanSeek && expectedFile.Data.Position != 0) expectedFile.Data.Position = 0;
+                if (actualFile.Data.CanSeek && actualFile.Data.Position != 0) actualFile.Data.Position = 0;
+
+                string expectedFileData;
+                // The last boolean parameter MUST be set to true: it ensures the stream is left open
+                using (var reader = new StreamReader(expectedFile.Data, Encoding.UTF8, false, 1024, true))
                 {
-                    if (filePart.Name == file.Name)
-                    {
-                        foundPairMatch = true;
-
-                        FilePart expectedFile = filePart;
-                        FilePart actualFile = file;
-
-                        if (expectedFile.Name != actualFile.Name || expectedFile.FileName != actualFile.FileName)
-                        {
-                            return false;
-                        }
-
-                        if (expectedFile.ContentType != actualFile.ContentType ||
-                            expectedFile.ContentDisposition != actualFile.ContentDisposition)
-                        {
-                            return false;
-                        }
-
-                        // Read the data from the files and see if it's the same
-                        if (expectedFile.Data.CanSeek)
-                        {
-                            expectedFile.Data.Position = 0;
-                        }
-
-                        string expectedFileData;
-                        // The last boolean parameter MUST be set to true: it ensures the stream is left open
-                        using (var reader = new StreamReader(expectedFile.Data, Encoding.UTF8, false, 1024, true))
-                        {
-                            expectedFileData = reader.ReadToEnd();
-                        }
-
-                        string actualFileData;
-                        // The last boolean parameter MUST be set to true: it ensures the stream is left open
-                        using (var reader = new StreamReader(actualFile.Data, Encoding.UTF8, false, 1024, true))
-                        {
-                            actualFileData = reader.ReadToEnd();
-                        }
-
-                        if (expectedFileData != actualFileData)
-                        {
-                            return false;
-                        }
-
-                        break;
-                    }
+                    expectedFileData = reader.ReadToEnd();
                 }
 
-                if (!foundPairMatch)
+                string actualFileData;
+                // The last boolean parameter MUST be set to true: it ensures the stream is left open
+                using (var reader = new StreamReader(actualFile.Data, Encoding.UTF8, false, 1024, true))
+                {
+                    actualFileData = reader.ReadToEnd();
+                }
+
+                if (expectedFileData != actualFileData)
                 {
                     return false;
                 }

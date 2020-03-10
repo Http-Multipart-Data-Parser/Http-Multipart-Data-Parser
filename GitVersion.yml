@@ -1,5 +1,8 @@
 mode: ContinuousDelivery
 branches:
+  feature:
+    regex: feature(s)?[/-]
+    mode: ContinuousDeployment
   develop:
     regex: dev(elop)?(ment)?$
     mode: ContinuousDeployment

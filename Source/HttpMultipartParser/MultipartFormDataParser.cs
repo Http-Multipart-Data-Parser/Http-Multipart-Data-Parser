@@ -562,7 +562,7 @@ namespace HttpMultipartParser
                 if (partNumber == 0)
                 {
                     // create file with first partNo
-                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));
+                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStream)}"), type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);
@@ -607,7 +607,7 @@ namespace HttpMultipartParser
                 if (partNumber == 0)
                 {
                     // create file with first partNo
-                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream(), type, disposition));
+                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStreamAsync)}"), type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);

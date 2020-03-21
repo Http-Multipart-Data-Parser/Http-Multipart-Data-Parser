@@ -545,7 +545,7 @@ namespace HttpMultipartParser
         ///     Parses a section of the stream that is known to be file data.
         /// </summary>
         /// <param name="parameters">
-        ///     The header parameters of this file, expects "name" and "filename" to be valid keys.
+        ///     The header parameters of this file.
         /// </param>
         /// <param name="reader">
         ///     The StreamReader to read the data from.
@@ -554,17 +554,17 @@ namespace HttpMultipartParser
         {
             int partNumber = 0; // begins count parts of file from 0
 
-            string name = parameters["name"];
-            string filename = parameters["filename"];
-
+            // Read the parameters
+            parameters.TryGetValue("name", out string name);
+            parameters.TryGetValue("filename", out string filename);
             parameters.TryGetValue("content-type", out string contentType);
-            if (contentType == null) contentType = "text/plain";
-
             parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+            // Default values if expected parameters are missing
+            if (contentType == null) contentType = "text/plain";
             if (contentDisposition == null) contentDisposition = "form-data";
 
-            // We want to create a stream and fill it with the data from the
-            // file.
+            // We want to create a stream and fill it with the data from the file.
             var curBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
             var prevBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
             var fullBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize * 2);
@@ -705,13 +705,14 @@ namespace HttpMultipartParser
         {
             int partNumber = 0; // begins count parts of file from 0
 
-            string name = parameters["name"];
-            string filename = parameters["filename"];
-
+            // Read the parameters
+            parameters.TryGetValue("name", out string name);
+            parameters.TryGetValue("filename", out string filename);
             parameters.TryGetValue("content-type", out string contentType);
-            if (contentType == null) contentType = "text/plain";
-
             parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+            // Default values if expected parameters are missing
+            if (contentType == null) contentType = "text/plain";
             if (contentDisposition == null) contentDisposition = "form-data";
 
             // We want to create a stream and fill it with the data from the

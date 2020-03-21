@@ -655,7 +655,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -665,8 +665,7 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber);
-                partNumber++; // increase part counter
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -807,7 +806,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -817,8 +816,7 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber);
-                partNumber++; // increase part counter
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set

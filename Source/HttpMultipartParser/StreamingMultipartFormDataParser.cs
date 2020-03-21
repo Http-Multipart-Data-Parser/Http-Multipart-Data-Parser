@@ -979,16 +979,17 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-                // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "textdata"
-                // Content-Disposition: form-data; name="file"; filename="data.txt"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "file"
-                // ["filename"] = "data.txt"
-                // Content-Type: text/plain
-                // ["content-type"] = "text/plain"
+                // This line parses the header values into a set of key/value pairs.
+                // For example:
+                //   Content-Disposition: form-data; name="textdata"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "textdata"
+                //   Content-Disposition: form-data; name="file"; filename="data.txt"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "file"
+                //     ["filename"] = "data.txt"
+                //   Content-Type: text/plain
+                //     ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] { ':', '=' }, 2))
 
@@ -1072,16 +1073,17 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-                // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "textdata"
-                // Content-Disposition: form-data; name="file"; filename="data.txt"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "file"
-                // ["filename"] = "data.txt"
-                // Content-Type: text/plain
-                // ["content-type"] = "text/plain"
+                // This line parses the header values into a set of key/value pairs.
+                // For example:
+                //   Content-Disposition: form-data; name="textdata"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "textdata"
+                //   Content-Disposition: form-data; name="file"; filename="data.txt"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "file"
+                //     ["filename"] = "data.txt"
+                //   Content-Type: text/plain
+                //     ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] { ':', '=' }, 2))
 

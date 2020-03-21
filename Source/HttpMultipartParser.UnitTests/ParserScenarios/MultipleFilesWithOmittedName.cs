@@ -8,38 +8,38 @@ using Xunit;
 namespace HttpMultipartParser.UnitTests.ParserScenarios
 {
     /// <summary>
-    ///     Test case for multiple files with no name.
+    ///     Test case for multiple files with omitted name.
     /// </summary>
-    public class MultipleFilesWithNoName
+    public class MultipleFilesWithOmittedName
     {
-        private static readonly string MultipleFilesSameName_testData = TestUtil.TrimAllLines(@"--boundry
-              Content-Disposition: form-data; name="""";filename=""file1.txt"";
+        private static readonly string MultipleFilesWithOmittedName_testData = TestUtil.TrimAllLines(@"--boundry
+              Content-Disposition: form-data; filename=""file1.txt"";
               Content-Type: text/plain
 
               THIS IS TEXT FILE 1
               --boundry
-              Content-Disposition: form-data; name="""";filename=""file2.txt"";
+              Content-Disposition: form-data; filename=""file2.txt"";
               Content-Type: text/plain
 
               THIS IS TEXT FILE 2 !!!
               --boundry
-              Content-Disposition: form-data; name="""";filename=""file3.txt"";
+              Content-Disposition: form-data; filename=""file3.txt"";
               Content-Type: text/plain
 
               This is text file 3 1234567890
               --boundry--");
 
         private static readonly TestData _testCase = new TestData(
-            MultipleFilesSameName_testData,
+            MultipleFilesWithOmittedName_testData,
             Enumerable.Empty<ParameterPart>().ToList(),
             new List<FilePart> {
-                new FilePart( "", "file1.txt", TestUtil.StringToStreamNoBom("THIS IS TEXT FILE 1")),
-                new FilePart( "", "file2.txt", TestUtil.StringToStreamNoBom("THIS IS TEXT FILE 2 !!!")),
-                new FilePart( "", "file3.txt", TestUtil.StringToStreamNoBom("This is text file 3 1234567890"))
+                new FilePart( null, "file1.txt", TestUtil.StringToStreamNoBom("THIS IS TEXT FILE 1")),
+                new FilePart( null, "file2.txt", TestUtil.StringToStreamNoBom("THIS IS TEXT FILE 2 !!!")),
+                new FilePart( null, "file3.txt", TestUtil.StringToStreamNoBom("This is text file 3 1234567890"))
             }
         );
 
-        public MultipleFilesWithNoName()
+        public MultipleFilesWithOmittedName()
         {
         }
 
@@ -48,9 +48,9 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
         ///     and that everything parses correctly.
         /// </summary>
         [Fact]
-        public void MultipleFilesWithNoNameTest()
+        public void MultipleFilesWithOmittedNameTest()
         {
-            using (Stream stream = TestUtil.StringToStream(MultipleFilesSameName_testData, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
             {
                 var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(_testCase.Validate(parser));
@@ -58,7 +58,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
         }
 
         [Fact]
-        public async Task MultipleFilesWithNoNameAsync()
+        public async Task MultipleFilesWithOmittedNameAsync()
         {
             using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
             {

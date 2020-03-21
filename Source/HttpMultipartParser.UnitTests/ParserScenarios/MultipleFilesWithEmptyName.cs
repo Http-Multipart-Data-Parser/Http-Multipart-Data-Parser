@@ -10,7 +10,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     /// <summary>
     ///     Test case for multiple files with no name.
     /// </summary>
-    public class MultipleFilesWithNoName
+    public class MultipleFilesWithEmptyName
     {
         private static readonly string MultipleFilesSameName_testData = TestUtil.TrimAllLines(@"--boundry
               Content-Disposition: form-data; name="""";filename=""file1.txt"";
@@ -39,7 +39,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             }
         );
 
-        public MultipleFilesWithNoName()
+        public MultipleFilesWithEmptyName()
         {
         }
 

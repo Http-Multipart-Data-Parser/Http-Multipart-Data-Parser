@@ -50,7 +50,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
         [Fact]
         public void MultipleFilesWithSameNameTest()
         {
-            using (Stream stream = TestUtil.StringToStream(MultipleFilesSameName_testData, Encoding.UTF8))
+            using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
             {
                 var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
                 Assert.True(_testCase.Validate(parser));

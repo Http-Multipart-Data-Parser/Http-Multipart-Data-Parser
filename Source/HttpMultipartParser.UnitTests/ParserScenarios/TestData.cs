@@ -59,8 +59,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
         /// </returns>
         public bool Validate(MultipartFormDataParser parser)
         {
-            var result = ValidateSingleValueParameters(parser);
-            result &= ValidateMultipleValuesParameters(parser);
+            var result = ValidateParameters(parser);
             result &= ValidateFiles(parser);
 
             return result;
@@ -70,68 +69,33 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 
         #region Private methods
 
-        private bool ValidateSingleValueParameters(MultipartFormDataParser parser)
+        private bool ValidateParameters(MultipartFormDataParser parser)
         {
-            // Deal with the parameters that are expected to have only one value.
-            var expectedParametersWithSingleValue = ExpectedParams
-                .GroupBy(p => p.Name)
-                .Where(g => g.Count() == 1)
-                .Select(g => g.Single());
+            var actualParameters = parser.Parameters.GroupBy(p => p.Name);
+            var expectedParameters = ExpectedParams.GroupBy(p => p.Name);
 
-            foreach (var expectedParameter in expectedParametersWithSingleValue)
+            // Make sure the number of actual parameters matches the number of expected parameters
+            if (actualParameters.Count() != expectedParameters.Count()) return false;
+
+            // Validate that each expected value has a corresponding actual value
+            return actualParameters.Zip(expectedParameters, Tuple.Create).All(t =>
             {
-                if (!parser.HasParameter(expectedParameter.Name))
-                {
-                    return false;
-                }
+                // Make sure the name of the actual parameter matches the name of the expected parameter
+                if (t.Item1.Key != t.Item2.Key) return false;
 
-                var actualValue = parser.GetParameterValue(expectedParameter.Name);
-                var actualValueFromValues = parser.GetParameterValues(expectedParameter.Name).Single();
+                var actualValues = t.Item1.Select(i => i.Data);
+                var expectedValues = t.Item2.Select(i => i.Data);
 
-                if (actualValue != actualValueFromValues)
-                {
-                    return false;
-                }
+                // Make sure the number of actual values matches the number of expected values
+                if (actualValues.Count() != expectedValues.Count()) return false;
 
-                if (expectedParameter.Data != actualValue)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool ValidateMultipleValuesParameters(MultipartFormDataParser parser)
-        {
-            // Deal with the parameters that are expected to have more than one value
-            var expectedParametersWithMultiValues = ExpectedParams
-                    .GroupBy(p => p.Name)
-                    .Where(a => a.Count() > 1);
-
-            foreach (var expectedParameters in expectedParametersWithMultiValues)
-            {
-                var key = expectedParameters.Key;
-                if (!parser.HasParameter(key))
-                {
-                    return false;
-                }
-
-                var actualValues = parser.GetParameterValues(key);
-
-                if (actualValues.Count() != expectedParameters.Count() || actualValues.Zip(expectedParameters, Tuple.Create).Any(t => t.Item1 != t.Item2.Data))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+                // Validate that each expected value has a corresponding actual value
+                return actualValues.Zip(expectedValues, Tuple.Create).All(v => v.Item1 == v.Item2);
+            });
         }
 
         private bool ValidateFiles(MultipartFormDataParser parser)
         {
-            // Validate files.
-
             // PLEASE NOTE: we can't rely on the name and/or the file name because they are not guaranteed to be unique.
             // Therefore we assume that the first expected file should match the first actual file,
             // the second expected file should match the second actual files, etc.

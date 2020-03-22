@@ -265,7 +265,7 @@ namespace HttpMultipartParser
         /// </returns>
         public byte[] ReadByteLine()
         {
-            using (var builder = Utilities.MemoryStreamManager.GetStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream($"{typeof(RebufferableBinaryReader).FullName}.{nameof(ReadByteLine)}"))
             {
                 while (true)
                 {
@@ -424,7 +424,7 @@ namespace HttpMultipartParser
         /// </returns>
         public async Task<byte[]> ReadByteLineAsync(CancellationToken cancellationToken = default)
         {
-            using (var builder = Utilities.MemoryStreamManager.GetStream())
+            using (var builder = Utilities.MemoryStreamManager.GetStream($"{typeof(RebufferableBinaryReader).FullName}.{nameof(ReadByteLineAsync)}"))
             {
                 while (true)
                 {

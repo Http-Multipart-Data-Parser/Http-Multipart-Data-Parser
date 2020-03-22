@@ -545,7 +545,7 @@ namespace HttpMultipartParser
         ///     Parses a section of the stream that is known to be file data.
         /// </summary>
         /// <param name="parameters">
-        ///     The header parameters of this file, expects "name" and "filename" to be valid keys.
+        ///     The header parameters of this file.
         /// </param>
         /// <param name="reader">
         ///     The StreamReader to read the data from.
@@ -554,17 +554,17 @@ namespace HttpMultipartParser
         {
             int partNumber = 0; // begins count parts of file from 0
 
-            string name = parameters["name"];
-            string filename = parameters["filename"];
-
+            // Read the parameters
+            parameters.TryGetValue("name", out string name);
+            parameters.TryGetValue("filename", out string filename);
             parameters.TryGetValue("content-type", out string contentType);
-            if (contentType == null) contentType = "text/plain";
-
             parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+            // Default values if expected parameters are missing
+            if (contentType == null) contentType = "text/plain";
             if (contentDisposition == null) contentDisposition = "form-data";
 
-            // We want to create a stream and fill it with the data from the
-            // file.
+            // We want to create a stream and fill it with the data from the file.
             var curBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
             var prevBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize);
             var fullBuffer = Utilities.ArrayPool.Rent(BinaryBufferSize * 2);
@@ -655,7 +655,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -665,8 +665,7 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber);
-                partNumber++; // increase part counter
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -706,13 +705,14 @@ namespace HttpMultipartParser
         {
             int partNumber = 0; // begins count parts of file from 0
 
-            string name = parameters["name"];
-            string filename = parameters["filename"];
-
+            // Read the parameters
+            parameters.TryGetValue("name", out string name);
+            parameters.TryGetValue("filename", out string filename);
             parameters.TryGetValue("content-type", out string contentType);
-            if (contentType == null) contentType = "text/plain";
-
             parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+            // Default values if expected parameters are missing
+            if (contentType == null) contentType = "text/plain";
             if (contentDisposition == null) contentDisposition = "form-data";
 
             // We want to create a stream and fill it with the data from the
@@ -807,7 +807,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -817,8 +817,7 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber);
-                partNumber++; // increase part counter
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -979,16 +978,17 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-                // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "textdata"
-                // Content-Disposition: form-data; name="file"; filename="data.txt"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "file"
-                // ["filename"] = "data.txt"
-                // Content-Type: text/plain
-                // ["content-type"] = "text/plain"
+                // This line parses the header values into a set of key/value pairs.
+                // For example:
+                //   Content-Disposition: form-data; name="textdata"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "textdata"
+                //   Content-Disposition: form-data; name="file"; filename="data.txt"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "file"
+                //     ["filename"] = "data.txt"
+                //   Content-Type: text/plain
+                //     ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] { ':', '=' }, 2))
 
@@ -1072,16 +1072,17 @@ namespace HttpMultipartParser
                     throw new MultipartParseException("Unexpected end of section");
                 }
 
-                // This line parses the header values into a set of key/value pairs. For example:
-                // Content-Disposition: form-data; name="textdata"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "textdata"
-                // Content-Disposition: form-data; name="file"; filename="data.txt"
-                // ["content-disposition"] = "form-data"
-                // ["name"] = "file"
-                // ["filename"] = "data.txt"
-                // Content-Type: text/plain
-                // ["content-type"] = "text/plain"
+                // This line parses the header values into a set of key/value pairs.
+                // For example:
+                //   Content-Disposition: form-data; name="textdata"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "textdata"
+                //   Content-Disposition: form-data; name="file"; filename="data.txt"
+                //     ["content-disposition"] = "form-data"
+                //     ["name"] = "file"
+                //     ["filename"] = "data.txt"
+                //   Content-Type: text/plain
+                //     ["content-type"] = "text/plain"
                 Dictionary<string, string> values = SplitBySemicolonIgnoringSemicolonsInQuotes(line)
                     .Select(x => x.Split(new[] { ':', '=' }, 2))
 

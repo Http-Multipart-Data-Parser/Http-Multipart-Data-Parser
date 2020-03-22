@@ -470,12 +470,17 @@ namespace HttpMultipartParser
             while (true)
             {
                 string line = reader.ReadLine();
+
                 if (line == boundary)
                 {
                     break;
                 }
-
-                if (line == null)
+                else if (line == endBoundary)
+                {
+                    readEndBoundary = true;
+                    break;
+                }
+                else if (line == null)
                 {
                     throw new MultipartParseException("Could not find expected boundary");
                 }
@@ -518,12 +523,17 @@ namespace HttpMultipartParser
             while (true)
             {
                 string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+
                 if (line == boundary)
                 {
                     break;
                 }
-
-                if (line == null)
+                else if (line == endBoundary)
+                {
+                    readEndBoundary = true;
+                    break;
+                }
+                else if (line == null)
                 {
                     throw new MultipartParseException("Could not find expected boundary");
                 }

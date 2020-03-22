@@ -10,21 +10,22 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     /// </summary>
     public class SmallData
     {
-        private static readonly string _testData =
-            TestUtil.TrimAllLines(@"-----------------------------265001916915724
-                Content-Disposition: form-data; name=""textdata""
+        private static readonly string _testData = TestUtil.TrimAllLines(
+            @"-----------------------------265001916915724
+            Content-Disposition: form-data; name=""textdata""
                 
-                Testdata
-                -----------------------------265001916915724
-                Content-Disposition: form-data; name=""file""; filename=""data.txt""
-                Content-Type: application/octet-stream
+            Testdata
+            -----------------------------265001916915724
+            Content-Disposition: form-data; name=""file""; filename=""data.txt""
+            Content-Type: application/octet-stream
 
-                This is a small file
-                -----------------------------265001916915724
-                Content-Disposition: form-data; name=""submit""
+            This is a small file
+            -----------------------------265001916915724
+            Content-Disposition: form-data; name=""submit""
 
-                Submit
-                -----------------------------265001916915724--");
+            Submit
+            -----------------------------265001916915724--"
+        );
 
         /// <summary>
         ///     The small data test case with expected outcomes

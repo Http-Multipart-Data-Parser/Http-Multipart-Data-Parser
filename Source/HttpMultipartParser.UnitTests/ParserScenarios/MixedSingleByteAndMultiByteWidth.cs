@@ -19,7 +19,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 
              BinaryData
              -----------------------------41952539122868--"
-            );
+        );
 
         private static readonly TestData _testCase = new TestData(
             _testData,

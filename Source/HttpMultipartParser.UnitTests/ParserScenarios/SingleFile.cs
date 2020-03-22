@@ -8,12 +8,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 {
     public class SingleFile
     {
-        private static readonly string _testData = TestUtil.TrimAllLines(@"--boundry
-              Content-Disposition: form-data; name=""file""; filename=""data.txt"";
-              Content-Type: text/plain
+        private static readonly string _testData = TestUtil.TrimAllLines(
+            @"--boundry
+            Content-Disposition: form-data; name=""file""; filename=""data.txt"";
+            Content-Type: text/plain
 
-              I am the first data1
-              --boundry--");
+            I am the first data1
+            --boundry--"
+        );
 
         /// <summary>
         ///     Test case for single files.

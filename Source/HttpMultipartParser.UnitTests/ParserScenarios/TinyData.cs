@@ -9,7 +9,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 {
     public class TinyData
     {
-        private static readonly string _testData = TestUtil.TrimAllLines(@"--boundry
+        private static readonly string _testData = TestUtil.TrimAllLines(
+            @"--boundry
             Content-Disposition: form-data; name=""text""
 
             textdata
@@ -22,7 +23,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             Content-Disposition: form-data; name=""after""
 
             afterdata
-            --boundry--");
+            --boundry--"
+        );
 
         private static readonly TestData _testCase = new TestData(
             _testData,

@@ -351,7 +351,19 @@ namespace HttpMultipartParser
             // Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
             // the front as per the protocol and ||||||||||||| is the part we care about.
             string boundary = string.Concat(reader.ReadLine().Skip(2));
-            reader.Buffer("--" + boundary + "\n");
+
+            // If the string ends with '--' it means that we found the "end" boundary and we
+            // need to trim the two dashes to get the actual boundary
+            if (boundary.EndsWith("--"))
+            {
+                boundary = boundary.Substring(0, boundary.Length - 2);
+                reader.Buffer($"--{boundary}--\n");
+            }
+            else
+            {
+                reader.Buffer($"--{boundary}\n");
+            }
+
             return boundary;
         }
 
@@ -374,8 +386,20 @@ namespace HttpMultipartParser
             // Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
             // the front as per the protocol and ||||||||||||| is the part we care about.
             var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            var boundary = string.Concat(line.Skip(2));
-            reader.Buffer("--" + boundary + "\n");
+            string boundary = string.Concat(line.Skip(2));
+
+            // If the string ends with '--' it means that we found the "end" boundary and we
+            // need to trim the two dashes to get the actual boundary.
+            if (boundary.EndsWith("--"))
+            {
+                boundary = boundary.Substring(0, boundary.Length - 2);
+                reader.Buffer($"--{boundary}--\n");
+            }
+            else
+            {
+                reader.Buffer($"--{boundary}\n");
+            }
+
             return boundary;
         }
 

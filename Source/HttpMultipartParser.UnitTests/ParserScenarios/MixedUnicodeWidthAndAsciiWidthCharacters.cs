@@ -10,11 +10,11 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     {
         private static readonly string _testData = TestUtil.TrimAllLines(
             @"--boundary_.oOo._MjQ1NTU=OTk3Ng==MjcxODE=
-              Content-Disposition: form-data; name=""psAdTitle""
+            Content-Disposition: form-data; name=""psAdTitle""
 
-              Bonjour poignée 
-              --boundary_.oOo._MjQ1NTU=OTk3Ng==MjcxODE=--"
-            );
+            Bonjour poignée 
+            --boundary_.oOo._MjQ1NTU=OTk3Ng==MjcxODE=--"
+        );
 
         private static readonly TestData _testCase = new TestData(
             _testData,

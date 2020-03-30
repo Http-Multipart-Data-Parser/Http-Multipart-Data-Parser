@@ -11,7 +11,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     /// </summary>
     public class ExactBufferTruncate
     {
-        private static readonly string _testData = TestUtil.TrimAllLines(@"--boundry
+        private static readonly string _testData = TestUtil.TrimAllLines(
+            @"--boundry
             Content-Disposition: form-data; name=""text""
 
             textdata
@@ -20,7 +21,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             Content-Type: text/plain
 
             1234567890123456789012
-            --boundry--");
+            --boundry--"
+        );
 
         /// <summary>
         ///     This test has the buffer split such that the final '--' of the end boundary

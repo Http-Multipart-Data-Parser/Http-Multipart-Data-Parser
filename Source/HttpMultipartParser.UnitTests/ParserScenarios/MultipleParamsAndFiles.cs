@@ -11,36 +11,38 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     /// </summary>
     public class MultipleParamsAndFiles
     {
-        private static readonly string MultipleParamsAndFiles_testData = TestUtil.TrimAllLines(@"--boundry
-              Content-Disposition: form-data; name=""text""
+        private static readonly string _testData = TestUtil.TrimAllLines(
+            @"--boundry
+            Content-Disposition: form-data; name=""text""
               
-              textdata
-              --boundry
-              Content-Disposition: form-data; name=""after"";TestForTextWithoutSplit
+            textdata
+            --boundry
+            Content-Disposition: form-data; name=""after"";TestForTextWithoutSplit
               
-              afterdata
-              --boundry
-              Content-Disposition: form-data; name=""file""; filename=""data.txt""
-              Content-Type: text/plain
+            afterdata
+            --boundry
+            Content-Disposition: form-data; name=""file""; filename=""data.txt""
+            Content-Type: text/plain
 
-              I am the first data 
-              --boundry
-              Content-Disposition: form-data;TestForTextWithoutSplit; name=""newfile""; filename=""superdata.txt""
-              Content-Type: text/plain
+            I am the first data 
+            --boundry
+            Content-Disposition: form-data;TestForTextWithoutSplit; name=""newfile""; filename=""superdata.txt""
+            Content-Type: text/plain
 
-              I am the second data
-              --boundry
-              Content-Disposition: form-data; name=""never""
+            I am the second data
+            --boundry
+            Content-Disposition: form-data; name=""never""
 
-              neverdata 
-              --boundry
-              Content-Disposition: form-data; name=""waylater""
+            neverdata 
+            --boundry
+            Content-Disposition: form-data; name=""waylater""
 
-              waylaterdata 
-              --boundry--");
+            waylaterdata 
+            --boundry--"
+        );
 
         private static readonly TestData _testCase = new TestData(
-            MultipleParamsAndFiles_testData,
+            _testData,
             new List<ParameterPart> {
                 new ParameterPart("text", "textdata"),
                 new ParameterPart("after", "afterdata"),

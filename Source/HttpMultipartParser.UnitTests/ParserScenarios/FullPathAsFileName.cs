@@ -15,7 +15,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 
             test
             -----------------------------7de6cc440a46--"
-            );
+        );
 
         private static readonly TestData _testCase = new TestData(
             _testData,

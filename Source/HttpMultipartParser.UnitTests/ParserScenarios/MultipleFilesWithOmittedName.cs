@@ -12,7 +12,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     /// </summary>
     public class MultipleFilesWithOmittedName
     {
-        private static readonly string MultipleFilesWithOmittedName_testData = TestUtil.TrimAllLines(@"--boundry
+        private static readonly string _testData = TestUtil.TrimAllLines(@"--boundry
               Content-Disposition: form-data; filename=""file1.txt"";
               Content-Type: text/plain
 
@@ -27,10 +27,11 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
               Content-Type: text/plain
 
               This is text file 3 1234567890
-              --boundry--");
+              --boundry--"
+        );
 
         private static readonly TestData _testCase = new TestData(
-            MultipleFilesWithOmittedName_testData,
+            _testData,
             Enumerable.Empty<ParameterPart>().ToList(),
             new List<FilePart> {
                 new FilePart( null, "file1.txt", TestUtil.StringToStreamNoBom("THIS IS TEXT FILE 1")),

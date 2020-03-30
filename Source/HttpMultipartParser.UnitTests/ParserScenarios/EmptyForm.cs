@@ -9,7 +9,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     public class EmptyForm
     {
         private static readonly string _testData = TestUtil.TrimAllLines(
-           @"------WebKitFormBoundaryb4SfPlH9Bv7c2PKS--"
+            @"------WebKitFormBoundaryb4SfPlH9Bv7c2PKS--"
         );
 
         private static readonly TestData _testCase = new TestData(

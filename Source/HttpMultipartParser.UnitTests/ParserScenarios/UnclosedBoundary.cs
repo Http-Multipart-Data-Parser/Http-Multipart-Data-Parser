@@ -10,10 +10,10 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     {
         private static readonly string _testData = TestUtil.TrimAllLines(
             @"------51523
-              Content-Disposition: form-data; name=""value""
+            Content-Disposition: form-data; name=""value""
               
-              my value
-              ------51523"
+            my value
+            ------51523"
         );
 
         private static readonly TestData _testCase = new TestData(

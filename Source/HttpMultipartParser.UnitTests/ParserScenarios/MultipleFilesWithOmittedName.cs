@@ -12,22 +12,23 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     /// </summary>
     public class MultipleFilesWithOmittedName
     {
-        private static readonly string _testData = TestUtil.TrimAllLines(@"--boundry
-              Content-Disposition: form-data; filename=""file1.txt"";
-              Content-Type: text/plain
+        private static readonly string _testData = TestUtil.TrimAllLines(
+            @"--boundry
+            Content-Disposition: form-data; filename=""file1.txt"";
+            Content-Type: text/plain
 
-              THIS IS TEXT FILE 1
-              --boundry
-              Content-Disposition: form-data; filename=""file2.txt"";
-              Content-Type: text/plain
+            THIS IS TEXT FILE 1
+            --boundry
+            Content-Disposition: form-data; filename=""file2.txt"";
+            Content-Type: text/plain
 
-              THIS IS TEXT FILE 2 !!!
-              --boundry
-              Content-Disposition: form-data; filename=""file3.txt"";
-              Content-Type: text/plain
+            THIS IS TEXT FILE 2 !!!
+            --boundry
+            Content-Disposition: form-data; filename=""file3.txt"";
+            Content-Type: text/plain
 
-              This is text file 3 1234567890
-              --boundry--"
+            This is text file 3 1234567890
+            --boundry--"
         );
 
         private static readonly TestData _testCase = new TestData(

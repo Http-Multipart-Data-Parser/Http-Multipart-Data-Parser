@@ -1151,7 +1151,7 @@ namespace HttpMultipartParser
             // Now that we've consumed all the parameters we're up to the body. We're going to do
             // different things depending on if we're parsing a, relatively small, form value or a
             // potentially large file.
-            if (parameters.ContainsKey("filename"))
+            if (parameters.ContainsKey("filename") || !parameters.ContainsKey("name"))
             {
                 // Right now we assume that if a section contains filename then it is a file.
                 // This assumption needs to be checked, it holds true in firefox but is untested for other

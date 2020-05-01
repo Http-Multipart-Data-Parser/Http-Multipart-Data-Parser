@@ -75,7 +75,7 @@ namespace HttpMultipartParser
         public FilePart(string name, string fileName, Stream data, string contentType, string contentDisposition)
         {
             Name = name;
-            FileName = fileName.Split(Path.GetInvalidFileNameChars()).Last();
+            FileName = fileName?.Split(Path.GetInvalidFileNameChars()).Last();
             Data = data;
             ContentType = contentType;
             ContentDisposition = contentDisposition;

@@ -406,6 +406,24 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
+        /// Use a few assumptions to determine if a section contains a file or a "data" parameter.
+        /// </summary>
+        /// <param name="parameters">The section parameters.</param>
+        /// <returns>true if the section contains a file, false otherwise.</returns>
+        private static bool IsFilePart(IDictionary<string, string> parameters)
+        {
+            // If a section contains filename, then it's a file.
+            if (parameters.ContainsKey("filename")) return true;
+
+            // If the section is missing the filename and the name, then it's a file.
+            // For example, images in an mjpeg stream have neither a name nor a filename.
+            else if (!parameters.ContainsKey("name")) return true;
+
+            // In all other cases, we assume it's a "data" parameter.
+            return false;
+        }
+
+        /// <summary>
         ///     Finds the next sequence of newlines in the input stream.
         /// </summary>
         /// <param name="data">The data to search.</param>
@@ -1057,11 +1075,8 @@ namespace HttpMultipartParser
             // Now that we've consumed all the parameters we're up to the body. We're going to do
             // different things depending on if we're parsing a, relatively small, form value or a
             // potentially large file.
-            if (parameters.ContainsKey("filename"))
+            if (IsFilePart(parameters))
             {
-                // Right now we assume that if a section contains filename then it is a file.
-                // This assumption needs to be checked, it holds true in firefox but is untested for other
-                // browsers.
                 ParseFilePart(parameters, reader);
             }
             else
@@ -1151,11 +1166,8 @@ namespace HttpMultipartParser
             // Now that we've consumed all the parameters we're up to the body. We're going to do
             // different things depending on if we're parsing a, relatively small, form value or a
             // potentially large file.
-            if (parameters.ContainsKey("filename") || !parameters.ContainsKey("name"))
+            if (IsFilePart(parameters))
             {
-                // Right now we assume that if a section contains filename then it is a file.
-                // This assumption needs to be checked, it holds true in firefox but is untested for other
-                // browsers.
                 await ParseFilePartAsync(parameters, reader, cancellationToken).ConfigureAwait(false);
             }
             else

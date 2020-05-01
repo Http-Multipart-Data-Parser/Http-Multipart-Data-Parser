@@ -14,21 +14,21 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
     {
         private static readonly string _testData = TestUtil.TrimAllLines(
             @"--boundry
-              Content-Disposition: form-data; name="""";filename=""file1.txt"";
-              Content-Type: text/plain
+            Content-Disposition: form-data; name="""";filename=""file1.txt"";
+            Content-Type: text/plain
 
-              THIS IS TEXT FILE 1
-              --boundry
-              Content-Disposition: form-data; name="""";filename=""file2.txt"";
-              Content-Type: text/plain
+            THIS IS TEXT FILE 1
+            --boundry
+            Content-Disposition: form-data; name="""";filename=""file2.txt"";
+            Content-Type: text/plain
 
-              THIS IS TEXT FILE 2 !!!
-              --boundry
-              Content-Disposition: form-data; name="""";filename=""file3.txt"";
-              Content-Type: text/plain
+            THIS IS TEXT FILE 2 !!!
+            --boundry
+            Content-Disposition: form-data; name="""";filename=""file3.txt"";
+            Content-Type: text/plain
 
-              This is text file 3 1234567890
-              --boundry--"
+            This is text file 3 1234567890
+            --boundry--"
         );
 
         private static readonly TestData _testCase = new TestData(

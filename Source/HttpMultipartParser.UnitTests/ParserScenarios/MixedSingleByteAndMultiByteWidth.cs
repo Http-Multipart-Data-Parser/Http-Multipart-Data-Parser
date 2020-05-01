@@ -17,8 +17,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             Content-Disposition: form-data; name=""files[]""; filename=""تست.jpg""
             Content-Type: image/jpeg
 
-             BinaryData
-             -----------------------------41952539122868--"
+            BinaryData
+            -----------------------------41952539122868--"
         );
 
         private static readonly TestData _testCase = new TestData(

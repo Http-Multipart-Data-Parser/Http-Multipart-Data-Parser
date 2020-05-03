@@ -310,12 +310,12 @@ namespace HttpMultipartParser
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
-            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
+            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
             {
                 if (partNumber == 0)
                 {
                     // create file with first partNo
-                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStream)}"), type, disposition));
+                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStream)}"), additionalProperties, type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);
@@ -358,12 +358,12 @@ namespace HttpMultipartParser
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
-            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
+            streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
             {
                 if (partNumber == 0)
                 {
                     // create file with first partNo
-                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStreamAsync)}"), type, disposition));
+                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStreamAsync)}"), additionalProperties, type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);

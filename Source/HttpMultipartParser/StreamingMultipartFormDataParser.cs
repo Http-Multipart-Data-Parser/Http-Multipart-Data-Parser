@@ -329,8 +329,9 @@ namespace HttpMultipartParser
         /// <param name="buffer">Some of the data from the file (not necessarily all of the data).</param>
         /// <param name="bytes">The length of data in buffer.</param>
         /// <param name="partNumber">Each chunk (or "part") in a given file is sequentially numbered, starting at zero.</param>
+        /// <param name="additionalProperties">Properties other than the "well known" ones (such as name, filename, content-type, etc.) associated with a file stream.</param>
         public delegate void FileStreamDelegate(
-            string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes, int partNumber);
+            string name, string fileName, string contentType, string contentDisposition, byte[] buffer, int bytes, int partNumber, IDictionary<string, string> additionalProperties);
 
         /// <summary>
         /// The StreamClosedDelegate defining functions that can handle stream being closed.
@@ -653,6 +654,9 @@ namespace HttpMultipartParser
             parameters.TryGetValue("content-type", out string contentType);
             parameters.TryGetValue("content-disposition", out string contentDisposition);
 
+            // Filter out the "well known" parameters.
+            var additionalParameters = GetAdditionalParameters(parameters);
+
             // Default values if expected parameters are missing
             if (contentType == null) contentType = "text/plain";
             if (contentDisposition == null) contentDisposition = "form-data";
@@ -748,7 +752,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -758,7 +762,7 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++);
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -803,6 +807,9 @@ namespace HttpMultipartParser
             parameters.TryGetValue("filename", out string filename);
             parameters.TryGetValue("content-type", out string contentType);
             parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+            // Filter out the "well known" parameters.
+            var additionalParameters = GetAdditionalParameters(parameters);
 
             // Default values if expected parameters are missing
             if (contentType == null) contentType = "text/plain";
@@ -900,7 +907,7 @@ namespace HttpMultipartParser
                     // We also want to chop off the newline that is inserted by the protocl.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
-                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++);
+                    FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
 
                     int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
                     int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -910,7 +917,7 @@ namespace HttpMultipartParser
                 }
 
                 // No end, consume the entire previous buffer
-                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++);
+                FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
 
                 // Now we want to swap the two buffers, we don't care
                 // what happens to the data from prevBuffer so we set
@@ -1246,6 +1253,20 @@ namespace HttpMultipartParser
             }
 
             yield return workingString;
+        }
+
+        /// <summary>
+        /// Check if there are parameters other than the "well known" parameters associated with this file.
+        /// This is quite rare but, as an example, the Alexa service includes a "content-ID" parameter with each file.
+        /// </summary>
+        /// <returns>A dictionary of parameters.</returns>
+        private IDictionary<string, string> GetAdditionalParameters(IDictionary<string, string> parameters)
+        {
+            var wellKnownParameters = new[] { "name", "filename", "content-type", "content-disposition" };
+            var additionalParameters = parameters
+                .Where(param => !wellKnownParameters.Contains(param.Key))
+                .ToDictionary(x => x.Key, x => x.Value);
+            return additionalParameters;
         }
 
         #endregion

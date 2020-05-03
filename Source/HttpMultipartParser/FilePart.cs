@@ -24,6 +24,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -50,7 +52,7 @@ namespace HttpMultipartParser
         ///     The file data.
         /// </param>
         public FilePart(string name, string fileName, Stream data)
-            : this(name, fileName, data, "text/plain", "form-data")
+            : this(name, fileName, data, null)
         {
         }
 
@@ -73,12 +75,59 @@ namespace HttpMultipartParser
         ///     The content disposition.
         /// </param>
         public FilePart(string name, string fileName, Stream data, string contentType, string contentDisposition)
+            : this(name, fileName, data, null, contentType, contentDisposition)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="FilePart" /> class.
+        /// </summary>
+        /// <param name="name">
+        ///     The name of the input field used for the upload.
+        /// </param>
+        /// <param name="fileName">
+        ///     The name of the file.
+        /// </param>
+        /// <param name="data">
+        ///     The file data.
+        /// </param>
+        /// <param name="additionalProperties">
+        ///     Additional properties associated with this file.
+        /// </param>
+        public FilePart(string name, string fileName, Stream data, IDictionary<string, string> additionalProperties)
+            : this(name, fileName, data, additionalProperties, "text/plain", "form-data")
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="FilePart" /> class.
+        /// </summary>
+        /// <param name="name">
+        ///     The name of the input field used for the upload.
+        /// </param>
+        /// <param name="fileName">
+        ///     The name of the file.
+        /// </param>
+        /// <param name="data">
+        ///     The file data.
+        /// </param>
+        /// <param name="additionalProperties">
+        ///     Additional properties associated with this file.
+        /// </param>
+        /// <param name="contentType">
+        ///     The content type.
+        /// </param>
+        /// <param name="contentDisposition">
+        ///     The content disposition.
+        /// </param>
+        public FilePart(string name, string fileName, Stream data, IDictionary<string, string> additionalProperties, string contentType, string contentDisposition)
         {
             Name = name;
             FileName = fileName?.Split(Path.GetInvalidFileNameChars()).Last();
             Data = data;
             ContentType = contentType;
             ContentDisposition = contentDisposition;
+            AdditionalProperties = new ReadOnlyDictionary<string, string>(additionalProperties ?? new Dictionary<string, string>());
         }
 
         #endregion
@@ -109,6 +158,12 @@ namespace HttpMultipartParser
         ///     Gets the content-disposition. Defaults to form-data if unspecified.
         /// </summary>
         public string ContentDisposition { get; }
+
+        /// <summary>
+        /// Gets the additional properties associated with this file.
+        /// An additional property is any property other than the "well known" ones such as name, filename, content-type, etc.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> AdditionalProperties { get; private set; }
 
         #endregion
     }

@@ -112,6 +112,9 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
                 if (expectedFile.ContentType != actualFile.ContentType) return false;
                 if (expectedFile.ContentDisposition != actualFile.ContentDisposition) return false;
 
+                if (expectedFile.AdditionalProperties.Count != actualFile.AdditionalProperties.Count) return false;
+                if (expectedFile.AdditionalProperties.Except(actualFile.AdditionalProperties).Any()) return false;
+
                 // Read the data from the files and see if it's the same
                 if (expectedFile.Data.CanSeek && expectedFile.Data.Position != 0) expectedFile.Data.Position = 0;
                 if (actualFile.Data.CanSeek && actualFile.Data.Position != 0) actualFile.Data.Position = 0;

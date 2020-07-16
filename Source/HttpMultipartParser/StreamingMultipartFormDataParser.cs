@@ -749,7 +749,7 @@ namespace HttpMultipartParser
                     // and then write the remainder back to the original stream. Then we
                     // need to modify the original streams position to take into account
                     // the new data.
-                    // We also want to chop off the newline that is inserted by the protocl.
+                    // We also want to chop off the newline that is inserted by the protocol.
                     // We can do this by reducing endPos by the length of newline in this environment
                     // and encoding
                     FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);

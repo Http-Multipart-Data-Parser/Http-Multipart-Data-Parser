@@ -5,15 +5,15 @@
 #tool dotnet:?package=BenchmarkDotNet.Tool&version=0.12.0
 
 // Install tools.
-#tool nuget:?package=GitVersion.CommandLine&version=5.2.4
+#tool nuget:?package=GitVersion.CommandLine&version=5.3.7
 #tool nuget:?package=GitReleaseManager&version=0.11.0
 #tool nuget:?package=OpenCover&version=4.7.922
-#tool nuget:?package=ReportGenerator&version=4.5.6
+#tool nuget:?package=ReportGenerator&version=4.6.1
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
 // Install addins.
-#addin nuget:?package=Cake.Coveralls&version=0.10.1
+#addin nuget:?package=Cake.Coveralls&version=0.10.2
 
 
 ///////////////////////////////////////////////////////////////////////////////

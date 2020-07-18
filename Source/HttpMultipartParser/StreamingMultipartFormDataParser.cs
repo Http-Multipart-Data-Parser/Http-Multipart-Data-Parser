@@ -510,7 +510,7 @@ namespace HttpMultipartParser
             // RFC1341 section 7: http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
             // RFC2388: http://www.ietf.org/rfc/rfc2388.txt
 
-            // First we need to read untill we find a boundary
+            // First we need to read until we find a boundary
             while (true)
             {
                 string line = reader.ReadLine();
@@ -563,7 +563,7 @@ namespace HttpMultipartParser
             // RFC1341 section 7: http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
             // RFC2388: http://www.ietf.org/rfc/rfc2388.txt
 
-            // First we need to read untill we find a boundary
+            // First we need to read until we find a boundary
             while (true)
             {
                 string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
@@ -908,7 +908,7 @@ namespace HttpMultipartParser
         {
             // Our job is to get the actual "data" part of the parameter and construct
             // an actual ParameterPart object with it. All we need to do is read data into a string
-            // untill we hit the boundary
+            // until we hit the boundary
             var data = new StringBuilder();
             bool firstTime = true;
             string line = reader.ReadLine();
@@ -965,7 +965,7 @@ namespace HttpMultipartParser
         {
             // Our job is to get the actual "data" part of the parameter and construct
             // an actual ParameterPart object with it. All we need to do is read data into a string
-            // untill we hit the boundary
+            // until we hit the boundary
             var data = new StringBuilder();
             bool firstTime = true;
             string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);

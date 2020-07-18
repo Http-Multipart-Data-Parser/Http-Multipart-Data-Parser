@@ -197,8 +197,8 @@ namespace HttpMultipartParser
                 return 0;
             }
 
-            // Read through all the stream untill we exhaust them
-            // or untill count is satisfied
+            // Read through all the stream until we exhaust them
+            // or until count is satisfied
             int amountRead = 0;
             BinaryReader top = streams.Peek();
             while (amountRead < count && streams.Any())
@@ -243,8 +243,8 @@ namespace HttpMultipartParser
                 return 0;
             }
 
-            // Read through all the stream untill we exhaust them
-            // or untill count is satisfied
+            // Read through all the stream until we exhaust them
+            // or until count is satisfied
             int amountRead = 0;
             BinaryReader top = streams.Peek();
             while (amountRead < count && streams.Any())

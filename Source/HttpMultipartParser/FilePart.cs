@@ -88,27 +88,27 @@ namespace HttpMultipartParser
         /// <summary>
         ///     Gets the data.
         /// </summary>
-        public Stream Data { get; private set; }
+        public Stream Data { get; }
 
         /// <summary>
-        ///     Gets or sets the file name.
+        ///     Gets the file name.
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; }
 
         /// <summary>
-        ///     Gets or sets the name.
+        ///     Gets the name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
-        ///     Gets or sets the content-type. Defaults to text/plain if unspecified.
+        ///     Gets the content-type. Defaults to text/plain if unspecified.
         /// </summary>
-        public string ContentType { get; set; }
+        public string ContentType { get; }
 
         /// <summary>
-        ///     Gets or sets the content-disposition. Defaults to form-data if unspecified.
+        ///     Gets the content-disposition. Defaults to form-data if unspecified.
         /// </summary>
-        public string ContentDisposition { get; set; }
+        public string ContentDisposition { get; }
 
         #endregion
     }

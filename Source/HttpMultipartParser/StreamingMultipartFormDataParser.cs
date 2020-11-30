@@ -92,6 +92,11 @@ namespace HttpMultipartParser
         /// </summary>
         private bool readEndBoundary;
 
+        /// <summary>
+        ///     List of mimetypes that should be detected as file
+        /// </summary>
+        private string[] binaryMimeTypes = {"application/octet-stream"};
+
         #endregion
 
         #region Constructors and Destructors
@@ -105,7 +110,7 @@ namespace HttpMultipartParser
         ///     The stream containing the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream)
-            : this(stream, null, Encoding.UTF8, DefaultBufferSize)
+            : this(stream, null, Encoding.UTF8, DefaultBufferSize,null)
         {
         }
 
@@ -121,7 +126,7 @@ namespace HttpMultipartParser
         ///     returned by the request header.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary)
-            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize)
+            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize,null)
         {
         }
 
@@ -137,7 +142,7 @@ namespace HttpMultipartParser
         ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding)
-            : this(stream, null, encoding, DefaultBufferSize)
+            : this(stream, null, encoding, DefaultBufferSize,null)
         {
         }
 
@@ -156,7 +161,7 @@ namespace HttpMultipartParser
         ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
-            : this(stream, boundary, encoding, DefaultBufferSize)
+            : this(stream, boundary, encoding, DefaultBufferSize,null)
         {
         }
 
@@ -176,7 +181,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
-            : this(stream, null, encoding, binaryBufferSize)
+            : this(stream, null, encoding, binaryBufferSize,null)
         {
         }
 
@@ -198,7 +203,34 @@ namespace HttpMultipartParser
         ///     The size of the buffer to use for parsing the multipart form data. This must be larger
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
+        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding,
+            int binaryBufferSize): this(stream, boundary,encoding,binaryBufferSize,null)
+        {
+           
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
+        ///     with the boundary, stream, input encoding and buffer size.
+        /// </summary>
+        /// <param name="stream">
+        ///     The stream containing the multipart data.
+        /// </param>
+        /// <param name="boundary">
+        ///     The multipart/form-data boundary. This should be the value
+        ///     returned by the request header.
+        /// </param>
+        /// <param name="encoding">
+        ///     The encoding of the multipart data.
+        /// </param>
+        /// <param name="binaryBufferSize">
+        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
+        ///     then (size of boundary + 4 + # bytes in newline).
+        /// </param>
+        /// <param name="binaryMimeTypes">
+        ///     List of mimetypes that should be detected as file
+        /// </param>
+        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {
             if (stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
 
@@ -207,6 +239,10 @@ namespace HttpMultipartParser
             Encoding = encoding ?? throw new ArgumentNullException("encoding");
             BinaryBufferSize = binaryBufferSize;
             readEndBoundary = false;
+            if (binaryMimeTypes != null)
+            {
+                this.binaryMimeTypes = binaryMimeTypes;
+            }
         }
 
         #endregion
@@ -410,10 +446,14 @@ namespace HttpMultipartParser
         /// </summary>
         /// <param name="parameters">The section parameters.</param>
         /// <returns>true if the section contains a file, false otherwise.</returns>
-        private static bool IsFilePart(IDictionary<string, string> parameters)
+        private bool IsFilePart(IDictionary<string, string> parameters)
         {
             // If a section contains filename, then it's a file.
             if (parameters.ContainsKey("filename")) return true;
+
+            // Check if mimetype is a binary file
+            else if (parameters.ContainsKey("content-type") &&
+                     binaryMimeTypes.Contains(parameters["content-type"])) return true;
 
             // If the section is missing the filename and the name, then it's a file.
             // For example, images in an mjpeg stream have neither a name nor a filename.

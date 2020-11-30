@@ -5,10 +5,10 @@
 #tool dotnet:?package=BenchmarkDotNet.Tool&version=0.12.0
 
 // Install tools.
-#tool nuget:?package=GitVersion.CommandLine&version=5.3.7
+#tool nuget:?package=GitVersion.CommandLine&version=5.5.1
 #tool nuget:?package=GitReleaseManager&version=0.11.0
 #tool nuget:?package=OpenCover&version=4.7.922
-#tool nuget:?package=ReportGenerator&version=4.6.1
+#tool nuget:?package=ReportGenerator&version=4.8.1
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
@@ -359,14 +359,6 @@ Task("Publish-GitHub-Release")
 	.WithCriteria(() => isTagged)
 	.Does(() =>
 {
-	var settings = new GitReleaseManagerCreateSettings
-	{
-		Name              = milestone,
-		Milestone         = milestone,
-		Prerelease        = false,
-		TargetCommitish   = "master"
-	};
-
 	if (!string.IsNullOrEmpty(gitHubToken))
 	{
 		GitReleaseManagerClose(gitHubToken, gitHubRepoOwner, gitHubRepo, milestone);

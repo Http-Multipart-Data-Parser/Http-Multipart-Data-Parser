@@ -95,7 +95,7 @@ namespace HttpMultipartParser
         /// <summary>
         ///     List of mimetypes that should be detected as file
         /// </summary>
-        private string[] binaryMimeTypes = {"application/octet-stream"};
+        private string[] binaryMimeTypes = { "application/octet-stream" };
 
         #endregion
 

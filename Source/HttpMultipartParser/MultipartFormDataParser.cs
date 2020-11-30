@@ -514,8 +514,7 @@ namespace HttpMultipartParser
         {
             return MultipartFormDataParser.ParseAsync(stream, null, encoding, binaryBufferSize, null);
         }
-
-
+        
         /// <summary>
         ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
         ///     with the boundary, input encoding and buffer size.

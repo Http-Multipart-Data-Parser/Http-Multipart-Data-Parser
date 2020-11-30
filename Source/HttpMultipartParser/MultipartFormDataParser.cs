@@ -208,8 +208,8 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
-        public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize) :
-            this(stream, boundary, encoding, binaryBufferSize, null)
+        public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
+            : this(stream, boundary, encoding, binaryBufferSize, null)
         {
         }
 

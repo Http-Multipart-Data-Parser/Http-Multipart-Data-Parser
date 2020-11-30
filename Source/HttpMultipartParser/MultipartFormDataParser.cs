@@ -232,7 +232,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </param>
         [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
@@ -407,7 +407,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </param>
         /// <returns>
         ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
@@ -560,7 +560,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </param>
         /// <returns>
         ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
@@ -635,7 +635,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </param>
         private void ParseStream(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {
@@ -683,7 +683,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </param>
         private async Task ParseStreamAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {

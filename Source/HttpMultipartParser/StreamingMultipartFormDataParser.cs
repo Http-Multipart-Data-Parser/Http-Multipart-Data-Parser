@@ -93,7 +93,7 @@ namespace HttpMultipartParser
         private bool readEndBoundary;
 
         /// <summary>
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </summary>
         private string[] binaryMimeTypes = { "application/octet-stream" };
 
@@ -228,7 +228,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file
+        ///     List of mimetypes that should be detected as file.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {

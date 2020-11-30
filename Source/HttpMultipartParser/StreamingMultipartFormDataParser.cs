@@ -110,7 +110,7 @@ namespace HttpMultipartParser
         ///     The stream containing the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream)
-            : this(stream, null, Encoding.UTF8, DefaultBufferSize,null)
+            : this(stream, null, Encoding.UTF8, DefaultBufferSize, null)
         {
         }
 
@@ -126,7 +126,7 @@ namespace HttpMultipartParser
         ///     returned by the request header.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary)
-            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize,null)
+            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize, null)
         {
         }
 
@@ -142,7 +142,7 @@ namespace HttpMultipartParser
         ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding)
-            : this(stream, null, encoding, DefaultBufferSize,null)
+            : this(stream, null, encoding, DefaultBufferSize, null)
         {
         }
 
@@ -161,7 +161,7 @@ namespace HttpMultipartParser
         ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
-            : this(stream, boundary, encoding, DefaultBufferSize,null)
+            : this(stream, boundary, encoding, DefaultBufferSize, null)
         {
         }
 
@@ -181,7 +181,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
-            : this(stream, null, encoding, binaryBufferSize,null)
+            : this(stream, null, encoding, binaryBufferSize, null)
         {
         }
 
@@ -205,7 +205,7 @@ namespace HttpMultipartParser
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding,
             int binaryBufferSize)
-            : this(stream, boundary,encoding,binaryBufferSize,null)
+            : this(stream, boundary, encoding, binaryBufferSize, null)
         {
         }
 

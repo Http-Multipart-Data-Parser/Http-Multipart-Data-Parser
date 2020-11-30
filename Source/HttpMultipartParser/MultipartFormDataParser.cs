@@ -144,7 +144,7 @@ namespace HttpMultipartParser
         /// </param>
         [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
         public MultipartFormDataParser(Stream stream, Encoding encoding)
-            : this(stream, null, encoding, DefaultBufferSize,null)
+            : this(stream, null, encoding, DefaultBufferSize, null)
         {
         }
 
@@ -164,7 +164,7 @@ namespace HttpMultipartParser
         /// </param>
         [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
-            : this(stream, boundary, encoding, DefaultBufferSize,null)
+            : this(stream, boundary, encoding, DefaultBufferSize, null)
         {
         }
 
@@ -185,7 +185,7 @@ namespace HttpMultipartParser
         /// </param>
         [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
         public MultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
-            : this(stream, null, encoding, binaryBufferSize,null)
+            : this(stream, null, encoding, binaryBufferSize, null)
         {
         }
 
@@ -237,7 +237,7 @@ namespace HttpMultipartParser
         [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
         public MultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {
-            ParseStream(stream, boundary, encoding, binaryBufferSize,binaryMimeTypes);
+            ParseStream(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes);
         }
 
         /// <summary>
@@ -450,7 +450,7 @@ namespace HttpMultipartParser
         /// </returns>
         public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary)
         {
-            return MultipartFormDataParser.ParseAsync(stream, boundary, Encoding.UTF8, DefaultBufferSize,null);
+            return MultipartFormDataParser.ParseAsync(stream, boundary, Encoding.UTF8, DefaultBufferSize, null);
         }
 
         /// <summary>
@@ -490,7 +490,7 @@ namespace HttpMultipartParser
         /// </returns>
         public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary, Encoding encoding)
         {
-            return MultipartFormDataParser.ParseAsync(stream, boundary, encoding, DefaultBufferSize,null);
+            return MultipartFormDataParser.ParseAsync(stream, boundary, encoding, DefaultBufferSize, null);
         }
 
         /// <summary>
@@ -514,7 +514,7 @@ namespace HttpMultipartParser
         {
             return MultipartFormDataParser.ParseAsync(stream, null, encoding, binaryBufferSize, null);
         }
-        
+
         /// <summary>
         ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
         ///     with the boundary, input encoding and buffer size.

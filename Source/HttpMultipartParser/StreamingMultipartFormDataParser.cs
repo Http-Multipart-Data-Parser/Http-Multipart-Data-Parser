@@ -204,9 +204,9 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding,
-            int binaryBufferSize): this(stream, boundary,encoding,binaryBufferSize,null)
+            int binaryBufferSize)
+            : this(stream, boundary,encoding,binaryBufferSize,null)
         {
-           
         }
 
         /// <summary>

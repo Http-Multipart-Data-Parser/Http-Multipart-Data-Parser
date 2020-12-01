@@ -385,7 +385,7 @@ namespace HttpMultipartParser
         /// </returns>
         public static MultipartFormDataParser Parse(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
-            return MultipartFormDataParser.Parse(stream, null, encoding, binaryBufferSize, null);
+            return MultipartFormDataParser.Parse(stream, boundary, encoding, binaryBufferSize, null);
         }
 
         /// <summary>

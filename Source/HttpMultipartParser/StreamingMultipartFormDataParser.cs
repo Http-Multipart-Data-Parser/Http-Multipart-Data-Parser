@@ -319,14 +319,14 @@ namespace HttpMultipartParser
         /// <summary>
         /// The FileStreamDelegate defining functions that can handle file stream data from this parser.
         ///
-        /// Delegates can assume that the data is sequential i.e. the data recieved by any delegates will be
-        /// the data immediately following any previously recieved data.
+        /// Delegates can assume that the data is sequential i.e. the data received by any delegates will be
+        /// the data immediately following any previously received data.
         /// </summary>
         /// <param name="name">The name of the multipart data.</param>
         /// <param name="fileName">The name of the file.</param>
         /// <param name="contentType">The content type of the multipart data.</param>
         /// <param name="contentDisposition">The content disposition of the multipart data.</param>
-        /// <param name="buffer">Some of the data from the file (not neccecarily all of the data).</param>
+        /// <param name="buffer">Some of the data from the file (not necessarily all of the data).</param>
         /// <param name="bytes">The length of data in buffer.</param>
         /// <param name="partNumber">Each chunk (or "part") in a given file is sequentially numbered, starting at zero.</param>
         public delegate void FileStreamDelegate(

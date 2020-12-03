@@ -46,7 +46,6 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
             }
         }
 
-
         /// <summary>
         ///     Tests that the final '--' ending up in a seperate chunk doesn't break everything.
         /// </summary>
@@ -59,7 +58,6 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
                 Assert.True(_testCase.Validate(parser));
             }
         }
-
 
         /// <summary>
         ///     Tests that the final '--' ending up in a seperate chunk doesn't break everything.

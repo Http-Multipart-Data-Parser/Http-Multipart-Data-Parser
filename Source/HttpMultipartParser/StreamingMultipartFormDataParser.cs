@@ -60,6 +60,11 @@ namespace HttpMultipartParser
         #region Fields
 
         /// <summary>
+        ///     List of mimetypes that should be detected as file.
+        /// </summary>
+        private readonly string[] binaryMimeTypes = { "application/octet-stream" };
+
+        /// <summary>
         ///     The stream we are parsing.
         /// </summary>
         private readonly Stream stream;
@@ -91,11 +96,6 @@ namespace HttpMultipartParser
         ///     if we are done parsing.
         /// </summary>
         private bool readEndBoundary;
-
-        /// <summary>
-        ///     List of mimetypes that should be detected as file.
-        /// </summary>
-        private string[] binaryMimeTypes = { "application/octet-stream" };
 
         #endregion
 

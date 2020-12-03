@@ -538,7 +538,7 @@ namespace HttpMultipartParser
         /// </returns>
         public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
         {
-            return MultipartFormDataParser.ParseAsync(stream, null, encoding, binaryBufferSize, null);
+            return MultipartFormDataParser.ParseAsync(stream, boundary, encoding, binaryBufferSize, null);
         }
 
         /// <summary>

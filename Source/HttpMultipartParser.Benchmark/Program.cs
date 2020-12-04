@@ -1,15 +1,18 @@
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-namespace HttpMultipartParse.Benchmark
+namespace HttpMultipartParser.Benchmark
 {
     class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
-            BenchmarkRunner.Run(typeof(Program).Assembly);
+            IConfig config = null;
 
-            // To debug:
-            // BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, new DebugInProcessConfig());
+            // To debug
+            // config = new DebugInProcessConfig();
+
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
         }
     }
 }

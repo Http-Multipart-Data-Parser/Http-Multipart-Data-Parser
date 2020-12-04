@@ -1,9 +1,3 @@
-// Install modules
-#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
-
-// Install .NET tools
-#tool dotnet:?package=BenchmarkDotNet.Tool&version=0.12.0
-
 // Install tools.
 #tool nuget:?package=GitVersion.CommandLine&version=5.5.1
 #tool nuget:?package=GitReleaseManager&version=0.11.0
@@ -346,7 +340,7 @@ Task("Create-Release-Notes")
 	{
 		if(string.IsNullOrEmpty(gitHubUserName)) throw new InvalidOperationException("Could not resolve GitHub user name.");
 		if(string.IsNullOrEmpty(gitHubPassword)) throw new InvalidOperationException("Could not resolve GitHub password.");
-	
+
 		GitReleaseManagerCreate(gitHubUserName, gitHubPassword, gitHubRepoOwner, gitHubRepo, settings);
 	}
 });
@@ -367,7 +361,7 @@ Task("Publish-GitHub-Release")
 	{
 		if(string.IsNullOrEmpty(gitHubUserName)) throw new InvalidOperationException("Could not resolve GitHub user name.");
 		if(string.IsNullOrEmpty(gitHubPassword)) throw new InvalidOperationException("Could not resolve GitHub password.");
-	
+
 		GitReleaseManagerClose(gitHubUserName, gitHubPassword, gitHubRepoOwner, gitHubRepo, milestone);
 	}
 });
@@ -378,28 +372,29 @@ Task("Generate-Benchmark-Report")
 	.Does(() =>
 {
     var publishDirectory = $"{benchmarkDir}Publish/";
+    var publishedAppLocation = MakeAbsolute(File($"{publishDirectory}{libraryName}.Benchmark.exe")).FullPath;
+    var artifactsLocation = MakeAbsolute(File(benchmarkDir)).FullPath;
 
-	DotNetCorePublish(benchmarkProject, new DotNetCorePublishSettings
-	{
-		Configuration = configuration,
+    DotNetCorePublish(benchmarkProject, new DotNetCorePublishSettings
+    {
+        Configuration = configuration,
 		NoRestore = true,
         NoBuild = true,
-		OutputDirectory = publishDirectory
-	});
+        OutputDirectory = publishDirectory
+    });
 
-    var assemblyLocation = MakeAbsolute(File($"{publishDirectory}{libraryName}.Benchmark.dll")).FullPath;
-    var artifactsLocation = MakeAbsolute(File(benchmarkDir)).FullPath;
-	var benchmarkToolLocation = Context.Tools.Resolve("dotnet-benchmark.exe");
-
-	var processResult = StartProcess(
-		benchmarkToolLocation,
-		new ProcessSettings()
-		{
-			Arguments = $"{assemblyLocation} -f * --artifacts={artifactsLocation}"
-		});
-    if (processResult != 0)
+	using (DiagnosticVerbosity())
     {
-        throw new Exception($"dotnet-benchmark.exe did not complete successfully. Result code: {processResult}");
+        var processResult = StartProcess(
+            publishedAppLocation,
+            new ProcessSettings()
+            {
+                Arguments = $"-f * --artifacts={artifactsLocation}"
+            });
+        if (processResult != 0)
+        {
+            throw new Exception($"dotnet-benchmark.exe did not complete successfully. Result code: {processResult}");
+        }
     }
 });
 
@@ -425,12 +420,12 @@ Task("Benchmark")
 });
 
 Task("ReleaseNotes")
-	.IsDependentOn("Create-Release-Notes"); 
+	.IsDependentOn("Create-Release-Notes");
 
 Task("AppVeyor")
 	.IsDependentOn("Run-Code-Coverage")
 	.IsDependentOn("Upload-Coverage-Result")
-    //.IsDependentOn("Generate-Benchmark-Report")
+    .IsDependentOn("Generate-Benchmark-Report")
 	.IsDependentOn("Create-NuGet-Package")
 	.IsDependentOn("Upload-AppVeyor-Artifacts")
 	.IsDependentOn("Publish-MyGet")

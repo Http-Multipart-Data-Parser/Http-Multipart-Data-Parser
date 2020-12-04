@@ -1,5 +1,5 @@
-# Created with the help of https://www.gitignore.io/api/visualstudio
-# Edit at https://www.gitignore.io/?templates=visualstudio
+# Created with the help of https://www.toptal.com/developers/gitignore/api/visualstudio (formerly https://www.gitignore.io/api/visualstudio)
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -33,6 +33,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+[Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -72,6 +73,7 @@ StyleCopReport.xml
 *_p.c
 *_h.h
 *.ilk
+*.meta
 *.obj
 *.iobj
 *.pch
@@ -129,9 +131,6 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 
-# JustCode is a .NET coding add-in
-.JustCode
-
 # TeamCity is a build add-in
 _TeamCity*
 
@@ -141,6 +140,9 @@ _TeamCity*
 # AxoCover is a Code Coverage Tool
 .axoCover/*
 !.axoCover/settings.json
+
+# Coverlet is a free, cross platform Code Coverage Tool
+coverage*[.json, .xml, .info]
 
 # Visual Studio code coverage results
 *.coverage
@@ -311,7 +313,7 @@ paket-files/
 __pycache__/
 *.pyc
 
-# Cake - Uncomment if you are using it
+# Cake
 tools/**
 !tools/packages.config
 
@@ -351,7 +353,10 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
+# Ionide (cross platform F# VS Code tools) working folder
+.ionide/
+
 # WinMerge
 *.bak
 
-# End of https://www.gitignore.io/api/visualstudio
+# End of https://www.toptal.com/developers/gitignore/api/visualstudio

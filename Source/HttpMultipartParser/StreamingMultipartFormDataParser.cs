@@ -60,6 +60,11 @@ namespace HttpMultipartParser
         #region Fields
 
         /// <summary>
+        ///     List of mimetypes that should be detected as file.
+        /// </summary>
+        private readonly string[] binaryMimeTypes = { "application/octet-stream" };
+
+        /// <summary>
         ///     The stream we are parsing.
         /// </summary>
         private readonly Stream stream;
@@ -105,7 +110,7 @@ namespace HttpMultipartParser
         ///     The stream containing the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream)
-            : this(stream, null, Encoding.UTF8, DefaultBufferSize)
+            : this(stream, null, Encoding.UTF8, DefaultBufferSize, null)
         {
         }
 
@@ -121,7 +126,7 @@ namespace HttpMultipartParser
         ///     returned by the request header.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary)
-            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize)
+            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize, null)
         {
         }
 
@@ -137,7 +142,7 @@ namespace HttpMultipartParser
         ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding)
-            : this(stream, null, encoding, DefaultBufferSize)
+            : this(stream, null, encoding, DefaultBufferSize, null)
         {
         }
 
@@ -156,7 +161,7 @@ namespace HttpMultipartParser
         ///     The encoding of the multipart data.
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
-            : this(stream, boundary, encoding, DefaultBufferSize)
+            : this(stream, boundary, encoding, DefaultBufferSize, null)
         {
         }
 
@@ -176,7 +181,7 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
-            : this(stream, null, encoding, binaryBufferSize)
+            : this(stream, null, encoding, binaryBufferSize, null)
         {
         }
 
@@ -199,6 +204,32 @@ namespace HttpMultipartParser
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
+            : this(stream, boundary, encoding, binaryBufferSize, null)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
+        ///     with the boundary, stream, input encoding and buffer size.
+        /// </summary>
+        /// <param name="stream">
+        ///     The stream containing the multipart data.
+        /// </param>
+        /// <param name="boundary">
+        ///     The multipart/form-data boundary. This should be the value
+        ///     returned by the request header.
+        /// </param>
+        /// <param name="encoding">
+        ///     The encoding of the multipart data.
+        /// </param>
+        /// <param name="binaryBufferSize">
+        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
+        ///     then (size of boundary + 4 + # bytes in newline).
+        /// </param>
+        /// <param name="binaryMimeTypes">
+        ///     List of mimetypes that should be detected as file.
+        /// </param>
+        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {
             if (stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
 
@@ -207,6 +238,10 @@ namespace HttpMultipartParser
             Encoding = encoding ?? throw new ArgumentNullException("encoding");
             BinaryBufferSize = binaryBufferSize;
             readEndBoundary = false;
+            if (binaryMimeTypes != null)
+            {
+                this.binaryMimeTypes = binaryMimeTypes;
+            }
         }
 
         #endregion
@@ -284,14 +319,14 @@ namespace HttpMultipartParser
         /// <summary>
         /// The FileStreamDelegate defining functions that can handle file stream data from this parser.
         ///
-        /// Delegates can assume that the data is sequential i.e. the data recieved by any delegates will be
-        /// the data immediately following any previously recieved data.
+        /// Delegates can assume that the data is sequential i.e. the data received by any delegates will be
+        /// the data immediately following any previously received data.
         /// </summary>
         /// <param name="name">The name of the multipart data.</param>
         /// <param name="fileName">The name of the file.</param>
         /// <param name="contentType">The content type of the multipart data.</param>
         /// <param name="contentDisposition">The content disposition of the multipart data.</param>
-        /// <param name="buffer">Some of the data from the file (not neccecarily all of the data).</param>
+        /// <param name="buffer">Some of the data from the file (not necessarily all of the data).</param>
         /// <param name="bytes">The length of data in buffer.</param>
         /// <param name="partNumber">Each chunk (or "part") in a given file is sequentially numbered, starting at zero.</param>
         public delegate void FileStreamDelegate(
@@ -410,10 +445,14 @@ namespace HttpMultipartParser
         /// </summary>
         /// <param name="parameters">The section parameters.</param>
         /// <returns>true if the section contains a file, false otherwise.</returns>
-        private static bool IsFilePart(IDictionary<string, string> parameters)
+        private bool IsFilePart(IDictionary<string, string> parameters)
         {
             // If a section contains filename, then it's a file.
             if (parameters.ContainsKey("filename")) return true;
+
+            // Check if mimetype is a binary file
+            else if (parameters.ContainsKey("content-type") &&
+                     binaryMimeTypes.Contains(parameters["content-type"])) return true;
 
             // If the section is missing the filename and the name, then it's a file.
             // For example, images in an mjpeg stream have neither a name nor a filename.
@@ -510,7 +549,7 @@ namespace HttpMultipartParser
             // RFC1341 section 7: http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
             // RFC2388: http://www.ietf.org/rfc/rfc2388.txt
 
-            // First we need to read untill we find a boundary
+            // First we need to read until we find a boundary
             while (true)
             {
                 string line = reader.ReadLine();
@@ -563,7 +602,7 @@ namespace HttpMultipartParser
             // RFC1341 section 7: http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
             // RFC2388: http://www.ietf.org/rfc/rfc2388.txt
 
-            // First we need to read untill we find a boundary
+            // First we need to read until we find a boundary
             while (true)
             {
                 string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
@@ -908,7 +947,7 @@ namespace HttpMultipartParser
         {
             // Our job is to get the actual "data" part of the parameter and construct
             // an actual ParameterPart object with it. All we need to do is read data into a string
-            // untill we hit the boundary
+            // until we hit the boundary
             var data = new StringBuilder();
             bool firstTime = true;
             string line = reader.ReadLine();
@@ -965,7 +1004,7 @@ namespace HttpMultipartParser
         {
             // Our job is to get the actual "data" part of the parameter and construct
             // an actual ParameterPart object with it. All we need to do is read data into a string
-            // untill we hit the boundary
+            // until we hit the boundary
             var data = new StringBuilder();
             bool firstTime = true;
             string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);

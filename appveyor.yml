@@ -4,7 +4,6 @@ init:
 
 # Build script
 build_script:
-  - ps: .\build.ps1 -bootstrap
   - ps: .\build.ps1 -Target AppVeyor
 
 # Tests
@@ -12,10 +11,10 @@ test: off
 
 # Branches to build
 branches:
-  # Whitelist
   only:
     - develop
     - master
+    - main
     - /release/.*/
     - /hotfix/.*/
 
@@ -25,3 +24,10 @@ cache:
 
 # Environment configuration
 image: Visual Studio 2019
+
+#---------------------------------#
+#  Skip builds for doc changes    #
+#---------------------------------#
+skip_commits:
+  # Regex for matching commit message
+  message: /\(doc\).*/

@@ -190,5 +190,30 @@ Content-Type: application/pdf
                 var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
             }
         }
+
+        [Fact]
+        public async Task HandlesFileWithoutFilename()
+        {
+            string request =
+                @"------WebKitFormBoundaryphElSb1aBJGfLyAP
+Content-Disposition: form-data; name=""fileName""
+
+Testfile
+------WebKitFormBoundaryphElSb1aBJGfLyAP
+Content-Disposition: form-data; name=""file""
+Content-Type: application/octet-stream
+
+"
+                + new string('\0', 8147)
+                + @"
+------WebKitFormBoundaryphElSb1aBJGfLyAP--
+";
+
+            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+            {
+                var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
+                Assert.Single(parser.Files);
+            }
+        }
     }
 }

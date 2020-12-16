@@ -308,8 +308,8 @@ Task("Publish-MyGet")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
-	if(string.IsNullOrEmpty(nuGetApiKey)) throw new InvalidOperationException("Could not resolve MyGet API key.");
-	if(string.IsNullOrEmpty(nuGetApiUrl)) throw new InvalidOperationException("Could not resolve MyGet API url.");
+	if(string.IsNullOrEmpty(myGetApiKey)) throw new InvalidOperationException("Could not resolve MyGet API key.");
+	if(string.IsNullOrEmpty(myGetApiUrl)) throw new InvalidOperationException("Could not resolve MyGet API url.");
 
 	foreach(var package in GetFiles(outputDir + "*.nupkg"))
 	{

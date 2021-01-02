@@ -267,128 +267,6 @@ namespace HttpMultipartParser
         #region Static Methods
 
         /// <summary>
-        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class.
-        ///     Boundary will be automatically detected based on the first line of input.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream)
-        {
-            return MultipartFormDataParser.Parse(stream, null, Encoding.UTF8, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, string boundary)
-        {
-            return MultipartFormDataParser.Parse(stream, boundary, Encoding.UTF8, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the stream encoding. Boundary is automatically detected.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, Encoding encoding)
-        {
-            return MultipartFormDataParser.Parse(stream, null, encoding, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary and stream encoding.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, string boundary, Encoding encoding)
-        {
-            return MultipartFormDataParser.Parse(stream, boundary, encoding, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the input encoding and buffer size. Boundary is automatically detected.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <param name="binaryBufferSize">
-        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
-        ///     then (size of boundary + 4 + # bytes in newline).
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, Encoding encoding, int binaryBufferSize)
-        {
-            return MultipartFormDataParser.Parse(stream, null, encoding, binaryBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary, input encoding and buffer size.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <param name="binaryBufferSize">
-        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
-        ///     then (size of boundary + 4 + # bytes in newline).
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
-        {
-            return MultipartFormDataParser.Parse(stream, boundary, encoding, binaryBufferSize, null);
-        }
-
-        /// <summary>
         ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
         ///     with the boundary, input encoding and buffer size.
         /// </summary>
@@ -412,7 +290,7 @@ namespace HttpMultipartParser
         /// <returns>
         ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
         /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
+        public static MultipartFormDataParser Parse(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
         {
             var parser = new MultipartFormDataParser();
             parser.ParseStream(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes);
@@ -420,128 +298,6 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class.
-        ///     Boundary will be automatically detected based on the first line of input.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream)
-        {
-            return MultipartFormDataParser.ParseAsync(stream, null, Encoding.UTF8, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary)
-        {
-            return MultipartFormDataParser.ParseAsync(stream, boundary, Encoding.UTF8, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the stream encoding. Boundary is automatically detected.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding)
-        {
-            return MultipartFormDataParser.ParseAsync(stream, null, encoding, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary and stream encoding.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary, Encoding encoding)
-        {
-            return MultipartFormDataParser.ParseAsync(stream, boundary, encoding, DefaultBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the input encoding and buffer size. Boundary is automatically detected.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <param name="binaryBufferSize">
-        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
-        ///     then (size of boundary + 4 + # bytes in newline).
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize)
-        {
-            return MultipartFormDataParser.ParseAsync(stream, null, encoding, binaryBufferSize, null);
-        }
-
-        /// <summary>
-        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary, input encoding and buffer size.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <param name="binaryBufferSize">
-        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
-        ///     then (size of boundary + 4 + # bytes in newline).
-        /// </param>
-        /// <returns>
-        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
-        /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
-        {
-            return MultipartFormDataParser.ParseAsync(stream, boundary, encoding, binaryBufferSize, null);
-        }
-
-        /// <summary>
         ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
         ///     with the boundary, input encoding and buffer size.
         /// </summary>
@@ -565,7 +321,7 @@ namespace HttpMultipartParser
         /// <returns>
         ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
         /// </returns>
-        public static async Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
+        public static async Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
         {
             var parser = new MultipartFormDataParser();
             await parser.ParseStreamAsync(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes).ConfigureAwait(false);
@@ -642,7 +398,7 @@ namespace HttpMultipartParser
             Files = new List<FilePart>();
             Parameters = new List<ParameterPart>();
 
-            var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes);
+            var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
@@ -690,7 +446,7 @@ namespace HttpMultipartParser
             Files = new List<FilePart>();
             Parameters = new List<ParameterPart>();
 
-            var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes);
+            var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes);
             streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
 
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>

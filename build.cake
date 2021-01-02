@@ -1,8 +1,8 @@
 // Install tools.
-#tool nuget:?package=GitVersion.CommandLine&version=5.5.1
+#tool nuget:?package=GitVersion.CommandLine&version=5.6.0
 #tool nuget:?package=GitReleaseManager&version=0.11.0
 #tool nuget:?package=OpenCover&version=4.7.922
-#tool nuget:?package=ReportGenerator&version=4.8.1
+#tool nuget:?package=ReportGenerator&version=4.8.4
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
@@ -242,6 +242,8 @@ Task("Create-NuGet-Package")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
+	var releaseNotesUrl = @$"https://github.com/{gitHubRepoOwner}/{gitHubRepo}/releases/tag/{milestone}";
+
 	var settings = new DotNetCorePackSettings
 	{
 		Configuration = configuration,
@@ -255,6 +257,7 @@ Task("Create-NuGet-Package")
 		{
 			return args
 				.Append("/p:SymbolPackageFormat=snupkg")
+				.Append("/p:PackageReleaseNotes=\"{0}\"", releaseNotesUrl)
 				.Append("/p:Version={0}", versionInfo.LegacySemVerPadded)
 				.Append("/p:AssemblyVersion={0}", versionInfo.MajorMinorPatch)
 				.Append("/p:FileVersion={0}", versionInfo.MajorMinorPatch)

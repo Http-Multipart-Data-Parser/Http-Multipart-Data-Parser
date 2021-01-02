@@ -244,47 +244,6 @@ namespace HttpMultipartParser
 
         #endregion
 
-        #region Public Methods
-
-        /// <summary>
-        /// Returns true if the parameter has any values. False otherwise.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <returns>True if the parameter exists. False otherwise.</returns>
-        public bool HasParameter(string name)
-        {
-            return Parameters.Any(p => p.Name == name);
-        }
-
-        /// <summary>
-        /// Returns the value of a parameter or null if it doesn't exist.
-        ///
-        /// You should only use this method if you're sure the parameter has only one value.
-        ///
-        /// If you need to support multiple values use GetParameterValues.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <returns>The value of the parameter.</returns>
-        public string GetParameterValue(string name)
-        {
-            var parameter = Parameters.FirstOrDefault(p => p.Name == name);
-            return parameter?.Data;
-        }
-
-        /// <summary>
-        /// Returns the values of a parameter or an empty enumerable if the parameter doesn't exist.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <returns>The values of the parameter.</returns>
-        public IEnumerable<string> GetParameterValues(string name)
-        {
-            return Parameters
-                .Where(p => p.Name == name)
-                .Select(p => p.Data);
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>

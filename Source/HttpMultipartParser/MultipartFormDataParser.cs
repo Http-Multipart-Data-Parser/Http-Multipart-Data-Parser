@@ -160,6 +160,24 @@ namespace HttpMultipartParser
         /// <param name="stream">
         ///     The stream containing the multipart data.
         /// </param>
+        /// <param name="encoding">
+        ///     The encoding of the multipart data.
+        /// </param>
+        /// <returns>
+        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
+        /// </returns>
+        public static MultipartFormDataParser Parse(Stream stream, Encoding encoding)
+        {
+            return MultipartFormDataParser.Parse(stream, null, encoding);
+        }
+
+        /// <summary>
+        ///     Parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
+        ///     with the boundary, input encoding and buffer size.
+        /// </summary>
+        /// <param name="stream">
+        ///     The stream containing the multipart data.
+        /// </param>
         /// <param name="boundary">
         ///     The multipart/form-data boundary. This should be the value
         ///     returned by the request header.
@@ -182,6 +200,24 @@ namespace HttpMultipartParser
             var parser = new MultipartFormDataParser();
             parser.ParseStream(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes);
             return parser;
+        }
+
+        /// <summary>
+        ///     Asynchronously parse the stream into a new instance of the <see cref="MultipartFormDataParser" /> class
+        ///     with the boundary, input encoding and buffer size.
+        /// </summary>
+        /// <param name="stream">
+        ///     The stream containing the multipart data.
+        /// </param>
+        /// <param name="encoding">
+        ///     The encoding of the multipart data.
+        /// </param>
+        /// <returns>
+        ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
+        /// </returns>
+        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding)
+        {
+            return MultipartFormDataParser.ParseAsync(stream, null, encoding);
         }
 
         /// <summary>

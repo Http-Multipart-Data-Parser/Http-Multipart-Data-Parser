@@ -146,7 +146,7 @@ namespace HttpMultipartParser
         /// </param>
         public StreamingMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
         {
-            if (stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
+            if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }
 
             this.stream = stream;
             this.boundary = boundary;

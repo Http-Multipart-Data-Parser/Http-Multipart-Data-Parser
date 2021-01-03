@@ -135,12 +135,19 @@ namespace HttpMultipartParser
         /// <param name="encoding">
         ///     The encoding of the multipart data.
         /// </param>
+        /// <param name="binaryBufferSize">
+        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
+        ///     then (size of boundary + 4 + # bytes in newline).
+        /// </param>
+        /// <param name="binaryMimeTypes">
+        ///     List of mimetypes that should be detected as file.
+        /// </param>
         /// <returns>
         ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
         /// </returns>
-        public static MultipartFormDataParser Parse(Stream stream, Encoding encoding)
+        public static MultipartFormDataParser Parse(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
         {
-            return MultipartFormDataParser.Parse(stream, null, encoding);
+            return Parse(stream, null, encoding, binaryBufferSize, binaryMimeTypes);
         }
 
         /// <summary>
@@ -184,12 +191,19 @@ namespace HttpMultipartParser
         /// <param name="encoding">
         ///     The encoding of the multipart data.
         /// </param>
+        /// <param name="binaryBufferSize">
+        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
+        ///     then (size of boundary + 4 + # bytes in newline).
+        /// </param>
+        /// <param name="binaryMimeTypes">
+        ///     List of mimetypes that should be detected as file.
+        /// </param>
         /// <returns>
         ///     A new instance of the <see cref="MultipartFormDataParser"/> class.
         /// </returns>
-        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding)
+        public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
         {
-            return MultipartFormDataParser.ParseAsync(stream, null, encoding);
+            return ParseAsync(stream, null, encoding);
         }
 
         /// <summary>

@@ -86,24 +86,10 @@ namespace HttpMultipartParser
         /// <param name="encoding">
         ///     The encoding to use for character based operations.
         /// </param>
-        public RebufferableBinaryReader(Stream input, Encoding encoding)
-            : this(input, encoding, 4096)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RebufferableBinaryReader" /> class.
-        /// </summary>
-        /// <param name="input">
-        ///     The input stream to read from.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding to use for character based operations.
-        /// </param>
         /// <param name="bufferSize">
         ///     The buffer size to use for new buffers.
         /// </param>
-        public RebufferableBinaryReader(Stream input, Encoding encoding, int bufferSize)
+        public RebufferableBinaryReader(Stream input, Encoding encoding, int bufferSize = 4096)
         {
             stream = input;
             streamStack = new BinaryStreamStack(encoding);

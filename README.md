@@ -81,7 +81,7 @@ The parser was built for and tested on NET 4.6.1, NET 4,7,2 and NETSTANDARD 2.0.
     // ==== Advanced Parsing ====
     var parser = new StreamingMultipartFormDataParser(stream);
     parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
-    parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
+    parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
     {
         // Write the part of the file we've received to a file stream. (Or do something else)
         filestream.Write(buffer, 0, bytes);
@@ -154,7 +154,7 @@ The parser was built for and tested on NET 4.6.1, NET 4,7,2 and NETSTANDARD 2.0.
     // ==== Advanced Parsing ====
     var parser = new StreamingMultipartFormDataParser(stream);
     parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
-    parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber) =>
+    parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
     {
         // Write the part of the file we've received to a file stream. (Or do something else)
         // Assume that filesreamsByName is a Dictionary<string, FileStream> of all the files

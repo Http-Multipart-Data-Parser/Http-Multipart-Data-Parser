@@ -37,24 +37,14 @@ namespace HttpMultipartParser
     /// </summary>
     public class FilePart
     {
-        #region Constructors and Destructors
+        #region Fields
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FilePart" /> class.
-        /// </summary>
-        /// <param name="name">
-        ///     The name of the input field used for the upload.
-        /// </param>
-        /// <param name="fileName">
-        ///     The name of the file.
-        /// </param>
-        /// <param name="data">
-        ///     The file data.
-        /// </param>
-        public FilePart(string name, string fileName, Stream data)
-            : this(name, fileName, data, null)
-        {
-        }
+        private const string DefaultContentType = "text/plain";
+        private const string DontentDisposition = "form-data";
+
+        #endregion
+
+        #region Constructors and Destructors
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="FilePart" /> class.
@@ -74,7 +64,7 @@ namespace HttpMultipartParser
         /// <param name="contentDisposition">
         ///     The content disposition.
         /// </param>
-        public FilePart(string name, string fileName, Stream data, string contentType, string contentDisposition)
+        public FilePart(string name, string fileName, Stream data, string contentType = DefaultContentType, string contentDisposition = DontentDisposition)
             : this(name, fileName, data, null, contentType, contentDisposition)
         {
         }
@@ -94,33 +84,13 @@ namespace HttpMultipartParser
         /// <param name="additionalProperties">
         ///     Additional properties associated with this file.
         /// </param>
-        public FilePart(string name, string fileName, Stream data, IDictionary<string, string> additionalProperties)
-            : this(name, fileName, data, additionalProperties, "text/plain", "form-data")
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FilePart" /> class.
-        /// </summary>
-        /// <param name="name">
-        ///     The name of the input field used for the upload.
-        /// </param>
-        /// <param name="fileName">
-        ///     The name of the file.
-        /// </param>
-        /// <param name="data">
-        ///     The file data.
-        /// </param>
-        /// <param name="additionalProperties">
-        ///     Additional properties associated with this file.
-        /// </param>
         /// <param name="contentType">
         ///     The content type.
         /// </param>
         /// <param name="contentDisposition">
         ///     The content disposition.
         /// </param>
-        public FilePart(string name, string fileName, Stream data, IDictionary<string, string> additionalProperties, string contentType, string contentDisposition)
+        public FilePart(string name, string fileName, Stream data, IDictionary<string, string> additionalProperties, string contentType = DefaultContentType, string contentDisposition = DontentDisposition)
         {
             Name = name;
             FileName = fileName?.Split(Path.GetInvalidFileNameChars()).Last();

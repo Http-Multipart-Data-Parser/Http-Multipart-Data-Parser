@@ -81,9 +81,9 @@ namespace HttpMultipartParser
     ///     }
     ///   </code>
     /// </example>
-    public class MultipartFormDataParser
+    public class MultipartFormDataParser : IMultipartFormDataParser
     {
-        #region Constants
+        #region Constants and fields
 
         /// <summary>
         ///     The default buffer size.
@@ -95,6 +95,9 @@ namespace HttpMultipartParser
         /// </remarks>
         private const int DefaultBufferSize = 4096;
 
+        private readonly List<FilePart> _files;
+        private readonly List<ParameterPart> _parameters;
+
         #endregion
 
         #region Constructors and Destructors
@@ -104,6 +107,8 @@ namespace HttpMultipartParser
         /// </summary>
         private MultipartFormDataParser()
         {
+            _files = new List<FilePart>();
+            _parameters = new List<ParameterPart>();
         }
 
         #endregion
@@ -114,12 +119,12 @@ namespace HttpMultipartParser
         ///     Gets the mapping of parameters parsed files. The name of a given field
         ///     maps to the parsed file data.
         /// </summary>
-        public List<FilePart> Files { get; private set; }
+        public IReadOnlyList<FilePart> Files => _files.AsReadOnly();
 
         /// <summary>
         ///     Gets the parameters. Several ParameterParts may share the same name.
         /// </summary>
-        public List<ParameterPart> Parameters { get; private set; }
+        public IReadOnlyList<ParameterPart> Parameters => _parameters.AsReadOnly();
 
         #endregion
 
@@ -239,47 +244,6 @@ namespace HttpMultipartParser
 
         #endregion
 
-        #region Public Methods
-
-        /// <summary>
-        /// Returns true if the parameter has any values. False otherwise.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <returns>True if the parameter exists. False otherwise.</returns>
-        public bool HasParameter(string name)
-        {
-            return Parameters.Any(p => p.Name == name);
-        }
-
-        /// <summary>
-        /// Returns the value of a parameter or null if it doesn't exist.
-        ///
-        /// You should only use this method if you're sure the parameter has only one value.
-        ///
-        /// If you need to support multiple values use GetParameterValues.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <returns>The value of the parameter.</returns>
-        public string GetParameterValue(string name)
-        {
-            var parameter = Parameters.FirstOrDefault(p => p.Name == name);
-            return parameter?.Data;
-        }
-
-        /// <summary>
-        /// Returns the values of a parameter or an empty enumerable if the parameter doesn't exist.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <returns>The values of the parameter.</returns>
-        public IEnumerable<string> GetParameterValues(string name)
-        {
-            return Parameters
-                .Where(p => p.Name == name)
-                .Select(p => p.Data);
-        }
-
-        #endregion
-
         #region Private Methods
 
         /// <summary>
@@ -304,18 +268,15 @@ namespace HttpMultipartParser
         /// </param>
         private void ParseStream(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {
-            Files = new List<FilePart>();
-            Parameters = new List<ParameterPart>();
-
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes);
-            streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
+            streamingParser.ParameterHandler += parameterPart => _parameters.Add(parameterPart);
 
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
             {
                 if (partNumber == 0)
                 {
                     // create file with first partNo
-                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStream)}"), additionalProperties, type, disposition));
+                    _files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStream)}"), additionalProperties, type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);
@@ -352,18 +313,15 @@ namespace HttpMultipartParser
         /// </param>
         private async Task ParseStreamAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
         {
-            Files = new List<FilePart>();
-            Parameters = new List<ParameterPart>();
-
             var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes);
-            streamingParser.ParameterHandler += parameterPart => Parameters.Add(parameterPart);
+            streamingParser.ParameterHandler += parameterPart => _parameters.Add(parameterPart);
 
             streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
             {
                 if (partNumber == 0)
                 {
                     // create file with first partNo
-                    Files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStreamAsync)}"), additionalProperties, type, disposition));
+                    _files.Add(new FilePart(name, fileName, Utilities.MemoryStreamManager.GetStream($"{typeof(MultipartFormDataParser).FullName}.{nameof(ParseStreamAsync)}"), additionalProperties, type, disposition));
                 }
 
                 Files[Files.Count - 1].Data.Write(buffer, 0, bytes);

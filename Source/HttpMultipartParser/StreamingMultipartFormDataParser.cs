@@ -246,12 +246,12 @@ namespace HttpMultipartParser
         public Encoding Encoding { get; private set; }
 
         /// <summary>
-        /// Gets or sets the FileHandler. Delegates attached to this property will recieve sequential file stream data from this parser.
+        /// Gets or sets the FileHandler. Delegates attached to this property will receive sequential file stream data from this parser.
         /// </summary>
         public FileStreamDelegate FileHandler { get; set; }
 
         /// <summary>
-        /// Gets or sets the ParameterHandler. Delegates attached to this property will recieve parameter data.
+        /// Gets or sets the ParameterHandler. Delegates attached to this property will receive parameter data.
         /// </summary>
         public ParameterDelegate ParameterHandler { get; set; }
 
@@ -262,7 +262,7 @@ namespace HttpMultipartParser
 
         #endregion
 
-        #region Methods
+        #region Private Methods
 
         /// <summary>
         ///     Detects the boundary from the input stream. Assumes that the

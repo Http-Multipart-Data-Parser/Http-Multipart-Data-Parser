@@ -20,7 +20,6 @@
 // <author>Jake Woods</author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -99,33 +98,6 @@ namespace HttpMultipartParser
         #endregion
 
         #region Constructors and Destructors
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MultipartFormDataParser" /> class
-        ///     with the boundary, stream, input encoding and buffer size.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <param name="binaryBufferSize">
-        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
-        ///     then (size of boundary + 4 + # bytes in newline).
-        /// </param>
-        /// <param name="binaryMimeTypes">
-        ///     List of mimetypes that should be detected as file.
-        /// </param>
-        [Obsolete("This constructor is deprecated, please use MultipartFormDataParser.Parse or MultipartFormDataParser.ParseAsync instead.")]
-        public MultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
-        {
-            ParseStream(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes);
-        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MultipartFormDataParser"/> class.

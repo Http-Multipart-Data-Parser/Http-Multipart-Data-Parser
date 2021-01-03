@@ -236,9 +236,9 @@ namespace HttpMultipartParser
         #region Public Properties
 
         /// <summary>
-        ///     Gets or sets the binary buffer size.
+        /// Gets the binary buffer size.
         /// </summary>
-        public int BinaryBufferSize { get; set; }
+        public int BinaryBufferSize { get; private set; }
 
         /// <summary>
         /// Gets the encoding.

@@ -103,99 +103,11 @@ namespace HttpMultipartParser
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
-        ///     with an input stream. Boundary will be automatically detected based on the
-        ///     first line of input.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        public StreamingMultipartFormDataParser(Stream stream)
-            : this(stream, null, Encoding.UTF8, DefaultBufferSize, null)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
-        ///     with the boundary and input stream.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, string boundary)
-            : this(stream, boundary, Encoding.UTF8, DefaultBufferSize, null)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
-        ///     with the input stream and stream encoding. Boundary is automatically
-        ///     detected.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, Encoding encoding)
-            : this(stream, null, encoding, DefaultBufferSize, null)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
-        ///     with the boundary, input stream and stream encoding.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding)
-            : this(stream, boundary, encoding, DefaultBufferSize, null)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
-        ///     with the stream, input encoding and buffer size. Boundary is automatically
-        ///     detected.
-        /// </summary>
-        /// <param name="stream">
-        ///     The stream containing the multipart data.
-        /// </param>
-        /// <param name="encoding">
-        ///     The encoding of the multipart data.
-        /// </param>
-        /// <param name="binaryBufferSize">
-        ///     The size of the buffer to use for parsing the multipart form data. This must be larger
-        ///     then (size of boundary + 4 + # bytes in newline).
-        /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize)
-            : this(stream, null, encoding, binaryBufferSize, null)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
         ///     with the boundary, stream, input encoding and buffer size.
         /// </summary>
         /// <param name="stream">
         ///     The stream containing the multipart data.
         /// </param>
-        /// <param name="boundary">
-        ///     The multipart/form-data boundary. This should be the value
-        ///     returned by the request header.
-        /// </param>
         /// <param name="encoding">
         ///     The encoding of the multipart data.
         /// </param>
@@ -203,8 +115,11 @@ namespace HttpMultipartParser
         ///     The size of the buffer to use for parsing the multipart form data. This must be larger
         ///     then (size of boundary + 4 + # bytes in newline).
         /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize)
-            : this(stream, boundary, encoding, binaryBufferSize, null)
+        /// <param name="binaryMimeTypes">
+        ///     List of mimetypes that should be detected as file.
+        /// </param>
+        public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
+            : this(stream, null, encoding, binaryBufferSize, binaryMimeTypes)
         {
         }
 
@@ -229,13 +144,13 @@ namespace HttpMultipartParser
         /// <param name="binaryMimeTypes">
         ///     List of mimetypes that should be detected as file.
         /// </param>
-        public StreamingMultipartFormDataParser(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes)
+        public StreamingMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
         {
             if (stream == null || stream == Stream.Null) { throw new ArgumentNullException("stream"); }
 
             this.stream = stream;
             this.boundary = boundary;
-            Encoding = encoding ?? throw new ArgumentNullException("encoding");
+            Encoding = encoding ?? Encoding.UTF8;
             BinaryBufferSize = binaryBufferSize;
             readEndBoundary = false;
             if (binaryMimeTypes != null)

@@ -1,5 +1,12 @@
 mode: ContinuousDelivery
 branches:
+  master:
+    regex: (master|main)
+    mode: ContinuousDelivery
+    tag:
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
   feature:
     regex: feature(s)?[/-]
     mode: ContinuousDeployment

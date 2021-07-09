@@ -12,13 +12,7 @@ namespace HttpMultipartParser.Benchmark
             // To debug
             // config = new DebugInProcessConfig();
 
-            var types = new[]
-            {
-                typeof(SubsequenceFinderBenchmark),
-                typeof(MultipartFormDataParserBenchmark)
-            };
-
-            BenchmarkSwitcher.FromTypes(types).Run(args, config);
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
         }
     }
 }

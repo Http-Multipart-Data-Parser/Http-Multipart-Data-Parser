@@ -24,7 +24,9 @@ cache:
   - tools -> build.cake
 
 # Environment configuration
-image: Visual Studio 2019
+image:
+  - Ubuntu1804
+  - Visual Studio 2019
 
 #---------------------------------#
 #  Skip builds for doc changes    #

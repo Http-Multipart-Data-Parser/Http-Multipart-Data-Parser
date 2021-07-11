@@ -2,7 +2,7 @@
 #tool dotnet:?package=GitVersion.Tool&version=5.6.6
 #tool nuget:?package=GitReleaseManager&version=0.11.0
 #tool nuget:?package=OpenCover&version=4.7.1221
-#tool nuget:?package=ReportGenerator&version=4.8.11
+#tool nuget:?package=ReportGenerator&version=4.8.12
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
@@ -201,7 +201,8 @@ Task("Build")
 	{
 		Configuration = configuration,
 		NoRestore = true,
-		ArgumentCustomization = args => args.Append("/p:SemVer=" + versionInfo.LegacySemVerPadded)
+		ArgumentCustomization = args => args.Append("/p:SemVer=" + versionInfo.LegacySemVerPadded),
+		Framework =  IsRunningOnWindows() ? null : "net5.0"
 	});
 });
 
@@ -213,7 +214,8 @@ Task("Run-Unit-Tests")
 	{
 		NoBuild = true,
 		NoRestore = true,
-		Configuration = configuration
+		Configuration = configuration,
+		Framework = IsRunningOnWindows() ? null : "net5.0"
 	});
 });
 
@@ -221,11 +223,17 @@ Task("Run-Code-Coverage")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
+	// For the purpose of calculating code coverage, a single target will suffice.
+	// FYI, this will cause an error if the unit test project is not configured
+	// to target this desired framework:
+	var desiredFramework = "net5.0";
+
 	Action<ICakeContext> testAction = ctx => ctx.DotNetCoreTest(unitTestsProject, new DotNetCoreTestSettings
 	{
 		NoBuild = true,
 		NoRestore = true,
-		Configuration = configuration
+		Configuration = configuration,
+		Framework = desiredFramework
 	});
 
 	OpenCover(testAction,

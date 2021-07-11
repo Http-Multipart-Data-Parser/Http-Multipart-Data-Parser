@@ -24,7 +24,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Collections.Generic;
+using System;
 
 namespace HttpMultipartParser
 {
@@ -53,54 +53,50 @@ namespace HttpMultipartParser
             return Search(haystack, needle, haystack.Length);
         }
 
-        /// <summary>
-        ///     Finds if a sequence exists within another sequence.
-        /// </summary>
-        /// <param name="haystack">
-        ///     The sequence to search.
-        /// </param>
-        /// <param name="needle">
-        ///     The sequence to look for.
-        /// </param>
-        /// <param name="haystackLength">
-        ///     The length of the haystack to consider for searching.
-        /// </param>
-        /// <returns>
-        ///     The start position of the found sequence or -1 if nothing was found.
-        /// </returns>
+        /// <summary>Finds if a sequence exists within another sequence.</summary>
+        /// <param name="haystack">The sequence to search.</param>
+        /// <param name="needle">The sequence to look for.</param>
+        /// <param name="haystackLength">The length of the haystack to consider for searching.</param>
+        /// <returns>The start position of the found sequence or -1 if nothing was found.</returns>
+        /// <remarks>Inspired by https://stackoverflow.com/a/39021296/153084 .</remarks>
         public static int Search(byte[] haystack, byte[] needle, int haystackLength)
         {
-            var charactersInNeedle = new HashSet<byte>(needle);
+            const int SEQUENCE_NOT_FOUND = -1;
 
-            var length = needle.Length;
-            var index = 0;
-            while (index + length <= haystackLength)
+            // Validate the parameters
+            if (haystack == null || haystack.Length == 0) return SEQUENCE_NOT_FOUND;
+            if (needle == null || needle.Length == 0) return SEQUENCE_NOT_FOUND;
+            if (needle.Length > haystack.Length) return SEQUENCE_NOT_FOUND;
+            if (haystackLength > haystack.Length || haystackLength < 1) throw new ArgumentException("Length must be between 1 and the length of the haystack.");
+
+            int currentIndex = 0;
+            int end = haystackLength - needle.Length; // past here no match is possible
+            byte firstByte = needle[0]; // cached to tell compiler there's no aliasing
+
+            while (currentIndex <= end)
             {
-                // Worst case scenario: Go back to character-by-character parsing until we find a non-match
-                // or we find the needle.
-                if (charactersInNeedle.Contains(haystack[index + length - 1]))
+                // scan for first byte only. compiler-friendly.
+                if (haystack[currentIndex] == firstByte)
                 {
-                    var needleIndex = 0;
-                    while (haystack[index + needleIndex] == needle[needleIndex])
+                    // scan for rest of sequence
+                    for (int offset = 1; ; ++offset)
                     {
-                        if (needleIndex == needle.Length - 1)
-                        {
-                            // Found our match!
-                            return index;
+                        if (offset == needle.Length)
+                        { // full sequence matched?
+                            return currentIndex;
                         }
-
-                        needleIndex += 1;
+                        else if (haystack[currentIndex + offset] != needle[offset])
+                        {
+                            break;
+                        }
                     }
-
-                    index += 1;
-                    index += needleIndex;
-                    continue;
                 }
 
-                index += length;
+                ++currentIndex;
             }
 
-            return -1;
+            // end of array reached without match
+            return SEQUENCE_NOT_FOUND;
         }
 
         #endregion

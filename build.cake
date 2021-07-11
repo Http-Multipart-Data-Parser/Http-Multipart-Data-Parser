@@ -1,13 +1,14 @@
 // Install tools.
-#tool nuget:?package=GitVersion.CommandLine&version=5.6.0
+#tool dotnet:?package=GitVersion.Tool&version=5.6.6
 #tool nuget:?package=GitReleaseManager&version=0.11.0
-#tool nuget:?package=OpenCover&version=4.7.922
-#tool nuget:?package=ReportGenerator&version=4.8.4
+#tool nuget:?package=OpenCover&version=4.7.1221
+#tool nuget:?package=ReportGenerator&version=4.8.11
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
 // Install addins.
-#addin nuget:?package=Cake.Coveralls&version=0.10.2
+#addin nuget:?package=Cake.Coveralls&version=1.1.0
+#addin nuget:?package=Cake.Git&version=1.0.1
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,6 +18,8 @@
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
 
+if (IsRunningOnUnix()) target = "Run-Unit-Tests";
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
@@ -25,7 +28,7 @@ var configuration = Argument<string>("configuration", "Release");
 var libraryName = "HttpMultipartParser";
 var gitHubRepo = "Http-Multipart-Data-Parser";
 
-var testCoverageFilter = "+[HttpMultipartParser]* -[HttpMultipartParser]HttpMultipartParser.Properties.* -[HttpMultipartParser]HttpMultipartParser.Models.* -[HttpMultipartParser]HttpMultipartParser.Logging.*";
+var testCoverageFilter = "+[HttpMultipartParser]* -[HttpMultipartParser]HttpMultipartParser.Properties.* -[HttpMultipartParser]HttpMultipartParser.Models.*";
 var testCoverageExcludeByAttribute = "*.ExcludeFromCodeCoverage*";
 var testCoverageExcludeByFile = "*/*Designer.cs;*/*AssemblyInfo.cs";
 
@@ -45,6 +48,9 @@ var outputDir = "./artifacts/";
 var codeCoverageDir = $"{outputDir}CodeCoverage/";
 var benchmarkDir = $"{outputDir}Benchmark/";
 
+var solutionFile = $"{sourceFolder}{libraryName}.sln";
+var sourceProject = $"{sourceFolder}{libraryName}/{libraryName}.csproj";
+var integrationTestsProject = $"{sourceFolder}{libraryName}.IntegrationTests/{libraryName}.IntegrationTests.csproj";
 var unitTestsProject = $"{sourceFolder}{libraryName}.UnitTests/{libraryName}.UnitTests.csproj";
 var benchmarkProject = $"{sourceFolder}{libraryName}.Benchmark/{libraryName}.Benchmark.csproj";
 
@@ -52,7 +58,7 @@ var versionInfo = GitVersion(new GitVersionSettings() { OutputType = GitVersionO
 var milestone = versionInfo.MajorMinorPatch;
 var cakeVersion = typeof(ICakeContext).Assembly.GetName().Version.ToString();
 var isLocalBuild = BuildSystem.IsLocalBuild;
-var isMainBranch = StringComparer.OrdinalIgnoreCase.Equals("master", BuildSystem.AppVeyor.Environment.Repository.Branch);
+var isMainBranch = StringComparer.OrdinalIgnoreCase.Equals("main", BuildSystem.AppVeyor.Environment.Repository.Branch);
 var isMainRepo = StringComparer.OrdinalIgnoreCase.Equals($"{gitHubRepoOwner}/{gitHubRepo}", BuildSystem.AppVeyor.Environment.Repository.Name);
 var isPullRequest = BuildSystem.AppVeyor.Environment.PullRequest.IsPullRequest;
 var isTagged = (
@@ -116,10 +122,27 @@ Setup(context =>
 			string.IsNullOrEmpty(gitHubPassword) ? "[NULL]" : new string('*', gitHubPassword.Length)
 		);
 	}
+
+	// Integration tests are intended to be used for debugging purposes and not intended to be executed in CI environment.
+	// Also, the runner for these tests contains windows-specific code (such as resizing window, moving window to center of screen, etc.)
+	// which can cause problems when attempting to run unit tests on an Ubuntu image on AppVeyor.
+	if (!isLocalBuild)
+	{
+		Information("");
+		Information("Removing integration tests");
+		DotNetCoreTool(solutionFile, "sln", $"remove {integrationTestsProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
+	}
 });
 
 Teardown(context =>
 {
+	if (!isLocalBuild)
+	{
+		Information("Restoring integration tests");
+		GitCheckout(".", new FilePath[] { solutionFile });
+		Information("");
+	}
+
 	// Executed AFTER the last task.
 	Information("Finished running tasks.");
 });
@@ -174,7 +197,7 @@ Task("Build")
 	.IsDependentOn("Restore-NuGet-Packages")
 	.Does(() =>
 {
-	DotNetCoreBuild($"{sourceFolder}{libraryName}.sln", new DotNetCoreBuildSettings
+	DotNetCoreBuild(solutionFile, new DotNetCoreBuildSettings
 	{
 		Configuration = configuration,
 		NoRestore = true,
@@ -220,6 +243,7 @@ Task("Run-Code-Coverage")
 });
 
 Task("Upload-Coverage-Result")
+	.IsDependentOn("Run-Code-Coverage")
 	.Does(() =>
 {
 	CoverallsIo($"{codeCoverageDir}coverage.xml");
@@ -230,7 +254,7 @@ Task("Generate-Code-Coverage-Report")
 	.Does(() =>
 {
 	ReportGenerator(
-		$"{codeCoverageDir}coverage.xml",
+		new FilePath($"{codeCoverageDir}coverage.xml"),
 		codeCoverageDir,
 		new ReportGeneratorSettings() {
 			ClassFilters = new[] { "*.UnitTests*" }
@@ -265,7 +289,7 @@ Task("Create-NuGet-Package")
 		}
 	};
 
-	DotNetCorePack($"{sourceFolder}{libraryName}/{libraryName}.csproj", settings);
+	DotNetCorePack(sourceProject, settings);
 });
 
 Task("Upload-AppVeyor-Artifacts")
@@ -332,20 +356,15 @@ Task("Create-Release-Notes")
 		Name              = milestone,
 		Milestone         = milestone,
 		Prerelease        = false,
-		TargetCommitish   = "master"
+		TargetCommitish   = "main"
 	};
 
-	if (!string.IsNullOrEmpty(gitHubToken))
+	if (string.IsNullOrEmpty(gitHubToken))
 	{
-		GitReleaseManagerCreate(gitHubToken, gitHubRepoOwner, gitHubRepo, settings);
+		throw new InvalidOperationException("GitHub token was not provided.");
 	}
-	else
-	{
-		if(string.IsNullOrEmpty(gitHubUserName)) throw new InvalidOperationException("Could not resolve GitHub user name.");
-		if(string.IsNullOrEmpty(gitHubPassword)) throw new InvalidOperationException("Could not resolve GitHub password.");
 
-		GitReleaseManagerCreate(gitHubUserName, gitHubPassword, gitHubRepoOwner, gitHubRepo, settings);
-	}
+	GitReleaseManagerCreate(gitHubToken, gitHubRepoOwner, gitHubRepo, settings);
 });
 
 Task("Publish-GitHub-Release")
@@ -356,17 +375,12 @@ Task("Publish-GitHub-Release")
 	.WithCriteria(() => isTagged)
 	.Does(() =>
 {
-	if (!string.IsNullOrEmpty(gitHubToken))
+	if (string.IsNullOrEmpty(gitHubToken))
 	{
-		GitReleaseManagerClose(gitHubToken, gitHubRepoOwner, gitHubRepo, milestone);
+		throw new InvalidOperationException("GitHub token was not provided.");
 	}
-	else
-	{
-		if(string.IsNullOrEmpty(gitHubUserName)) throw new InvalidOperationException("Could not resolve GitHub user name.");
-		if(string.IsNullOrEmpty(gitHubPassword)) throw new InvalidOperationException("Could not resolve GitHub password.");
 
-		GitReleaseManagerClose(gitHubUserName, gitHubPassword, gitHubRepoOwner, gitHubRepo, milestone);
-	}
+	GitReleaseManagerClose(gitHubToken, gitHubRepoOwner, gitHubRepo, milestone);
 });
 
 Task("Generate-Benchmark-Report")
@@ -418,8 +432,11 @@ Task("Benchmark")
 	.WithCriteria(isBenchmarkPresent)
 	.Does(() =>
 {
-    var htmlReport = GetFiles($"{benchmarkDir}results/*-report.html", new GlobberSettings { IsCaseSensitive = false }).FirstOrDefault();
-	StartProcess("cmd", $"/c start {htmlReport}");
+    var htmlReports = GetFiles($"{benchmarkDir}results/*-report.html", new GlobberSettings { IsCaseSensitive = false });
+	foreach (var htmlReport in htmlReports)
+	{
+		StartProcess("cmd", $"/c start {htmlReport}");
+	}
 });
 
 Task("ReleaseNotes")
@@ -445,3 +462,25 @@ Task("Default")
 ///////////////////////////////////////////////////////////////////////////////
 
 RunTarget(target);
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// PRIVATE METHODS
+///////////////////////////////////////////////////////////////////////////////
+private static string TrimStart(this string source, string value, StringComparison comparisonType)
+{
+	if (source == null)
+	{
+		throw new ArgumentNullException(nameof(source));
+	}
+
+	int valueLength = value.Length;
+	int startIndex = 0;
+	while (source.IndexOf(value, startIndex, comparisonType) == startIndex)
+	{
+		startIndex += valueLength;
+	}
+
+	return source.Substring(startIndex);
+}

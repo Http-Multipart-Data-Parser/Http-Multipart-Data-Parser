@@ -22,6 +22,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -39,3 +40,5 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("b9ed9178-5d4f-47e2-97ac-044c8f665277")]
+
+[assembly: CLSCompliant(true)]

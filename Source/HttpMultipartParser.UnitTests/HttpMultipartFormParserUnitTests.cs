@@ -90,8 +90,8 @@ namespace HttpMultipartParser.UnitTests
             using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
             {
                 var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
-                Assert.Equal("line 1\r\nline 2\r\nline 3", parser.GetParameterValue("multilined"));
-                Assert.Equal("line 1\r\nline 2\r\nline 3", parser.GetParameterValues("multilined").First());
+                Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValue("multilined"));
+                Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValues("multilined").First());
             }
         }
 

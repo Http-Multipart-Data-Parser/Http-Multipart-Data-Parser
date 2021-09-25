@@ -1,6 +1,6 @@
 // Install tools.
 #tool dotnet:?package=GitVersion.Tool&version=5.6.6
-#tool nuget:?package=GitReleaseManager&version=0.11.0
+#tool nuget:?package=GitReleaseManager&version=0.12.1
 #tool nuget:?package=OpenCover&version=4.7.1221
 #tool nuget:?package=ReportGenerator&version=4.8.12
 #tool nuget:?package=coveralls.io&version=1.4.2
@@ -8,7 +8,7 @@
 
 // Install addins.
 #addin nuget:?package=Cake.Coveralls&version=1.1.0
-#addin nuget:?package=Cake.Git&version=1.0.1
+#addin nuget:?package=Cake.Git&version=1.1.0
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,14 @@ var isTagged = (
 );
 var isBenchmarkPresent = FileExists(benchmarkProject);
 
+// Generally speaking, we want to honor all the TFM configured in the source project and the unit test project.
+// However, there are a few scenarios where a single framework is sufficient. Here are a few examples that come to mind:
+// - when building source project on Ubuntu
+// - when running unit tests on Ubuntu
+// - when calculating code coverage
+// FYI, this will cause an error if the source project and/or the unit test project are not configured to target this desired framework:
+var desiredFramework = IsRunningOnWindows() ? null : "net5.0";
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -74,7 +82,7 @@ var isBenchmarkPresent = FileExists(benchmarkProject);
 
 Setup(context =>
 {
-	if (isMainBranch && (context.Log.Verbosity != Verbosity.Diagnostic))
+	if (!isLocalBuild && context.Log.Verbosity != Verbosity.Diagnostic)
 	{
 		Information("Increasing verbosity to diagnostic.");
 		context.Log.Verbosity = Verbosity.Diagnostic;
@@ -200,9 +208,14 @@ Task("Build")
 	DotNetCoreBuild(solutionFile, new DotNetCoreBuildSettings
 	{
 		Configuration = configuration,
+		Framework =  desiredFramework,
 		NoRestore = true,
-		ArgumentCustomization = args => args.Append("/p:SemVer=" + versionInfo.LegacySemVerPadded),
-		Framework =  IsRunningOnWindows() ? null : "net5.0"
+		ArgumentCustomization = args =>
+		{
+			return args
+				.Append("/p:SemVer={0}", versionInfo.LegacySemVerPadded)
+				.Append("/p:ContinuousIntegrationBuild={0}", BuildSystem.IsLocalBuild ? "false" : "true");
+		}
 	});
 });
 
@@ -215,7 +228,7 @@ Task("Run-Unit-Tests")
 		NoBuild = true,
 		NoRestore = true,
 		Configuration = configuration,
-		Framework = IsRunningOnWindows() ? null : "net5.0"
+		Framework = desiredFramework
 	});
 });
 
@@ -223,11 +236,6 @@ Task("Run-Code-Coverage")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
-	// For the purpose of calculating code coverage, a single target will suffice.
-	// FYI, this will cause an error if the unit test project is not configured
-	// to target this desired framework:
-	var desiredFramework = "net5.0";
-
 	Action<ICakeContext> testAction = ctx => ctx.DotNetCoreTest(unitTestsProject, new DotNetCoreTestSettings
 	{
 		NoBuild = true,
@@ -254,7 +262,14 @@ Task("Upload-Coverage-Result")
 	.IsDependentOn("Run-Code-Coverage")
 	.Does(() =>
 {
-	CoverallsIo($"{codeCoverageDir}coverage.xml");
+	try
+	{
+		CoverallsIo($"{codeCoverageDir}coverage.xml");
+	}
+	catch (Exception e)
+	{
+		Warning(e.Message);
+	}
 });
 
 Task("Generate-Code-Coverage-Report")
@@ -285,10 +300,10 @@ Task("Create-NuGet-Package")
 		NoRestore = true,
 		NoDependencies = true,
 		OutputDirectory = outputDir,
+		SymbolPackageFormat = "snupkg",
 		ArgumentCustomization = (args) =>
 		{
 			return args
-				.Append("/p:SymbolPackageFormat=snupkg")
 				.Append("/p:PackageReleaseNotes=\"{0}\"", releaseNotesUrl)
 				.Append("/p:Version={0}", versionInfo.LegacySemVerPadded)
 				.Append("/p:AssemblyVersion={0}", versionInfo.MajorMinorPatch)
@@ -304,11 +319,11 @@ Task("Upload-AppVeyor-Artifacts")
 	.WithCriteria(() => AppVeyor.IsRunningOnAppVeyor)
 	.Does(() =>
 {
-	foreach (var file in GetFiles($"{outputDir}*.*"))
-	{
-		AppVeyor.UploadArtifact(file.FullPath);
-	}
-	foreach (var file in GetFiles($"{benchmarkDir}results/*.*"))
+	var allFiles = GetFiles($"{outputDir}*.*") +
+		GetFiles($"{benchmarkDir}results/*.*") +
+		GetFiles($"{codeCoverageDir}*.*");
+
+	foreach (var file in allFiles)
 	{
 		AppVeyor.UploadArtifact(file.FullPath);
 	}
@@ -453,7 +468,6 @@ Task("ReleaseNotes")
 Task("AppVeyor")
 	.IsDependentOn("Run-Code-Coverage")
 	.IsDependentOn("Upload-Coverage-Result")
-    .IsDependentOn("Generate-Benchmark-Report")
 	.IsDependentOn("Create-NuGet-Package")
 	.IsDependentOn("Upload-AppVeyor-Artifacts")
 	.IsDependentOn("Publish-MyGet")

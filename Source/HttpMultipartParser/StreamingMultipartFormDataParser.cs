@@ -279,7 +279,14 @@ namespace HttpMultipartParser
         {
             // Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
             // the front as per the protocol and ||||||||||||| is the part we care about.
-            string boundary = string.Concat(reader.ReadLine().Skip(2));
+            var line = reader.ReadLine();
+
+            // The line must not be empty and must starts with "--".
+            if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: unexpected end of stream");
+            else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content does not start with a valid multipart boundary");
+
+            // Remove the two dashes
+            string boundary = line.Substring(2);
 
             // If the string ends with '--' it means that we found the "end" boundary and we
             // need to trim the two dashes to get the actual boundary
@@ -315,7 +322,13 @@ namespace HttpMultipartParser
             // Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
             // the front as per the protocol and ||||||||||||| is the part we care about.
             var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            string boundary = string.Concat(line.Skip(2));
+
+            // The line must not be empty and must starts with "--".
+            if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: either the stream is empty or we reached the end of the stream");
+            else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content is not a valid multipart boundary");
+
+            // Remove the two dashes
+            string boundary = line.Substring(2);
 
             // If the string ends with '--' it means that we found the "end" boundary and we
             // need to trim the two dashes to get the actual boundary.

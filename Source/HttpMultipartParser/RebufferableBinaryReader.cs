@@ -519,7 +519,7 @@ namespace HttpMultipartParser
         }
 
         /// <summary>
-        ///     Push the data read from the stram into the stream stack.
+        ///     Push the data read from the stream into the stream stack.
         /// </summary>
         /// <param name="buffer">
         ///     The data that was read from the stream.

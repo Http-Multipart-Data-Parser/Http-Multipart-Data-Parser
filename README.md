@@ -27,7 +27,8 @@ PM> Install-Package HttpMultipartParser
 
 ## .NET framework suport
 
-The parser was built for and tested on NET 4.6.1, NET 4,7,2 and NETSTANDARD 2.0. Versions 2.2.4 was the last version of HttpMultipartParser that supported older .NET platforms such as NET 4.5 and NETSTANDARD 1.3.
+The parser was built for and tested on NET 4.6.1, NET 4.7.2, NETSTANDARD 2.0 and NET 5.0.
+Versions 2.2.4 was the last version of HttpMultipartParser that supported older .NET platforms such as NET 4.5 and NETSTANDARD 1.3.
 
 ## Usage
 

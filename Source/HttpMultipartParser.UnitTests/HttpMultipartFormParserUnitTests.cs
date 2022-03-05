@@ -32,31 +32,31 @@ using Xunit;
 
 namespace HttpMultipartParser.UnitTests
 {
-    /// <summary>
-    ///     The http multipart form parser unit test.
-    /// </summary>
-    public class HttpMultipartFormParserUnitTests
-    {
-        [Fact]
-        public void ConstructingWithNullStreamFails()
-        {
-            Assert.Throws<ArgumentNullException>(() => MultipartFormDataParser.Parse(Stream.Null));
-        }
+	/// <summary>
+	///     The http multipart form parser unit test.
+	/// </summary>
+	public class HttpMultipartFormParserUnitTests
+	{
+		[Fact]
+		public void ConstructingWithNullStreamFails()
+		{
+			Assert.Throws<ArgumentNullException>(() => MultipartFormDataParser.Parse(Stream.Null));
+		}
 
-        [Fact]
-        public async Task ConstructingWithNullStreamFailsAsync()
-        {
-            await Assert.ThrowsAsync<ArgumentNullException>(() => MultipartFormDataParser.ParseAsync(Stream.Null)).ConfigureAwait(false);
-        }
+		[Fact]
+		public async Task ConstructingWithNullStreamFailsAsync()
+		{
+			await Assert.ThrowsAsync<ArgumentNullException>(() => MultipartFormDataParser.ParseAsync(Stream.Null)).ConfigureAwait(false);
+		}
 
-        /// <summary>
-        ///     Tests for correct handling of a multiline parameter.
-        /// </summary>
-        [Fact]
-        public void CorrectlyHandlesMultilineParameter()
-        {
-            string request = TestUtil.TrimAllLines(
-                @"-----------------------------41952539122868
+		/// <summary>
+		///     Tests for correct handling of a multiline parameter.
+		/// </summary>
+		[Fact]
+		public void CorrectlyHandlesMultilineParameter()
+		{
+			string request = TestUtil.TrimAllLines(
+				@"-----------------------------41952539122868
                 Content-Disposition: form-data; name=""multilined""
 
                 line 1
@@ -64,22 +64,22 @@ namespace HttpMultipartParser.UnitTests
                 line 3
                 -----------------------------41952539122868--");
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
-                Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValue("multilined"));
-                Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValues("multilined").First());
-            }
-        }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
+				Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValue("multilined"));
+				Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValues("multilined").First());
+			}
+		}
 
-        /// <summary>
-        ///     Tests for correct handling of a multiline parameter.
-        /// </summary>
-        [Fact]
-        public async Task CorrectlyHandlesMultilineParameterAsync()
-        {
-            string request = TestUtil.TrimAllLines(
-                @"-----------------------------41952539122868
+		/// <summary>
+		///     Tests for correct handling of a multiline parameter.
+		/// </summary>
+		[Fact]
+		public async Task CorrectlyHandlesMultilineParameterAsync()
+		{
+			string request = TestUtil.TrimAllLines(
+				@"-----------------------------41952539122868
                 Content-Disposition: form-data; name=""multilined""
 
                 line 1
@@ -87,18 +87,18 @@ namespace HttpMultipartParser.UnitTests
                 line 3
                 -----------------------------41952539122868--");
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
-                Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValue("multilined"));
-                Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValues("multilined").First());
-            }
-        }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
+				Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValue("multilined"));
+				Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValues("multilined").First());
+			}
+		}
 
-        [Fact]
-        public void HandlesFileWithLastCrLfAtBufferLength()
-        {
-            string request =
+		[Fact]
+		public void HandlesFileWithLastCrLfAtBufferLength()
+		{
+			string request =
 @"------WebKitFormBoundaryphElSb1aBJGfLyAP
 Content-Disposition: form-data; name=""fileName""
 
@@ -113,16 +113,16 @@ Content-Type: application/pdf
 ------WebKitFormBoundaryphElSb1aBJGfLyAP--
 ";
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
-            }
-        }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
+			}
+		}
 
-        [Fact]
-        public async Task HandlesFileWithLastCrLfAtBufferLengthAsync()
-        {
-            string request =
+		[Fact]
+		public async Task HandlesFileWithLastCrLfAtBufferLengthAsync()
+		{
+			string request =
 @"------WebKitFormBoundaryphElSb1aBJGfLyAP
 Content-Disposition: form-data; name=""fileName""
 
@@ -137,16 +137,16 @@ Content-Type: application/pdf
 ------WebKitFormBoundaryphElSb1aBJGfLyAP--
 ";
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
-            }
-        }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
+			}
+		}
 
-        [Fact]
-        public void HandlesFileWithLastCrLfImmediatlyAfterBufferLength()
-        {
-            string request =
+		[Fact]
+		public void HandlesFileWithLastCrLfImmediatlyAfterBufferLength()
+		{
+			string request =
 @"------WebKitFormBoundaryphElSb1aBJGfLyAP
 Content-Disposition: form-data; name=""fileName""
 
@@ -161,16 +161,16 @@ Content-Type: application/pdf
 ------WebKitFormBoundaryphElSb1aBJGfLyAP--
 ";
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
-            }
-        }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
+			}
+		}
 
-        [Fact]
-        public async Task HandlesFileWithLastCrLfImmediatlyAfterBufferLengthAsync()
-        {
-            string request =
+		[Fact]
+		public async Task HandlesFileWithLastCrLfImmediatlyAfterBufferLengthAsync()
+		{
+			string request =
 @"------WebKitFormBoundaryphElSb1aBJGfLyAP
 Content-Disposition: form-data; name=""fileName""
 
@@ -185,17 +185,17 @@ Content-Type: application/pdf
 ------WebKitFormBoundaryphElSb1aBJGfLyAP--
 ";
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
-            }
-        }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
+			}
+		}
 
-        [Fact]
-        public async Task HandlesFileWithoutFilename()
-        {
-            string request =
-                @"------WebKitFormBoundaryphElSb1aBJGfLyAP
+		[Fact]
+		public async Task HandlesFileWithoutFilename()
+		{
+			string request =
+				@"------WebKitFormBoundaryphElSb1aBJGfLyAP
 Content-Disposition: form-data; name=""fileName""
 
 Testfile
@@ -204,16 +204,16 @@ Content-Disposition: form-data; name=""file""
 Content-Type: application/octet-stream
 
 "
-                + new string('\0', 8147)
-                + @"
+				+ new string('\0', 8147)
+				+ @"
 ------WebKitFormBoundaryphElSb1aBJGfLyAP--
 ";
 
-            using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
-            {
-                var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
-                Assert.Single(parser.Files);
-            }
-        }
-    }
+			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8).ConfigureAwait(false);
+				Assert.Single(parser.Files);
+			}
+		}
+	}
 }

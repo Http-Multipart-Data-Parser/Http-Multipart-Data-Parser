@@ -10,6 +10,12 @@ indent_size = 4
 insert_final_newline = false
 trim_trailing_whitespace = true
 
+# .NET Code files
+[*.{cs,csx,cake,vb}]
+indent_style = tab
+tab_width = 4
+insert_final_newline = true
+
 # Visual Studio Solution Files
 [*.sln]
 indent_style = tab

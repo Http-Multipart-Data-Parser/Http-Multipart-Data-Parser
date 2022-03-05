@@ -13,11 +13,11 @@ branches:
   develop:
     regex: dev(elop)?(ment)?$
     mode: ContinuousDeployment
-    tag: alpha
+    tag: beta
   hotfix:
     regex: hotfix(es)?[/-]
     mode: ContinuousDeployment
-    tag: beta
+    tag: hotfix
   release:
     regex: release(s)?[/-]
     mode: ContinuousDeployment

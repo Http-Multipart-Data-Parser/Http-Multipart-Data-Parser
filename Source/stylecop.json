@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
 	"settings": {
 		"indentation": {
-			"useTabs": false,
+			"useTabs": true,
 			"indentationSize": 4,
 			"tabSize": 4
 		},
@@ -14,7 +14,7 @@
 			"documentPrivateFields": false
 		},
 		"layoutRules": {
-			"newlineAtEndOfFile": "omit"
+			"newlineAtEndOfFile": "require"
 		},
 		"maintainabilityRules": {
 		},

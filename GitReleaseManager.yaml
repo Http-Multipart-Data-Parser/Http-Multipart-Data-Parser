@@ -26,6 +26,7 @@ issue-labels-include:
   - Bug
   - New Feature
   - Improvement
+  - Enhancement
   - Documentation
   - Security
 issue-labels-exclude:

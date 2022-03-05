@@ -1,14 +1,14 @@
 // Install tools.
-#tool dotnet:?package=GitVersion.Tool&version=5.6.6
-#tool nuget:?package=GitReleaseManager&version=0.12.1
+#tool dotnet:?package=GitVersion.Tool&version=5.8.2
+#tool nuget:?package=GitReleaseManager&version=0.13.0
 #tool nuget:?package=OpenCover&version=4.7.1221
-#tool nuget:?package=ReportGenerator&version=4.8.12
+#tool nuget:?package=ReportGenerator&version=5.0.4
 #tool nuget:?package=coveralls.io&version=1.4.2
 #tool nuget:?package=xunit.runner.console&version=2.4.1
 
 // Install addins.
 #addin nuget:?package=Cake.Coveralls&version=1.1.0
-#addin nuget:?package=Cake.Git&version=1.1.0
+#addin nuget:?package=Cake.Git&version=2.0.0
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,11 +61,10 @@ var isLocalBuild = BuildSystem.IsLocalBuild;
 var isMainBranch = StringComparer.OrdinalIgnoreCase.Equals("main", BuildSystem.AppVeyor.Environment.Repository.Branch);
 var isMainRepo = StringComparer.OrdinalIgnoreCase.Equals($"{gitHubRepoOwner}/{gitHubRepo}", BuildSystem.AppVeyor.Environment.Repository.Name);
 var isPullRequest = BuildSystem.AppVeyor.Environment.PullRequest.IsPullRequest;
-var isTagged = (
-	BuildSystem.AppVeyor.Environment.Repository.Tag.IsTag &&
-	!string.IsNullOrWhiteSpace(BuildSystem.AppVeyor.Environment.Repository.Tag.Name)
-);
-var isBenchmarkPresent = FileExists(benchmarkProject);
+var isTagged = BuildSystem.AppVeyor.Environment.Repository.Tag.IsTag && !string.IsNullOrWhiteSpace(BuildSystem.AppVeyor.Environment.Repository.Tag.Name);
+var isIntegrationTestsProjectPresent = FileExists(integrationTestsProject);
+var isUnitTestsProjectPresent = FileExists(unitTestsProject);
+var isBenchmarkProjectPresent = FileExists(benchmarkProject);
 
 // Generally speaking, we want to honor all the TFM configured in the source project and the unit test project.
 // However, there are a few scenarios where a single framework is sufficient. Here are a few examples that come to mind:
@@ -134,11 +133,21 @@ Setup(context =>
 	// Integration tests are intended to be used for debugging purposes and not intended to be executed in CI environment.
 	// Also, the runner for these tests contains windows-specific code (such as resizing window, moving window to center of screen, etc.)
 	// which can cause problems when attempting to run unit tests on an Ubuntu image on AppVeyor.
-	if (!isLocalBuild)
+	if (!isLocalBuild && isIntegrationTestsProjectPresent)
 	{
 		Information("");
 		Information("Removing integration tests");
-		DotNetCoreTool(solutionFile, "sln", $"remove {integrationTestsProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
+		DotNetTool(solutionFile, "sln", $"remove {integrationTestsProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
+	}
+
+	// Similarly, benchmarking can causes problems similar to this one:
+	// error NETSDK1005: Assets file '/home/appveyor/projects/stronggrid/Source/StrongGrid.Benchmark/obj/project.assets.json' doesn't have a target for 'net5.0'.
+	// Ensure that restore has run and that you have included 'net5.0' in the TargetFrameworks for your project.
+	if (!isLocalBuild && isBenchmarkProjectPresent)
+	{
+		Information("");
+		Information("Removing benchmark project");
+		DotNetTool(solutionFile, "sln", $"remove {benchmarkProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
 	}
 });
 
@@ -146,7 +155,7 @@ Teardown(context =>
 {
 	if (!isLocalBuild)
 	{
-		Information("Restoring integration tests");
+		Information("Restoring projects that may have been removed during build script setup");
 		GitCheckout(".", new FilePath[] { solutionFile });
 		Information("");
 	}
@@ -193,7 +202,7 @@ Task("Restore-NuGet-Packages")
 	.IsDependentOn("Clean")
 	.Does(() =>
 {
-	DotNetCoreRestore("./Source/", new DotNetCoreRestoreSettings
+	DotNetRestore("./Source/", new DotNetRestoreSettings
 	{
 		Sources = new [] {
 			"https://api.nuget.org/v3/index.json",
@@ -205,16 +214,18 @@ Task("Build")
 	.IsDependentOn("Restore-NuGet-Packages")
 	.Does(() =>
 {
-	DotNetCoreBuild(solutionFile, new DotNetCoreBuildSettings
+	DotNetBuild(solutionFile, new DotNetBuildSettings
 	{
 		Configuration = configuration,
 		Framework =  desiredFramework,
 		NoRestore = true,
-		ArgumentCustomization = args =>
+		MSBuildSettings = new DotNetMSBuildSettings
 		{
-			return args
-				.Append("/p:SemVer={0}", versionInfo.LegacySemVerPadded)
-				.Append("/p:ContinuousIntegrationBuild={0}", BuildSystem.IsLocalBuild ? "false" : "true");
+			Version = versionInfo.LegacySemVerPadded,
+			AssemblyVersion = versionInfo.MajorMinorPatch,
+			FileVersion = versionInfo.MajorMinorPatch,
+			InformationalVersion = versionInfo.InformationalVersion,
+			ContinuousIntegrationBuild = !BuildSystem.IsLocalBuild
 		}
 	});
 });
@@ -223,7 +234,7 @@ Task("Run-Unit-Tests")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
-	DotNetCoreTest(unitTestsProject, new DotNetCoreTestSettings
+	DotNetTest(unitTestsProject, new DotNetTestSettings
 	{
 		NoBuild = true,
 		NoRestore = true,
@@ -236,7 +247,7 @@ Task("Run-Code-Coverage")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
-	Action<ICakeContext> testAction = ctx => ctx.DotNetCoreTest(unitTestsProject, new DotNetCoreTestSettings
+	Action<ICakeContext> testAction = ctx => ctx.DotNetTest(unitTestsProject, new DotNetTestSettings
 	{
 		NoBuild = true,
 		NoRestore = true,
@@ -291,7 +302,7 @@ Task("Create-NuGet-Package")
 {
 	var releaseNotesUrl = @$"https://github.com/{gitHubRepoOwner}/{gitHubRepo}/releases/tag/{milestone}";
 
-	var settings = new DotNetCorePackSettings
+	var settings = new DotNetPackSettings
 	{
 		Configuration = configuration,
 		IncludeSource = false,
@@ -301,18 +312,14 @@ Task("Create-NuGet-Package")
 		NoDependencies = true,
 		OutputDirectory = outputDir,
 		SymbolPackageFormat = "snupkg",
-		ArgumentCustomization = (args) =>
+		MSBuildSettings = new DotNetMSBuildSettings
 		{
-			return args
-				.Append("/p:PackageReleaseNotes=\"{0}\"", releaseNotesUrl)
-				.Append("/p:Version={0}", versionInfo.LegacySemVerPadded)
-				.Append("/p:AssemblyVersion={0}", versionInfo.MajorMinorPatch)
-				.Append("/p:FileVersion={0}", versionInfo.MajorMinorPatch)
-				.Append("/p:AssemblyInformationalVersion={0}", versionInfo.InformationalVersion);
+			PackageReleaseNotes = releaseNotesUrl,
+			PackageVersion = versionInfo.LegacySemVerPadded
 		}
 	};
 
-	DotNetCorePack(sourceProject, settings);
+	DotNetPack(sourceProject, settings);
 });
 
 Task("Upload-AppVeyor-Artifacts")
@@ -408,14 +415,14 @@ Task("Publish-GitHub-Release")
 
 Task("Generate-Benchmark-Report")
 	.IsDependentOn("Build")
-	.WithCriteria(isBenchmarkPresent)
+	.WithCriteria(isBenchmarkProjectPresent)
 	.Does(() =>
 {
     var publishDirectory = $"{benchmarkDir}Publish/";
     var publishedAppLocation = MakeAbsolute(File($"{publishDirectory}{libraryName}.Benchmark.exe")).FullPath;
     var artifactsLocation = MakeAbsolute(File(benchmarkDir)).FullPath;
 
-    DotNetCorePublish(benchmarkProject, new DotNetCorePublishSettings
+    DotNetPublish(benchmarkProject, new DotNetPublishSettings
     {
         Configuration = configuration,
 		NoRestore = true,
@@ -452,7 +459,7 @@ Task("Coverage")
 
 Task("Benchmark")
 	.IsDependentOn("Generate-Benchmark-Report")
-	.WithCriteria(isBenchmarkPresent)
+	.WithCriteria(isBenchmarkProjectPresent)
 	.Does(() =>
 {
     var htmlReports = GetFiles($"{benchmarkDir}results/*-report.html", new GlobberSettings { IsCaseSensitive = false });

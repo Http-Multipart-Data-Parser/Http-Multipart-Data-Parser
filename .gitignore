@@ -330,6 +330,7 @@ __pycache__/
 *.pyc
 
 # Cake
+.cake/**
 tools/**
 BuildArtifacts/
 

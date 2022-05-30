@@ -36,7 +36,7 @@ branches:
 
 # Build cache
 cache:
-  - tools -> build.cake
+  - .cake -> build.cake
 
 # Environment configuration
 image:

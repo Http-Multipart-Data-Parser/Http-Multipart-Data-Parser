@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -228,6 +229,50 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8).ConfigureAwait(false);
 				Assert.Null(parser.GetParameterValue("does not exist"));
+			}
+		}
+
+		[Fact]
+		public void GetParameterValueReturnsCorrectlyWithoutComparisonType()
+		{
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				Assert.NotNull(parser.GetParameterValue("text"));
+				Assert.Null(parser.GetParameterValue("Text"));
+			}
+		}
+
+		[Fact]
+		public async Task GetParameterValueReturnsCorrectlyWithoutComparisonTypeAsync()
+		{
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8);
+				Assert.NotNull(parser.GetParameterValue("text"));
+				Assert.Null(parser.GetParameterValue("Text"));
+			}
+		}
+
+		[Fact]
+		public void GetParameterValueReturnsCorrectlyWithComparisonType()
+		{
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				Assert.NotNull(parser.GetParameterValue("text",StringComparison.OrdinalIgnoreCase));
+				Assert.NotNull(parser.GetParameterValue("Text",StringComparison.OrdinalIgnoreCase));
+			}
+		}
+
+		[Fact]
+		public async Task GetParameterValueReturnsCorrectlyWithComparisonTypeAsync()
+		{
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8);
+				Assert.NotNull(parser.GetParameterValue("text",StringComparison.OrdinalIgnoreCase));
+				Assert.NotNull(parser.GetParameterValue("Text",StringComparison.OrdinalIgnoreCase));
 			}
 		}
 

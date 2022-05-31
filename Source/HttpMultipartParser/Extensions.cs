@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,10 +29,11 @@ namespace HttpMultipartParser
 		/// </summary>
 		/// <param name="parser">The multipart form parser.</param>
 		/// <param name="name">The name of the parameter.</param>
+		/// <param name="comparisonType">One of the enumeration values that specifies how the strings will be compared.</param>
 		/// <returns>The value of the parameter.</returns>
-		public static string GetParameterValue(this IMultipartFormDataParser parser, string name)
+		public static string GetParameterValue(this IMultipartFormDataParser parser, string name, StringComparison comparisonType = StringComparison.Ordinal)
 		{
-			return parser.GetParameterValues(name).FirstOrDefault();
+			return parser.GetParameterValues(name, comparisonType).FirstOrDefault();
 		}
 
 		/// <summary>
@@ -39,11 +41,12 @@ namespace HttpMultipartParser
 		/// </summary>
 		/// <param name="parser">The multipart form parser.</param>
 		/// <param name="name">The name of the parameter.</param>
+		/// <param name="comparisonType">One of the enumeration values that specifies how the strings will be compared.</param>
 		/// <returns>The values of the parameter.</returns>
-		public static IEnumerable<string> GetParameterValues(this IMultipartFormDataParser parser, string name)
+		public static IEnumerable<string> GetParameterValues(this IMultipartFormDataParser parser, string name, StringComparison comparisonType = StringComparison.Ordinal)
 		{
 			return parser.Parameters
-				.Where(p => p.Name == name)
+				.Where(p => p.Name.Equals(name, comparisonType))
 				.Select(p => p.Data);
 		}
 	}

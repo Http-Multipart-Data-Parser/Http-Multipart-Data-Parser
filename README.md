@@ -37,7 +37,7 @@ PM> Install-Package HttpMultipartParser
 1. Parse the stream containing the multipart/form-data by invoking `MultipartFormDataParser.Parse` (or it's asynchronous counterpart `MultipartFormDataParser.ParseAsync`).
 2. Access the data through the parser.
 
-## Streaming (Handles large files)
+### Streaming (Handles large files)
 1. Create a new StreamingMultipartFormDataParser with the stream containing the multipart/form-data
 2. Set up the ParameterHandler and FileHandler delegates
 3. Call `parser.Run()` (or it's asynchronous counterpart `parser.RunAsync()`)

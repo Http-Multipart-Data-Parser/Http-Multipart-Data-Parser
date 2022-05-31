@@ -301,10 +301,13 @@ Task("Upload-Coverage-Result")
 {
 	try
 	{
-		CoverallsNet(new FilePath($"{codeCoverageDir}coverage.{DefaultFramework}.xml"), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-		{
-			RepoToken = coverallsToken
-		});
+		using (DiagnosticVerbosity())
+	    {
+			CoverallsNet(new FilePath($"{codeCoverageDir}coverage.{DefaultFramework}.xml"), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
+			{
+				RepoToken = coverallsToken
+			});
+		}
 	}
 	catch (Exception e)
 	{
@@ -313,7 +316,10 @@ Task("Upload-Coverage-Result")
 
 	try
 	{
-		Codecov($"{codeCoverageDir}coverage.{DefaultFramework}.xml", codecovToken);
+		using (DiagnosticVerbosity())
+	    {
+			Codecov($"{codeCoverageDir}coverage.{DefaultFramework}.xml", codecovToken);
+		}
 	}
 	catch (Exception e)
 	{

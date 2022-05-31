@@ -301,28 +301,24 @@ Task("Upload-Coverage-Result")
 {
 	try
 	{
-		using (DiagnosticVerbosity())
-	    {
-			CoverallsNet(new FilePath($"{codeCoverageDir}coverage.{DefaultFramework}.xml"), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-			{
-				RepoToken = coverallsToken
-			});
-		}
+		CoverallsNet(new FilePath($"{codeCoverageDir}coverage.{DefaultFramework}.xml"), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
+		{
+			RepoToken = coverallsToken
+		});
 	}
 	catch (Exception e)
 	{
+		Warning("An error occured when attempting to upload coverage result to Coveralls.io");
 		Warning(e.Message);
 	}
 
 	try
 	{
-		using (DiagnosticVerbosity())
-	    {
-			Codecov($"{codeCoverageDir}coverage.{DefaultFramework}.xml", codecovToken);
-		}
+		Codecov($"{codeCoverageDir}coverage.{DefaultFramework}.xml", codecovToken);
 	}
 	catch (Exception e)
 	{
+		Warning("An error occured when attempting to upload coverage result to Codecov.io");
 		Warning(e.Message);
 	}
 });

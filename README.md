@@ -27,9 +27,9 @@ PM> Install-Package HttpMultipartParser
 
 ## .NET framework suport
 
-The parser was built for and tested on .NET 4.8, .NET standard 2.1, .NET 5.0 and .NET 6.0.
-Version 5.1.0 was the last version that supported .NET 4.6.1, NET 4.7.2 and .NET standard 2.0.
-Version 2.2.4 was the last version that supported older .NET platforms such as .NET 4.5 and .NET standard 1.3.
+- The parser was built for and tested on .NET 4.8, .NET standard 2.1, .NET 5.0 and .NET 6.0.
+- Version 5.1.0 was the last version that supported .NET 4.6.1, NET 4.7.2 and .NET standard 2.0.
+- Version 2.2.4 was the last version that supported older .NET platforms such as .NET 4.5 and .NET standard 1.3.
 
 ## Usage
 
@@ -37,7 +37,7 @@ Version 2.2.4 was the last version that supported older .NET platforms such as .
 1. Parse the stream containing the multipart/form-data by invoking `MultipartFormDataParser.Parse` (or it's asynchronous counterpart `MultipartFormDataParser.ParseAsync`).
 2. Access the data through the parser.
 
-## Streaming (Handles large files)
+### Streaming (Handles large files)
 1. Create a new StreamingMultipartFormDataParser with the stream containing the multipart/form-data
 2. Set up the ParameterHandler and FileHandler delegates
 3. Call `parser.Run()` (or it's asynchronous counterpart `parser.RunAsync()`)

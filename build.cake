@@ -308,6 +308,7 @@ Task("Upload-Coverage-Result")
 	}
 	catch (Exception e)
 	{
+		Warning("An error occured when attempting to upload coverage result to Coveralls.io");
 		Warning(e.Message);
 	}
 
@@ -317,6 +318,7 @@ Task("Upload-Coverage-Result")
 	}
 	catch (Exception e)
 	{
+		Warning("An error occured when attempting to upload coverage result to Codecov.io");
 		Warning(e.Message);
 	}
 });

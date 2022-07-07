@@ -55,6 +55,11 @@ namespace HttpMultipartParser
 		/// </remarks>
 		private const int DefaultBufferSize = 4096;
 
+		/// <summary>
+		/// The mimetypes that are considered a file by default.
+		/// </summary>
+		private static readonly string[] DefaultBinaryMimeTypes = { "application/octet-stream" };
+
 		#endregion
 
 		#region Fields
@@ -62,12 +67,17 @@ namespace HttpMultipartParser
 		/// <summary>
 		///     List of mimetypes that should be detected as file.
 		/// </summary>
-		private readonly string[] binaryMimeTypes = { "application/octet-stream" };
+		private readonly string[] binaryMimeTypes;
 
 		/// <summary>
 		///     The stream we are parsing.
 		/// </summary>
 		private readonly Stream stream;
+
+		/// <summary>
+		///     Determines if we should throw an exception when we enconter an invalid part or ignore it.
+		/// </summary>
+		private readonly bool ignoreInvalidParts;
 
 		/// <summary>
 		///     The boundary of the multipart message  as a string.
@@ -118,8 +128,11 @@ namespace HttpMultipartParser
 		/// <param name="binaryMimeTypes">
 		///     List of mimetypes that should be detected as file.
 		/// </param>
-		public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
-			: this(stream, null, encoding, binaryBufferSize, binaryMimeTypes)
+		/// <param name="ignoreInvalidParts">
+		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
+		/// </param>
+		public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+			: this(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts)
 		{
 		}
 
@@ -144,7 +157,10 @@ namespace HttpMultipartParser
 		/// <param name="binaryMimeTypes">
 		///     List of mimetypes that should be detected as file.
 		/// </param>
-		public StreamingMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null)
+		/// <param name="ignoreInvalidParts">
+		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
+		/// </param>
+		public StreamingMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }
 
@@ -153,10 +169,8 @@ namespace HttpMultipartParser
 			Encoding = encoding ?? Encoding.UTF8;
 			BinaryBufferSize = binaryBufferSize;
 			readEndBoundary = false;
-			if (binaryMimeTypes != null)
-			{
-				this.binaryMimeTypes = binaryMimeTypes;
-			}
+			this.binaryMimeTypes = binaryMimeTypes ?? DefaultBinaryMimeTypes;
+			this.ignoreInvalidParts = ignoreInvalidParts;
 		}
 
 		#endregion
@@ -346,24 +360,43 @@ namespace HttpMultipartParser
 		}
 
 		/// <summary>
-		/// Use a few assumptions to determine if a section contains a file or a "data" parameter.
+		/// Use a few assumptions to determine if a section contains a file.
 		/// </summary>
 		/// <param name="parameters">The section parameters.</param>
 		/// <returns>true if the section contains a file, false otherwise.</returns>
-		private bool IsFilePart(IDictionary<string, string> parameters)
+		private bool IsFilePart(IDictionary<string, string> parameters!!)
 		{
+			// A section without any parameter is invalid. It is very likely to contain just a bunch of blank lines.
+			if (parameters.Count == 0) return false;
+
 			// If a section contains filename, then it's a file.
-			if (parameters.ContainsKey("filename")) return true;
+			else if (parameters.ContainsKey("filename")) return true;
 
 			// Check if mimetype is a binary file
-			else if (parameters.ContainsKey("content-type") &&
-					 binaryMimeTypes.Contains(parameters["content-type"])) return true;
+			else if (parameters.ContainsKey("content-type") && binaryMimeTypes.Contains(parameters["content-type"])) return true;
 
 			// If the section is missing the filename and the name, then it's a file.
 			// For example, images in an mjpeg stream have neither a name nor a filename.
 			else if (!parameters.ContainsKey("name")) return true;
 
-			// In all other cases, we assume it's a "data" parameter.
+			// Otherwise this section does not contain a file.
+			return false;
+		}
+
+		/// <summary>
+		/// Use a few assumptions to determine if a section contains a "data" parameter.
+		/// </summary>
+		/// <param name="parameters">The section parameters.</param>
+		/// <returns>true if the section contains a data parameter, false otherwise.</returns>
+		private bool IsParameterPart(IDictionary<string, string> parameters!!)
+		{
+			// A section without any parameter is invalid. It is very likely to contain just a bunch of blank lines.
+			if (parameters.Count == 0) return false;
+
+			// A data parameter MUST have a name.
+			else if (parameters.ContainsKey("name")) return true;
+
+			// Otherwise this section does not contain a data parameter.
 			return false;
 		}
 
@@ -951,6 +984,58 @@ namespace HttpMultipartParser
 		}
 
 		/// <summary>
+		///     Skip a section of the stream.
+		///     This is used when a section is deemed to be invalid and the developer has requested to ignore invalid parts.
+		/// </summary>
+		/// <param name="reader">
+		///     The StreamReader to read the data from.
+		/// </param>
+		/// <exception cref="MultipartParseException">
+		///     thrown if unexpected data is found such as running out of stream before hitting the boundary.
+		/// </exception>
+		private void SkipPart(RebufferableBinaryReader reader)
+		{
+			// Our job is to consume the lines in this section and discard them
+			string line = reader.ReadLine();
+			while (line != boundary && line != endBoundary)
+			{
+				if (line == null) throw new MultipartParseException("Unexpected end of stream. Is there an end boundary?");
+				line = reader.ReadLine();
+			}
+
+			if (line == endBoundary) readEndBoundary = true;
+		}
+
+		/// <summary>
+		///     Asynchronously skip a section of the stream.
+		///     This is used when a section is deemed to be invalid and the developer has requested to ignore invalid parts.
+		/// </summary>
+		/// <param name="reader">
+		///     The StreamReader to read the data from.
+		/// </param>
+		/// <param name="cancellationToken">
+		///     The cancellation token.
+		/// </param>
+		/// <returns>
+		///     The asynchronous task.
+		/// </returns>
+		/// <exception cref="MultipartParseException">
+		///     thrown if unexpected data is found such as running out of stream before hitting the boundary.
+		/// </exception>
+		private async Task SkipPartAsync(RebufferableBinaryReader reader, CancellationToken cancellationToken = default)
+		{
+			// Our job is to consume the lines in this section and discard them
+			string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+			while (line != boundary && line != endBoundary)
+			{
+				if (line == null) throw new MultipartParseException("Unexpected end of stream. Is there an end boundary?");
+				line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+			}
+
+			if (line == endBoundary) readEndBoundary = true;
+		}
+
+		/// <summary>
 		///     Parses the header of the next section of the multipart stream and
 		///     determines if it contains file data or parameter data.
 		/// </summary>
@@ -1029,9 +1114,17 @@ namespace HttpMultipartParser
 			{
 				ParseFilePart(parameters, reader);
 			}
-			else
+			else if (IsParameterPart(parameters))
 			{
 				ParseParameterPart(parameters, reader);
+			}
+			else if (ignoreInvalidParts)
+			{
+				SkipPart(reader);
+			}
+			else
+			{
+				throw new MultipartParseException("Unable to determine the section type. Some possible reasons include: section is malformed, required parameters such as 'name', 'content-type' or 'filename' are missing, section contains nothing but empty lines.");
 			}
 		}
 
@@ -1120,9 +1213,17 @@ namespace HttpMultipartParser
 			{
 				await ParseFilePartAsync(parameters, reader, cancellationToken).ConfigureAwait(false);
 			}
-			else
+			else if (IsParameterPart(parameters))
 			{
 				await ParseParameterPartAsync(parameters, reader, cancellationToken).ConfigureAwait(false);
+			}
+			else if (ignoreInvalidParts)
+			{
+				await SkipPartAsync(reader).ConfigureAwait(false);
+			}
+			else
+			{
+				throw new MultipartParseException("Unable to determine the section type. Some possible reasons include: section is malformed, required parameters such as 'name', 'content-type' or 'filename' are missing, section contains nothing but empty lines.");
 			}
 		}
 

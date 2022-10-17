@@ -67,6 +67,48 @@ namespace HttpMultipartParser.UnitTests
 			Assert.Equal('g', reader.Read());
 		}
 
+		[Theory]
+		[InlineData(new byte[] { 0xef, 0xbb, 0xbf }, "utf-8")] // UTF-8
+		[InlineData(new byte[] { 0xff, 0xfe }, "utf-16")] // UTF-16
+		[InlineData(new byte[] { 0xfe, 0xff }, "utf-16BE")] // UTF-16 Big Endian
+		[InlineData(new byte[] { 0xfe, 0xff }, "utf-32")] // UTF-32
+		[InlineData(new byte[] { 0x00, 0x00, 0xfe, 0xff }, "utf-32BE")] // UTF-32 Big Endian
+		public void CanReadBOM(byte[] bom, string encodingName)
+		{
+			var encoding = Encoding.GetEncoding(encodingName);
+
+			var prefixString = "Foo Bar";
+			var prefixBinary = encoding.GetBytes(prefixString);
+
+			var sufixString = "Hello world";
+			var sufixBinary = encoding.GetBytes(sufixString);
+
+			var stream = new MemoryStream();
+			var binaryWriter = new BinaryWriter(stream);
+			binaryWriter.Write(prefixBinary);
+			binaryWriter.Write(bom);
+			binaryWriter.Write(sufixBinary);
+			binaryWriter.Flush();
+			stream.Position = 0;
+
+			var reader = new RebufferableBinaryReader(stream, encoding);
+
+			var buffer = new byte[prefixBinary.Length];
+			reader.Read(buffer, 0, buffer.Length);
+			Assert.Equal(prefixString, encoding.GetString(buffer));
+
+			buffer = new byte[bom.Length];
+			reader.Read(buffer, 0, buffer.Length);
+			for (int i = 0; i < buffer.Length; i++)
+			{
+				Assert.Equal(bom[i], buffer[i]);
+			}
+
+			buffer = new byte[sufixBinary.Length];
+			reader.Read(buffer, 0, buffer.Length);
+			Assert.Equal(sufixString, encoding.GetString(buffer));
+		}
+
 		#endregion
 
 		#region ReadAsync() Tests

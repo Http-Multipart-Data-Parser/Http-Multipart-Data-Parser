@@ -364,8 +364,10 @@ namespace HttpMultipartParser
 		/// </summary>
 		/// <param name="parameters">The section parameters.</param>
 		/// <returns>true if the section contains a file, false otherwise.</returns>
-		private bool IsFilePart(IDictionary<string, string> parameters!!)
+		private bool IsFilePart(IDictionary<string, string> parameters)
 		{
+			if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+
 			// A section without any parameter is invalid. It is very likely to contain just a bunch of blank lines.
 			if (parameters.Count == 0) return false;
 
@@ -388,8 +390,10 @@ namespace HttpMultipartParser
 		/// </summary>
 		/// <param name="parameters">The section parameters.</param>
 		/// <returns>true if the section contains a data parameter, false otherwise.</returns>
-		private bool IsParameterPart(IDictionary<string, string> parameters!!)
+		private bool IsParameterPart(IDictionary<string, string> parameters)
 		{
+			if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+
 			// A section without any parameter is invalid. It is very likely to contain just a bunch of blank lines.
 			if (parameters.Count == 0) return false;
 

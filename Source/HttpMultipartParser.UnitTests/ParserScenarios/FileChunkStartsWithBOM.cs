@@ -5,7 +5,8 @@ using Xunit;
 
 namespace HttpMultipartParser.UnitTests.ParserScenarios
 {
-	// This test attempts to reproduce the bug described in GH issue #64
+	// This test attempts to reproduce the bug discussed here:
+	// https://github.com/Http-Multipart-Data-Parser/Http-Multipart-Data-Parser/issues/64
 	public class FileChunkStartsWithBOM
 	{
 		private static readonly int _binaryBufferSize = 100;

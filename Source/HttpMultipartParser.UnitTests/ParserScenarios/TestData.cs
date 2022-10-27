@@ -113,7 +113,9 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				if (expectedFile.ContentDisposition != actualFile.ContentDisposition) return false;
 
 				if (expectedFile.AdditionalProperties.Count != actualFile.AdditionalProperties.Count) return false;
-				if (expectedFile.AdditionalProperties.Except(actualFile.AdditionalProperties).Any()) return false;
+				if (expectedFile.AdditionalProperties.Any(pair => !actualFile.AdditionalProperties.Keys.Contains(pair.Key, StringComparer.OrdinalIgnoreCase))) return false;
+				if (actualFile.AdditionalProperties.Any(pair => !expectedFile.AdditionalProperties.Keys.Contains(pair.Key, StringComparer.OrdinalIgnoreCase))) return false;
+				if (expectedFile.AdditionalProperties.Any(pair => actualFile.AdditionalProperties[pair.Key] != pair.Value)) return false; // Case-sensitive
 
 				// Read the data from the files and see if it's the same
 				if (expectedFile.Data.CanSeek && expectedFile.Data.Position != 0) expectedFile.Data.Position = 0;

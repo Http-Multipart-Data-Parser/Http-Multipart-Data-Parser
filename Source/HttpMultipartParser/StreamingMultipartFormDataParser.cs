@@ -364,8 +364,10 @@ namespace HttpMultipartParser
 		/// </summary>
 		/// <param name="parameters">The section parameters.</param>
 		/// <returns>true if the section contains a file, false otherwise.</returns>
-		private bool IsFilePart(IDictionary<string, string> parameters!!)
+		private bool IsFilePart(IDictionary<string, string> parameters)
 		{
+			if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+
 			// A section without any parameter is invalid. It is very likely to contain just a bunch of blank lines.
 			if (parameters.Count == 0) return false;
 
@@ -388,8 +390,10 @@ namespace HttpMultipartParser
 		/// </summary>
 		/// <param name="parameters">The section parameters.</param>
 		/// <returns>true if the section contains a data parameter, false otherwise.</returns>
-		private bool IsParameterPart(IDictionary<string, string> parameters!!)
+		private bool IsParameterPart(IDictionary<string, string> parameters)
 		{
+			if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+
 			// A section without any parameter is invalid. It is very likely to contain just a bunch of blank lines.
 			if (parameters.Count == 0) return false;
 
@@ -1052,7 +1056,7 @@ namespace HttpMultipartParser
 			// in the case of single file uploads. Multi-file uploads have Content-Disposition: file according
 			// to the spec however in practise it seems that multiple files will be represented by
 			// multiple Content-Disposition: form-data files.
-			var parameters = new Dictionary<string, string>();
+			var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 			string line = reader.ReadLine();
 			while (line != string.Empty)
@@ -1087,8 +1091,9 @@ namespace HttpMultipartParser
 
 					// Limit split to 2 splits so we don't accidently split characters in file paths.
 					.ToDictionary(
-						x => x[0].Trim().Replace("\"", string.Empty).ToLower(),
-						x => x[1].Trim().Replace("\"", string.Empty));
+						x => x[0].Trim().Replace("\"", string.Empty),
+						x => x[1].Trim().Replace("\"", string.Empty),
+						StringComparer.OrdinalIgnoreCase);
 
 				// Here we just want to push all the values that we just retrieved into the
 				// parameters dictionary.
@@ -1151,7 +1156,7 @@ namespace HttpMultipartParser
 			// in the case of single file uploads. Multi-file uploads have Content-Disposition: file according
 			// to the spec however in practise it seems that multiple files will be represented by
 			// multiple Content-Disposition: form-data files.
-			var parameters = new Dictionary<string, string>();
+			var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 			string line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
 			while (line != string.Empty)
@@ -1186,8 +1191,9 @@ namespace HttpMultipartParser
 
 					// Limit split to 2 splits so we don't accidently split characters in file paths.
 					.ToDictionary(
-						x => x[0].Trim().Replace("\"", string.Empty).ToLower(),
-						x => x[1].Trim().Replace("\"", string.Empty));
+						x => x[0].Trim().Replace("\"", string.Empty),
+						x => x[1].Trim().Replace("\"", string.Empty),
+						StringComparer.OrdinalIgnoreCase);
 
 				// Here we just want to push all the values that we just retrieved into the
 				// parameters dictionary.
@@ -1269,8 +1275,11 @@ namespace HttpMultipartParser
 		{
 			var wellKnownParameters = new[] { "name", "filename", "content-type", "content-disposition" };
 			var additionalParameters = parameters
-				.Where(param => !wellKnownParameters.Contains(param.Key))
-				.ToDictionary(x => x.Key, x => x.Value);
+				.Where(param => !wellKnownParameters.Contains(param.Key, StringComparer.OrdinalIgnoreCase))
+				.ToDictionary(
+					x => x.Key,
+					x => x.Value,
+					StringComparer.OrdinalIgnoreCase);
 			return additionalParameters;
 		}
 

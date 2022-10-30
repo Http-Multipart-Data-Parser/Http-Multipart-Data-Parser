@@ -24,6 +24,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -97,7 +98,7 @@ namespace HttpMultipartParser
 			Data = data;
 			ContentType = contentType;
 			ContentDisposition = contentDisposition;
-			AdditionalProperties = new ReadOnlyDictionary<string, string>(additionalProperties ?? new Dictionary<string, string>());
+			AdditionalProperties = new ReadOnlyDictionary<string, string>(additionalProperties ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
 		}
 
 		#endregion

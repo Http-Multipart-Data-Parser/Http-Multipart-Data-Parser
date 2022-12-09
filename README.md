@@ -47,133 +47,142 @@ PM> Install-Package HttpMultipartParser
 
 ### Single file
 
-    // stream:
-    -----------------------------41952539122868
-    Content-Disposition: form-data; name="username"
+```
+// stream:
+-----------------------------41952539122868
+Content-Disposition: form-data; name="username"
 
-    example
-    -----------------------------41952539122868
-    Content-Disposition: form-data; name="email"
+example
+-----------------------------41952539122868
+Content-Disposition: form-data; name="email"
 
-    example@data.com
-    -----------------------------41952539122868
-    Content-Disposition: form-data; name="files[]"; filename="photo1.jpg"
-    Content-Type: image/jpeg
+example@data.com
+-----------------------------41952539122868
+Content-Disposition: form-data; name="files[]"; filename="photo1.jpg"
+Content-Type: image/jpeg
 
-    ExampleBinaryData012031203
-    -----------------------------41952539122868--
+ExampleBinaryData012031203
+-----------------------------41952539122868--
+```
 
-    // ===== Simple Parsing ====
-    // You can parse synchronously:
-    var parser = MultipartFormDataParser.Parse(stream);
+```csharp
+// ===== Simple Parsing ====
+// You can parse synchronously:
+var parser = MultipartFormDataParser.Parse(stream);
 
-    // Or you can parse asynchronously:
-    var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
+// Or you can parse asynchronously:
+var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
 
-    // From this point the data is parsed, we can retrieve the
-    // form data using the GetParameterValue method.
-    var username = parser.GetParameterValue("username");
-    var email = parser.GetParameterValue("email")
+// From this point the data is parsed, we can retrieve the
+// form data using the GetParameterValue method.
+var username = parser.GetParameterValue("username");
+var email = parser.GetParameterValue("email")
 
-    // Files are stored in a list:
-    var file = parser.Files.First();
-    string filename = file.FileName;
-    Stream data = file.Data;
+// Files are stored in a list:
+var file = parser.Files.First();
+string filename = file.FileName;
+Stream data = file.Data;
 
-    // ==== Advanced Parsing ====
-    var parser = new StreamingMultipartFormDataParser(stream);
-    parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
-    parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
-    {
-        // Write the part of the file we've received to a file stream. (Or do something else)
-        filestream.Write(buffer, 0, bytes);
-    }
+// ==== Advanced Parsing ====
+var parser = new StreamingMultipartFormDataParser(stream);
+parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
+parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
+{
+    // Write the part of the file we've received to a file stream. (Or do something else)
+    filestream.Write(buffer, 0, bytes);
+}
 
-    // You can parse synchronously:
-    parser.Run();
+// You can parse synchronously:
+parser.Run();
 
-    // Or you can parse asynchronously:
-    await parser.RunAsync().ConfigureAwait(false);
+// Or you can parse asynchronously:
+await parser.RunAsync().ConfigureAwait(false);
+```
 
 ### Multiple Parameters
 
-    // stream:
-    -----------------------------41952539122868
-    Content-Disposition: form-data; name="checkbox"
+```
+// stream:
+-----------------------------41952539122868
+Content-Disposition: form-data; name="checkbox"
 
-    likes_cake
-    -----------------------------41952539122868
-    Content-Disposition: form-data; name="checkbox"
+likes_cake
+-----------------------------41952539122868
+Content-Disposition: form-data; name="checkbox"
 
-    likes_cookies
-    -----------------------------41952539122868--
+likes_cookies
+-----------------------------41952539122868--
+```
+```csharp
+// ===== Simple Parsing ====
+// You can parse synchronously:
+var parser = MultipartFormDataParser.Parse(stream);
 
-    // ===== Simple Parsing ====
-    // You can parse synchronously:
-    var parser = MultipartFormDataParser.Parse(stream);
+// Or you can parse asynchronously:
+var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
 
-    // Or you can parse asynchronously:
-    var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
-
-    // From this point the data is parsed, we can retrieve the
-    // form data from the GetParameterValues method
-    var checkboxResponses = parser.GetParameterValues("checkbox");
-    foreach(var parameter in checkboxResponses)
-    {
-        Console.WriteLine("Parameter {0} is {1}", parameter.Name, parameter.Data)
-    }
+// From this point the data is parsed, we can retrieve the
+// form data from the GetParameterValues method
+var checkboxResponses = parser.GetParameterValues("checkbox");
+foreach(var parameter in checkboxResponses)
+{
+    Console.WriteLine("Parameter {0} is {1}", parameter.Name, parameter.Data)
+}
+```
 
 ### Multiple Files
 
-    // stream:
-    -----------------------------41111539122868
-    Content-Disposition: form-data; name="files[]"; filename="photo1.jpg"
-    Content-Type: image/jpeg
+```
+// stream:
+-----------------------------41111539122868
+Content-Disposition: form-data; name="files[]"; filename="photo1.jpg"
+Content-Type: image/jpeg
 
-    MoreBinaryData
-    -----------------------------41111539122868
-    Content-Disposition: form-data; name="files[]"; filename="photo2.jpg"
-    Content-Type: image/jpeg
+MoreBinaryData
+-----------------------------41111539122868
+Content-Disposition: form-data; name="files[]"; filename="photo2.jpg"
+Content-Type: image/jpeg
 
-    ImagineLotsOfBinaryData
-    -----------------------------41111539122868--
+ImagineLotsOfBinaryData
+-----------------------------41111539122868--
+```
+```csharp
+// ===== Simple Parsing ====
+// You can parse synchronously:
+var parser = MultipartFormDataParser.Parse(stream);
 
-    // ===== Simple Parsing ====
-    // You can parse synchronously:
-    var parser = MultipartFormDataParser.Parse(stream);
+// Or you can parse asynchronously:
+var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
 
-    // Or you can parse asynchronously:
-    var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
+// Loop through all the files
+foreach(var file in parser.Files)
+{
+    Stream data = file.Data;
 
-    // Loop through all the files
-    foreach(var file in parser.Files)
-    {
-        Stream data = file.Data;
+    // Do stuff with the data.
+}
 
-        // Do stuff with the data.
-    }
+// ==== Advanced Parsing ====
+var parser = new StreamingMultipartFormDataParser(stream);
+parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
+parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
+{
+    // Write the part of the file we've received to a file stream. (Or do something else)
+    // Assume that filesreamsByName is a Dictionary<string, FileStream> of all the files
+    // we are writing.
+    filestreamsByName[name].Write(buffer, 0, bytes);
+};
+parser.StreamClosedHandler += () 
+{
+    // Do things when my input stream is closed
+};
 
-    // ==== Advanced Parsing ====
-    var parser = new StreamingMultipartFormDataParser(stream);
-    parser.ParameterHandler += parameter => DoSomethingWithParameter(parameter);
-    parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
-    {
-        // Write the part of the file we've received to a file stream. (Or do something else)
-        // Assume that filesreamsByName is a Dictionary<string, FileStream> of all the files
-        // we are writing.
-        filestreamsByName[name].Write(buffer, 0, bytes);
-    };
-    parser.StreamClosedHandler += () 
-    {
-        // Do things when my input stream is closed
-    };
+// You can parse synchronously:
+parser.Run();
 
-    // You can parse synchronously:
-    parser.Run();
-
-    // Or you can parse asynchronously:
-    await parser.RunAsync().ConfigureAwait(false);
-
+// Or you can parse asynchronously:
+await parser.RunAsync().ConfigureAwait(false);
+```
 ## Licensing
 
 This project is licensed under MIT.

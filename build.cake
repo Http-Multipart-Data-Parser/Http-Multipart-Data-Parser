@@ -1,14 +1,14 @@
 // Install tools.
-#tool dotnet:?package=GitVersion.Tool&version=5.10.3
+#tool dotnet:?package=GitVersion.Tool&version=5.11.1
 #tool dotnet:?package=coveralls.net&version=4.0.1
 #tool nuget:?package=GitReleaseManager&version=0.13.0
-#tool nuget:?package=ReportGenerator&version=5.1.10
+#tool nuget:?package=ReportGenerator&version=5.1.13
 #tool nuget:?package=xunit.runner.console&version=2.4.2
 #tool nuget:?package=Codecov&version=1.13.0
 
 // Install addins.
 #addin nuget:?package=Cake.Coveralls&version=1.1.0
-#addin nuget:?package=Cake.Git&version=2.0.0
+#addin nuget:?package=Cake.Git&version=3.0.0
 #addin nuget:?package=Cake.Codecov&version=1.0.1
 
 
@@ -295,30 +295,23 @@ Task("Run-Code-Coverage")
     DotNetTest(unitTestsProject, testSettings);
 });
 
-Task("Upload-Coverage-Result")
+Task("Upload-Coverage-Result-Coveralls")
 	.IsDependentOn("Run-Code-Coverage")
+	.OnError(exception => Information($"ONERROR: Failed to upload coverage result to Coveralls: {exception.Message}"))
 	.Does(() =>
 {
-	try
-	{
-		CoverallsNet(new FilePath($"{codeCoverageDir}coverage.{DefaultFramework}.xml"), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-		{
-			RepoToken = coverallsToken
-		});
-	}
-	catch (Exception e)
-	{
-		Warning(e.Message);
-	}
+	//CoverallsNet(new FilePath($"{codeCoverageDir}coverage.{DefaultFramework}.xml"), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
+	//{
+	//	RepoToken = coverallsToken
+	//});
+});
 
-	try
-	{
-		Codecov($"{codeCoverageDir}coverage.{DefaultFramework}.xml", codecovToken);
-	}
-	catch (Exception e)
-	{
-		Warning(e.Message);
-	}
+Task("Upload-Coverage-Result-Codecov")
+	.IsDependentOn("Run-Code-Coverage")
+	.OnError(exception => Information($"ONERROR: Failed to upload coverage result to Codecov: {exception.Message}"))
+	.Does(() =>
+{
+	//Codecov($"{codeCoverageDir}coverage.{DefaultFramework}.xml", codecovToken);
 });
 
 Task("Generate-Code-Coverage-Report")
@@ -514,7 +507,8 @@ Task("ReleaseNotes")
 
 Task("AppVeyor")
 	.IsDependentOn("Run-Code-Coverage")
-	.IsDependentOn("Upload-Coverage-Result")
+	.IsDependentOn("Upload-Coverage-Result-Coveralls")
+	.IsDependentOn("Upload-Coverage-Result-Codecov")
 	.IsDependentOn("Create-NuGet-Package")
 	.IsDependentOn("Upload-AppVeyor-Artifacts")
 	.IsDependentOn("Publish-MyGet")

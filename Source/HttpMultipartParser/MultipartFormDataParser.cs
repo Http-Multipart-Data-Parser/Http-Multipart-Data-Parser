@@ -84,16 +84,6 @@ namespace HttpMultipartParser
 	{
 		#region Constants and fields
 
-		/// <summary>
-		///     The default buffer size.
-		/// </summary>
-		/// <remarks>
-		///     4096 is the optimal buffer size as it matches the internal buffer of a StreamReader
-		///     See: http://stackoverflow.com/a/129318/203133
-		///     See: http://msdn.microsoft.com/en-us/library/9kstw824.aspx (under remarks).
-		/// </remarks>
-		private const int DefaultBufferSize = 4096;
-
 		private readonly List<FilePart> _files;
 		private readonly List<ParameterPart> _parameters;
 
@@ -152,7 +142,7 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		public static MultipartFormDataParser Parse(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+		public static MultipartFormDataParser Parse(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			return Parse(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
 		}
@@ -184,7 +174,7 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		public static MultipartFormDataParser Parse(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+		public static MultipartFormDataParser Parse(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			var parser = new MultipartFormDataParser();
 			parser.ParseStream(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
@@ -214,9 +204,9 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+		public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
-			return ParseAsync(stream, null, encoding, DefaultBufferSize, null, ignoreInvalidParts);
+			return ParseAsync(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
 		}
 
 		/// <summary>
@@ -246,7 +236,7 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		public static async Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+		public static async Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			var parser = new MultipartFormDataParser();
 			await parser.ParseStreamAsync(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts).ConfigureAwait(false);
@@ -282,8 +272,9 @@ namespace HttpMultipartParser
 		/// </param>
 		private void ParseStream(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes, bool ignoreInvalidParts)
 		{
-			var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
-			streamingParser.ParameterHandler += parameterPart => _parameters.Add(parameterPart);
+			var desiredEncoding = encoding ?? Constants.DefaultEncoding;
+			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, desiredEncoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
+			streamingParser.ParameterHandler += binaryParameterPart => _parameters.Add(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(desiredEncoding)));
 
 			streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
 			{
@@ -330,8 +321,9 @@ namespace HttpMultipartParser
 		/// </param>
 		private async Task ParseStreamAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes, bool ignoreInvalidParts)
 		{
-			var streamingParser = new StreamingMultipartFormDataParser(stream, boundary, encoding ?? Encoding.UTF8, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
-			streamingParser.ParameterHandler += parameterPart => _parameters.Add(parameterPart);
+			var desiredEncoding = encoding ?? Constants.DefaultEncoding;
+			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, desiredEncoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
+			streamingParser.ParameterHandler += binaryParameterPart => _parameters.Add(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(desiredEncoding)));
 
 			streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
 			{

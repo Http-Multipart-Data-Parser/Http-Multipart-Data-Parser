@@ -54,7 +54,7 @@ namespace HttpMultipartParser
 		///     encoding of UTF8.
 		/// </summary>
 		public BinaryStreamStack()
-			: this(Encoding.UTF8)
+			: this(Constants.DefaultEncoding)
 		{
 		}
 

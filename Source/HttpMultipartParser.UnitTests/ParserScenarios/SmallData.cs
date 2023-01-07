@@ -60,7 +60,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				// The boundry is missing the first two -- in accordance with the multipart
 				// spec. (A -- is added by the parser, this boundry is what would be sent in the
-				// requset header)
+				// request header)
 				var parser = MultipartFormDataParser.Parse(stream, "---------------------------265001916915724");
 				Assert.True(_testCase.Validate(parser));
 			}

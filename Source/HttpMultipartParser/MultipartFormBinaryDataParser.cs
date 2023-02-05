@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HttpMultipartParser
@@ -201,12 +202,15 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. Set this to true to ignore invalid parts.
 		/// </param>
+		/// <param name="cancellationToken">
+		///     The cancellation token.
+		/// </param>
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormBinaryDataParser"/> class.
 		/// </returns>
-		public static Task<MultipartFormBinaryDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+		public static Task<MultipartFormBinaryDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false, CancellationToken cancellationToken = default)
 		{
-			return ParseAsync(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
+			return ParseAsync(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts, cancellationToken);
 		}
 
 		/// <summary>
@@ -233,13 +237,16 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. Set this to true to ignore invalid parts.
 		/// </param>
+		/// <param name="cancellationToken">
+		///     The cancellation token.
+		/// </param>
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormBinaryDataParser"/> class.
 		/// </returns>
-		public static async Task<MultipartFormBinaryDataParser> ParseAsync(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
+		public static async Task<MultipartFormBinaryDataParser> ParseAsync(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false, CancellationToken cancellationToken = default)
 		{
 			var parser = new MultipartFormBinaryDataParser();
-			await parser.ParseStreamAsync(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts).ConfigureAwait(false);
+			await parser.ParseStreamAsync(stream, boundary, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts, cancellationToken).ConfigureAwait(false);
 			return parser;
 		}
 
@@ -321,7 +328,10 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. Set this to true to ignore invalid parts.
 		/// </param>
-		private async Task ParseStreamAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes, bool ignoreInvalidParts)
+		/// <param name="cancellationToken">
+		///     The cancellation token.
+		/// </param>
+		private async Task ParseStreamAsync(Stream stream, string boundary, Encoding encoding, int binaryBufferSize, string[] binaryMimeTypes, bool ignoreInvalidParts, CancellationToken cancellationToken)
 		{
 			var desiredEncoding = encoding ?? Constants.DefaultEncoding;
 			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, desiredEncoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
@@ -341,7 +351,7 @@ namespace HttpMultipartParser
 				Files[Files.Count - 1].Data.Write(buffer, 0, bytes);
 			};
 
-			await streamingParser.RunAsync().ConfigureAwait(false);
+			await streamingParser.RunAsync(cancellationToken).ConfigureAwait(false);
 
 			// Reset all the written memory streams so they can be read.
 			foreach (var file in Files)

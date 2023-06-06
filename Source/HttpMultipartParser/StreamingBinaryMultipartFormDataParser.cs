@@ -257,7 +257,7 @@ namespace HttpMultipartParser
 			var line = reader.ReadLine();
 
 			// The line must not be empty and must starts with "--".
-			if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: unexpected end of stream");
+			if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: either the stream is empty or we reached the end of the stream");
 			else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content does not start with a valid multipart boundary");
 
 			// Remove the two dashes
@@ -300,7 +300,7 @@ namespace HttpMultipartParser
 
 			// The line must not be empty and must starts with "--".
 			if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: either the stream is empty or we reached the end of the stream");
-			else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content is not a valid multipart boundary");
+			else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content does not start with a valid multipart boundary");
 
 			// Remove the two dashes
 			string boundary = line.Substring(2);

@@ -56,12 +56,17 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void SmallDataTest()
 		{
+			var options = new ParserOptions
+			{
+				Boundary = "---------------------------265001916915724"
+			};
+
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request))
 			{
 				// The boundary is missing the first two -- in accordance with the multipart
 				// spec. (A -- is added by the parser, this boundary is what would be sent in the
 				// request header)
-				var parser = MultipartFormDataParser.Parse(stream, "---------------------------265001916915724");
+				var parser = MultipartFormDataParser.Parse(stream, options);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -69,12 +74,17 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public async Task SmallDataTestAsync()
 		{
+			var options = new ParserOptions
+			{
+				Boundary = "---------------------------265001916915724"
+			};
+
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request))
 			{
 				// The boundary is missing the first two -- in accordance with the multipart
 				// spec. (A -- is added by the parser, this boundary is what would be sent in the
 				// request header)
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "---------------------------265001916915724", cancellationToken: TestContext.Current.CancellationToken);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

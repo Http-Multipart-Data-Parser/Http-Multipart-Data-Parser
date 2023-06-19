@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HttpMultipartParser.Benchmark
@@ -24,22 +25,37 @@ namespace HttpMultipartParser.Benchmark
 		[Benchmark]
 		public async Task<MultipartFormDataParser> Small()
 		{
+			var options = new ParserOptions
+			{
+				Boundary = "boundary"
+			};
+
 			small.Position = 0;
-			return await MultipartFormDataParser.ParseAsync(small, "boundary").ConfigureAwait(false);
+			return await MultipartFormDataParser.ParseAsync(small, options, CancellationToken.None).ConfigureAwait(false);
 		}
 
 		[Benchmark]
 		public async Task<MultipartFormDataParser> Medium()
 		{
+			var options = new ParserOptions
+			{
+				Boundary = "boundary"
+			};
+
 			medium.Position = 0;
-			return await MultipartFormDataParser.ParseAsync(medium, "boundary").ConfigureAwait(false);
+			return await MultipartFormDataParser.ParseAsync(medium, options, CancellationToken.None).ConfigureAwait(false);
 		}
 
 		[Benchmark]
 		public async Task<MultipartFormDataParser> Large()
 		{
+			var options = new ParserOptions
+			{
+				Boundary = "boundary"
+			};
+
 			large.Position = 0;
-			return await MultipartFormDataParser.ParseAsync(large, "boundary").ConfigureAwait(false);
+			return await MultipartFormDataParser.ParseAsync(large, options, CancellationToken.None).ConfigureAwait(false);
 		}
 	}
 }

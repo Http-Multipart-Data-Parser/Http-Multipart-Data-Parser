@@ -43,9 +43,16 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void SingleFileTest()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8, 16);
+				Boundary = "boundary",
+				BinaryBufferSize = 16,
+				Encoding = Encoding.UTF8
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, options);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -53,9 +60,16 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public async Task SingleFileTest_Async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16, cancellationToken: TestContext.Current.CancellationToken);
+				Boundary = "boundary",
+				BinaryBufferSize = 16,
+				Encoding = Encoding.UTF8
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

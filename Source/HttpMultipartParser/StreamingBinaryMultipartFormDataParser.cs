@@ -58,7 +58,7 @@ namespace HttpMultipartParser
 		private readonly ParserOptions _options;
 
 		/// <summary>
-		///     The boundary of the multipart message  as a string.
+		///     The boundary of the multipart message as a string.
 		/// </summary>
 		private string boundary;
 
@@ -242,12 +242,12 @@ namespace HttpMultipartParser
 		/// <summary>
 		/// Gets the binary buffer size.
 		/// </summary>
-		public int BinaryBufferSize { get; private set; }
+		public int BinaryBufferSize => _options.BinaryBufferSize;
 
 		/// <summary>
 		/// Gets the encoding.
 		/// </summary>
-		public Encoding Encoding { get; private set; }
+		public Encoding Encoding => _options.Encoding;
 
 		/// <summary>
 		/// Gets or sets the FileHandler. Delegates attached to this property will receive sequential file stream data from this parser.

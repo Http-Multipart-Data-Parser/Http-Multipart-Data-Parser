@@ -12,16 +12,16 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 	public class ExactBufferTruncate
 	{
 		private static readonly string _testData = TestUtil.TrimAllLines(
-			@"--boundry
+			@"--boundary
             Content-Disposition: form-data; name=""text""
 
             textdata
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""file""; filename=""data.txt""
             Content-Type: text/plain
 
             1234567890123456789012
-            --boundry--"
+            --boundary--"
 		);
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8, 16);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -67,7 +67,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8, 16).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

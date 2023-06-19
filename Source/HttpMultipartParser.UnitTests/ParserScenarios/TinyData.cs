@@ -11,20 +11,20 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 	public class TinyData
 	{
 		private static readonly string _testData = TestUtil.TrimAllLines(
-			@"--boundry
+			@"--boundary
             Content-Disposition: form-data; name=""text""
 
             textdata
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""file""; filename=""data.txt""
             Content-Type: text/plain
 
             tiny
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""after""
 
             afterdata
-            --boundry--"
+            --boundary--"
 		);
 
 		private static readonly TestData _testCase = new TestData(
@@ -81,7 +81,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8, 16);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -95,7 +95,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8, 16).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -111,7 +111,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			string request = regex.Replace(_testCase.Request, "\r\n", 1);
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -127,7 +127,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			string request = regex.Replace(_testCase.Request, "\r\n", 1);
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -141,7 +141,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			string request = _testCase.Request.Replace("\n", "\r\n");
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -155,7 +155,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			string request = _testCase.Request.Replace("\n", "\r\n");
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -168,7 +168,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -181,7 +181,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -191,7 +191,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.True(_testCase.Validate(parser));
 
 				stream.Position = 0;
@@ -204,7 +204,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 
 				stream.Position = 0;
@@ -217,7 +217,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.Null(parser.GetParameterValue("does not exist"));
 			}
 		}
@@ -227,7 +227,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8).ConfigureAwait(false);
 				Assert.Null(parser.GetParameterValue("does not exist"));
 			}
 		}
@@ -237,7 +237,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.NotNull(parser.GetParameterValue("text"));
 				Assert.Null(parser.GetParameterValue("Text"));
 			}
@@ -248,7 +248,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
 				Assert.NotNull(parser.GetParameterValue("text"));
 				Assert.Null(parser.GetParameterValue("Text"));
 			}
@@ -259,7 +259,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
 				Assert.NotNull(parser.GetParameterValue("text",StringComparison.OrdinalIgnoreCase));
 				Assert.NotNull(parser.GetParameterValue("Text",StringComparison.OrdinalIgnoreCase));
 			}
@@ -270,7 +270,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
 				Assert.NotNull(parser.GetParameterValue("text",StringComparison.OrdinalIgnoreCase));
 				Assert.NotNull(parser.GetParameterValue("Text",StringComparison.OrdinalIgnoreCase));
 			}
@@ -283,7 +283,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 				{
-					var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, i);
+					var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8, i);
 					Assert.True(_testCase.Validate(parser), $"Failure in buffer length {i}");
 				}
 			}
@@ -296,7 +296,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 				{
-					var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8, i).ConfigureAwait(false);
+					var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, i).ConfigureAwait(false);
 					Assert.True(_testCase.Validate(parser), $"Failure in buffer length {i}");
 				}
 			}

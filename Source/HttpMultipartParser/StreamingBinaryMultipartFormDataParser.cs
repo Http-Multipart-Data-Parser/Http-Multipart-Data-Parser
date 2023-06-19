@@ -48,19 +48,14 @@ namespace HttpMultipartParser
 	public class StreamingBinaryMultipartFormDataParser : IStreamingBinaryMultipartFormDataParser
 	{
 		/// <summary>
-		///     List of mimetypes that should be detected as file.
+		/// The stream we are parsing.
 		/// </summary>
-		private readonly string[] binaryMimeTypes;
+		private readonly Stream _stream;
 
 		/// <summary>
-		///     The stream we are parsing.
+		/// The options for the parser.
 		/// </summary>
-		private readonly Stream stream;
-
-		/// <summary>
-		///     Determines if we should throw an exception when we enconter an invalid part or ignore it.
-		/// </summary>
-		private readonly bool ignoreInvalidParts;
+		private readonly ParserOptions _options;
 
 		/// <summary>
 		///     The boundary of the multipart message  as a string.
@@ -110,6 +105,7 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
 		/// </param>
+		[Obsolete("Please use StreamingBinaryMultipartFormDataParser(Stream, ParserOptions)")]
 		public StreamingBinaryMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 			: this(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts)
 		{
@@ -139,17 +135,54 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
 		/// </param>
+		[Obsolete("Please use StreamingBinaryMultipartFormDataParser(Stream, ParserOptions)")]
 		public StreamingBinaryMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }
 
-			this.stream = stream;
-			this.boundary = boundary;
-			Encoding = encoding ?? Constants.DefaultEncoding;
-			BinaryBufferSize = binaryBufferSize;
+			_options = new ParserOptions
+			{
+				BinaryBufferSize = binaryBufferSize,
+				IgnoreInvalidParts = ignoreInvalidParts
+			};
+
+			if (!string.IsNullOrEmpty(boundary)) _options.Boundary = boundary;
+			if (encoding != null) _options.Encoding = encoding;
+			if (binaryMimeTypes != null) _options.BinaryMimeTypes = binaryMimeTypes;
+
+			_stream = stream;
 			readEndBoundary = false;
-			this.binaryMimeTypes = binaryMimeTypes ?? Constants.DefaultBinaryMimeTypes;
-			this.ignoreInvalidParts = ignoreInvalidParts;
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="StreamingBinaryMultipartFormDataParser" /> class
+		///     with the boundary, stream, input encoding and buffer size.
+		/// </summary>
+		/// <param name="stream">
+		///     The stream containing the multipart data.
+		/// </param>
+		/// <param name="options">
+		///     The options that configure the parser.
+		/// </param>
+		public StreamingBinaryMultipartFormDataParser(Stream stream, ParserOptions options)
+		{
+			if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }
+
+			if (options == null)
+			{
+				_options = new ParserOptions();
+			}
+			else
+			{
+				if (options.Encoding == null) throw new ArgumentNullException("You must specify the encoding", $"{nameof(options)}.{nameof(options.Encoding)}");
+				if (options.BinaryBufferSize <= 0) throw new ArgumentNullException("You must specify a value greater than zero", $"{nameof(options)}.{nameof(options.BinaryBufferSize)}");
+				if (options.BinaryMimeTypes == null || options.BinaryMimeTypes.Length == 0) throw new ArgumentException("You must specify at least one MIME type that identifies file attachments", $"{nameof(options)}.{nameof(options.BinaryMimeTypes)}");
+
+				_options = options;
+			}
+
+			_stream = stream;
+			readEndBoundary = false;
 		}
 
 		/// <summary>
@@ -157,15 +190,11 @@ namespace HttpMultipartParser
 		/// </summary>
 		public void Run()
 		{
-			var reader = new RebufferableBinaryReader(stream, Encoding, BinaryBufferSize);
+			var reader = new RebufferableBinaryReader(_stream, Encoding, BinaryBufferSize);
 
 			// If we don't know the boundary now is the time to calculate it.
-			boundary ??= DetectBoundary(reader);
-
-			// It's important to remember that the boundary given in the header has a -- appended to the start
-			// and the last one has a -- appended to the end
-			boundary = "--" + boundary;
-			endBoundary = boundary + "--";
+			boundary = $"--{_options.Boundary ?? DetectBoundary(reader)}";
+			endBoundary = $"{boundary}--";
 
 			// We add newline here because unlike reader.ReadLine() binary reading
 			// does not automatically consume the newline, we want to add it to our signature
@@ -191,15 +220,11 @@ namespace HttpMultipartParser
 		/// </returns>
 		public async Task RunAsync(CancellationToken cancellationToken = default)
 		{
-			var reader = new RebufferableBinaryReader(stream, Encoding, BinaryBufferSize);
+			var reader = new RebufferableBinaryReader(_stream, Encoding, BinaryBufferSize);
 
 			// If we don't know the boundary now is the time to calculate it.
-			boundary ??= await DetectBoundaryAsync(reader, cancellationToken).ConfigureAwait(false);
-
-			// It's important to remember that the boundary given in the header has a -- appended to the start
-			// and the last one has a -- appended to the end
-			boundary = "--" + boundary;
-			endBoundary = boundary + "--";
+			boundary = $"--{_options.Boundary ?? await DetectBoundaryAsync(reader, cancellationToken).ConfigureAwait(false)}";
+			endBoundary = $"{boundary}--";
 
 			// We add newline here because unlike reader.ReadLine() binary reading
 			// does not automatically consume the newline, we want to add it to our signature
@@ -411,7 +436,7 @@ namespace HttpMultipartParser
 			else if (parameters.ContainsKey("filename") || parameters.ContainsKey("filename*")) return true;
 
 			// Check if mimetype is a binary file
-			else if (parameters.ContainsKey("content-type") && binaryMimeTypes.Contains(parameters["content-type"])) return true;
+			else if (parameters.ContainsKey("content-type") && _options.BinaryMimeTypes.Contains(parameters["content-type"])) return true;
 
 			// If the section is missing the filename and the name, then it's a file.
 			// For example, images in an mjpeg stream have neither a name nor a filename.
@@ -1119,7 +1144,7 @@ namespace HttpMultipartParser
 			{
 				ParseParameterPart(parameters, reader);
 			}
-			else if (ignoreInvalidParts)
+			else if (_options.IgnoreInvalidParts)
 			{
 				SkipPart(reader);
 			}
@@ -1219,7 +1244,7 @@ namespace HttpMultipartParser
 			{
 				await ParseParameterPartAsync(parameters, reader, cancellationToken).ConfigureAwait(false);
 			}
-			else if (ignoreInvalidParts)
+			else if (_options.IgnoreInvalidParts)
 			{
 				await SkipPartAsync(reader).ConfigureAwait(false);
 			}

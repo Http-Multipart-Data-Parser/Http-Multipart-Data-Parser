@@ -41,24 +41,14 @@ namespace HttpMultipartParser
 	public class StreamingMultipartFormDataParser : IStreamingMultipartFormDataParser
 	{
 		/// <summary>
-		///     List of mimetypes that should be detected as file.
+		/// The stream we are parsing.
 		/// </summary>
-		private readonly string[] binaryMimeTypes;
+		private readonly Stream _stream;
 
 		/// <summary>
-		///     The stream we are parsing.
+		/// The options for the parser.
 		/// </summary>
-		private readonly Stream stream;
-
-		/// <summary>
-		///     Determines if we should throw an exception when we enconter an invalid part or ignore it.
-		/// </summary>
-		private readonly bool ignoreInvalidParts;
-
-		/// <summary>
-		///     The boundary of the multipart message  as a string.
-		/// </summary>
-		private readonly string boundary;
+		private readonly ParserOptions _options;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
@@ -80,6 +70,7 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
 		/// </param>
+		[Obsolete("Please use StreamingMultipartFormDataParser(Stream, ParserOptions)")]
 		public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 			: this(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts)
 		{
@@ -109,16 +100,39 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
 		/// </param>
+		[Obsolete("Please use StreamingMultipartFormDataParser(Stream, ParserOptions)")]
 		public StreamingMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }
 
-			this.stream = stream;
-			this.boundary = boundary;
-			Encoding = encoding ?? Constants.DefaultEncoding;
-			BinaryBufferSize = binaryBufferSize;
-			this.binaryMimeTypes = binaryMimeTypes ?? Constants.DefaultBinaryMimeTypes;
-			this.ignoreInvalidParts = ignoreInvalidParts;
+			_options = new ParserOptions
+			{
+				Boundary = boundary,
+				Encoding = encoding,
+				BinaryBufferSize = binaryBufferSize,
+				BinaryMimeTypes = binaryMimeTypes,
+				IgnoreInvalidParts = ignoreInvalidParts
+			};
+
+			_stream = stream;
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="StreamingMultipartFormDataParser" /> class
+		///     with the boundary, stream, input encoding and buffer size.
+		/// </summary>
+		/// <param name="stream">
+		///     The stream containing the multipart data.
+		/// </param>
+		/// <param name="options">
+		///     The options that configure the parser.
+		/// </param>
+		public StreamingMultipartFormDataParser(Stream stream, ParserOptions options)
+		{
+			if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }
+
+			_options = options ?? new ParserOptions();
+			_stream = stream;
 		}
 
 		/// <summary>
@@ -126,7 +140,7 @@ namespace HttpMultipartParser
 		/// </summary>
 		public void Run()
 		{
-			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, Encoding, BinaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
+			var streamingParser = new StreamingBinaryMultipartFormDataParser(_stream, _options);
 			streamingParser.ParameterHandler += binaryParameterPart =>
 			{
 				ParameterHandler?.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));
@@ -151,7 +165,7 @@ namespace HttpMultipartParser
 		/// </returns>
 		public async Task RunAsync(CancellationToken cancellationToken = default)
 		{
-			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, Encoding ?? Constants.DefaultEncoding, BinaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
+			var streamingParser = new StreamingBinaryMultipartFormDataParser(_stream, _options);
 			streamingParser.ParameterHandler += binaryParameterPart =>
 			{
 				ParameterHandler?.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));

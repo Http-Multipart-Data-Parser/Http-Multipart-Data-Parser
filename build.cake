@@ -2,9 +2,9 @@
 #tool dotnet:?package=GitVersion.Tool&version=5.12.0
 #tool dotnet:?package=coveralls.net&version=4.0.1
 #tool nuget:?package=GitReleaseManager&version=0.13.0
-#tool nuget:?package=ReportGenerator&version=5.1.21
+#tool nuget:?package=ReportGenerator&version=5.1.22
 #tool nuget:?package=xunit.runner.console&version=2.4.2
-#tool nuget:?package=Codecov&version=1.13.0
+#tool nuget:?package=CodecovUploader&version=0.5.0
 
 // Install addins.
 #addin nuget:?package=Cake.Coveralls&version=1.1.0
@@ -540,7 +540,7 @@ Task("AppVeyor")
 {
     if (publishingError)
     {
-        throw new Exception("An error occurred during the publishing of [Http-Multipart-Data-Parser]. All publishing tasks have been attempted.");
+        Warning("An error occurred during the publishing of Http-Multipart-Data-Parser. All publishing tasks have been attempted.");
     }
 });
 

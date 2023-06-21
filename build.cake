@@ -318,7 +318,7 @@ Task("Upload-Coverage-Result-Coveralls")
 	}
 }).OnError (exception =>
 {
-    Error(exception.Message);
+    Information(exception.Message);
     Information($"Failed to upload coverage result to Coveralls, but continuing with next Task...");
     publishingError = true;
 });
@@ -343,7 +343,7 @@ Task("Upload-Coverage-Result-Codecov")
 	}
 }).OnError (exception =>
 {
-    Error(exception.Message);
+    Information(exception.Message);
     Information($"Failed to upload coverage result to Codecov, but continuing with next Task...");
     publishingError = true;
 });

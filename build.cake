@@ -308,11 +308,14 @@ Task("Upload-Coverage-Result-Coveralls")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
-	CoverallsNet(new FilePath(coverageFile), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
+	using (DiagnosticVerbosity())
 	{
-		RepoToken = coverallsToken,
-		UseRelativePaths = true
-	});
+		CoverallsNet(new FilePath(coverageFile), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
+		{
+			RepoToken = coverallsToken,
+			UseRelativePaths = true
+		});
+	}
 }).OnError (exception =>
 {
     Error(exception.Message);
@@ -328,7 +331,16 @@ Task("Upload-Coverage-Result-Codecov")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
-	Codecov(coverageFile, codecovToken);
+    var codecovSettings = new CodecovSettings
+    {
+        Files = new[] { coverageFile },
+        Token = codecovToken
+    };
+
+	using (DiagnosticVerbosity())
+	{
+		Codecov(codecovSettings);
+	}
 }).OnError (exception =>
 {
     Error(exception.Message);
@@ -540,7 +552,7 @@ Task("AppVeyor")
 {
     if (publishingError)
     {
-        Warning("An error occurred during the publishing of Http-Multipart-Data-Parser. All publishing tasks have been attempted.");
+         Warning("At least one exception occurred when executing non-essential tasks. These exceptions were ignored in order to allow the build script to complete.");
     }
 });
 

@@ -13,22 +13,22 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 	public class MultipleFilesWithSameName
 	{
 		private static readonly string _testData = TestUtil.TrimAllLines(
-			@"--boundry
+			@"--boundary
             Content-Disposition: form-data; name=""file1.txt"";filename=""file1.txt"";
             Content-Type: text/plain
 
             THIS IS TEXT FILE 1
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""file2.txt"";filename=""file2.txt"";
             Content-Type: text/plain
 
             THIS IS TEXT FILE 2 !!!
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""file2.txt"";filename=""file2.txt"";
             Content-Type: text/plain
 
             This is text file 3 1234567890
-            --boundry--"
+            --boundary--"
 		);
 
 		private static readonly TestData _testCase = new TestData(
@@ -54,7 +54,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8, 16);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -64,7 +64,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8, 16).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

@@ -12,33 +12,33 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 	public class MultipleParamsAndFiles
 	{
 		private static readonly string _testData = TestUtil.TrimAllLines(
-			@"--boundry
+			@"--boundary
             Content-Disposition: form-data; name=""text""
               
             textdata
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""after"";TestForTextWithoutSplit
               
             afterdata
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""file""; filename=""data.txt""
             Content-Type: text/plain
 
             I am the first data 
-            --boundry
+            --boundary
             Content-Disposition: form-data;TestForTextWithoutSplit; name=""newfile""; filename=""superdata.txt""
             Content-Type: text/plain
 
             I am the second data
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""never""
 
             neverdata 
-            --boundry
+            --boundary
             Content-Disposition: form-data; name=""waylater""
 
             waylaterdata 
-            --boundry--"
+            --boundary--"
 		);
 
 		private static readonly TestData _testCase = new TestData(
@@ -68,7 +68,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "boundry", Encoding.UTF8, 16);
+				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8, 16);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -78,7 +78,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundry", Encoding.UTF8, 16).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16).ConfigureAwait(false);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

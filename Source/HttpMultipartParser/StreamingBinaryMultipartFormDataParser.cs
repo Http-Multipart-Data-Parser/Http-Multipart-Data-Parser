@@ -244,6 +244,11 @@ namespace HttpMultipartParser
 		///     current position of the reader is the start of the file and therefore
 		///     the beginning of the boundary.
 		/// </summary>
+		/// <remarks>
+		/// As of version 8.2.0 (released in June 2023), we ignore blank lines at the
+		/// start of the stream. In previous version, an exception was thrown if any
+		/// blank line was present before the boundary marker.
+		/// </remarks>
 		/// <param name="reader">
 		///     The binary reader to parse.
 		/// </param>
@@ -254,10 +259,19 @@ namespace HttpMultipartParser
 		{
 			// Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
 			// the front as per the protocol and ||||||||||||| is the part we care about.
-			var line = reader.ReadLine();
+
+			// The following loop ignores blank lines that may be present before the first line of the form.
+			// It's highly unusual to find blank lines at the start of the data but it's a possible scenario described in GH-116.
+			// Please note that we intentionally do NOT check for "string.IsNullOrEmpty(line)" because NULL does
+			// not indicate a blank line. It indicates that we have reached the end of the stream.
+			var line = string.Empty;
+			while (line == string.Empty)
+			{
+				line = reader.ReadLine();
+			}
 
 			// The line must not be empty and must starts with "--".
-			if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: unexpected end of stream");
+			if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: either the stream is empty or we reached the end of the stream");
 			else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content does not start with a valid multipart boundary");
 
 			// Remove the two dashes
@@ -283,6 +297,11 @@ namespace HttpMultipartParser
 		///     current position of the reader is the start of the file and therefore
 		///     the beginning of the boundary.
 		/// </summary>
+		/// <remarks>
+		/// As of version 8.2.0 (released in June 2023), we ignore blank lines at the
+		/// start of the stream. In previous version, an exception was thrown if any
+		/// blank line was present before the boundary marker.
+		/// </remarks>
 		/// <param name="reader">
 		///     The binary reader to parse.
 		/// </param>
@@ -296,11 +315,20 @@ namespace HttpMultipartParser
 		{
 			// Presumably the boundary is --|||||||||||||| where -- is the stuff added on to
 			// the front as per the protocol and ||||||||||||| is the part we care about.
-			var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+
+			// The following loop ignores blank lines that may be present before the first line of the form.
+			// It's highly unusual to find blank lines at the start of the data but it's a possible scenario described in GH-116.
+			// Please note that we intentionally do NOT check for "string.IsNullOrEmpty(line)" because NULL does
+			// not indicate a blank line. It indicates that we have reached the end of the stream.
+			var line = string.Empty;
+			while (line == string.Empty)
+			{
+				line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+			}
 
 			// The line must not be empty and must starts with "--".
 			if (string.IsNullOrEmpty(line)) throw new MultipartParseException("Unable to determine boundary: either the stream is empty or we reached the end of the stream");
-			else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content is not a valid multipart boundary");
+			else if (!line.StartsWith("--")) throw new MultipartParseException("Unable to determine boundary: content does not start with a valid multipart boundary");
 
 			// Remove the two dashes
 			string boundary = line.Substring(2);

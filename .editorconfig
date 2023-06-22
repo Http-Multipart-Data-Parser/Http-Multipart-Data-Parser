@@ -11,7 +11,7 @@ insert_final_newline = false
 trim_trailing_whitespace = true
 
 # .NET Code files
-[*.{cs,csx,cake,vb}]
+[*.{cs,csx,cake,vb,vbx,h,cpp,idl}]
 indent_style = tab
 tab_width = 4
 insert_final_newline = true
@@ -21,12 +21,12 @@ insert_final_newline = true
 indent_style = tab
 tab_width = 4
 
-# Visual Studio XML Project Files
-[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+# MSBuild project files
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj,msbuildproj}]
 indent_size = 2
 
-# Various XML Configuration Files
-[*.{xml,config,props,targets,nuspec,resx,ruleset,vsixmanifest,vsct}]
+# Xml config files
+[*.{xml,config,props,targets,nuspec,resx,ruleset,vsixmanifest,vsct,runsettings}]
 indent_size = 2
 
 # JSON Files

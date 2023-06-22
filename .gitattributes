@@ -94,3 +94,6 @@
 *.DOT      diff=astextplain
 *.rtf      diff=astextplain
 *.RTF      diff=astextplain
+
+# The macOS codesign tool is extremely picky, and requires LF line endings.
+*.plist eol=lf

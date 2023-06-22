@@ -244,6 +244,11 @@ namespace HttpMultipartParser
 		///     current position of the reader is the start of the file and therefore
 		///     the beginning of the boundary.
 		/// </summary>
+		/// <remarks>
+		/// As of version 8.2.0 (released in June 2023), we ignore blank lines at the
+		/// start of the stream. In previous version, an exception was thrown if any
+		/// blank line was present before the boundary marker.
+		/// </remarks>
 		/// <param name="reader">
 		///     The binary reader to parse.
 		/// </param>
@@ -292,6 +297,11 @@ namespace HttpMultipartParser
 		///     current position of the reader is the start of the file and therefore
 		///     the beginning of the boundary.
 		/// </summary>
+		/// <remarks>
+		/// As of version 8.2.0 (released in June 2023), we ignore blank lines at the
+		/// start of the stream. In previous version, an exception was thrown if any
+		/// blank line was present before the boundary marker.
+		/// </remarks>
 		/// <param name="reader">
 		///     The binary reader to parse.
 		/// </param>

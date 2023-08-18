@@ -2,8 +2,8 @@
 #tool dotnet:?package=GitVersion.Tool&version=5.12.0
 #tool dotnet:?package=coveralls.net&version=4.0.1
 #tool nuget:?package=GitReleaseManager&version=0.13.0
-#tool nuget:?package=ReportGenerator&version=5.1.22
-#tool nuget:?package=xunit.runner.console&version=2.4.2
+#tool nuget:?package=ReportGenerator&version=5.1.23
+#tool nuget:?package=xunit.runner.console&version=2.5.0
 #tool nuget:?package=CodecovUploader&version=0.5.0
 
 // Install addins.
@@ -51,8 +51,8 @@ var testCoverageExcludeFiles = new[]
 var nuGetApiUrl = Argument<string>("NUGET_API_URL", EnvironmentVariable("NUGET_API_URL"));
 var nuGetApiKey = Argument<string>("NUGET_API_KEY", EnvironmentVariable("NUGET_API_KEY"));
 
-var myGetApiUrl = Argument<string>("MYGET_API_URL", EnvironmentVariable("MYGET_API_URL"));
-var myGetApiKey = Argument<string>("MYGET_API_KEY", EnvironmentVariable("MYGET_API_KEY"));
+var feedzioApiUrl = Argument<string>("FEEDZIO_API_URL", EnvironmentVariable("FEEDZIO_API_URL"));
+var feedzioApiKey = Argument<string>("FEEDZIO_API_KEY", EnvironmentVariable("FEEDZIO_API_KEY"));
 
 var gitHubToken = Argument<string>("GITHUB_TOKEN", EnvironmentVariable("GITHUB_TOKEN"));
 var gitHubUserName = Argument<string>("GITHUB_USERNAME", EnvironmentVariable("GITHUB_USERNAME"));
@@ -74,12 +74,15 @@ var integrationTestsProject = $"{sourceFolder}{libraryName}.IntegrationTests/{li
 var unitTestsProject = $"{sourceFolder}{libraryName}.UnitTests/{libraryName}.UnitTests.csproj";
 var benchmarkProject = $"{sourceFolder}{libraryName}.Benchmark/{libraryName}.Benchmark.csproj";
 
+var buildBranch = Context.GetBuildBranch();
+var repoName = Context.GetRepoName();
+
 var versionInfo = GitVersion(new GitVersionSettings() { OutputType = GitVersionOutput.Json });
 var milestone = versionInfo.MajorMinorPatch;
 var cakeVersion = typeof(ICakeContext).Assembly.GetName().Version.ToString();
 var isLocalBuild = BuildSystem.IsLocalBuild;
-var isMainBranch = StringComparer.OrdinalIgnoreCase.Equals("main", BuildSystem.AppVeyor.Environment.Repository.Branch);
-var isMainRepo = StringComparer.OrdinalIgnoreCase.Equals($"{gitHubRepoOwner}/{gitHubRepo}", BuildSystem.AppVeyor.Environment.Repository.Name);
+var isMainBranch = StringComparer.OrdinalIgnoreCase.Equals("main", buildBranch);
+var isMainRepo = StringComparer.OrdinalIgnoreCase.Equals($"{gitHubRepoOwner}/{gitHubRepo}", repoName);
 var isPullRequest = BuildSystem.AppVeyor.Environment.PullRequest.IsPullRequest;
 var isTagged = BuildSystem.AppVeyor.Environment.Repository.Tag.IsTag && !string.IsNullOrWhiteSpace(BuildSystem.AppVeyor.Environment.Repository.Tag.Name);
 var isIntegrationTestsProjectPresent = FileExists(integrationTestsProject);
@@ -132,9 +135,9 @@ Setup(context =>
 		isTagged
 	);
 
-	Information("Myget Info:\r\n\tApi Url: {0}\r\n\tApi Key: {1}",
-		myGetApiUrl,
-		string.IsNullOrEmpty(myGetApiKey) ? "[NULL]" : new string('*', myGetApiKey.Length)
+	Information("Feedz.io Info:\r\n\tApi Url: {0}\r\n\tApi Key: {1}",
+		feedzioApiUrl,
+		string.IsNullOrEmpty(feedzioApiKey) ? "[NULL]" : new string('*', feedzioApiKey.Length)
 	);
 
 	Information("Nuget Info:\r\n\tApi Url: {0}\r\n\tApi Key: {1}",
@@ -308,14 +311,11 @@ Task("Upload-Coverage-Result-Coveralls")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
-	using (DiagnosticVerbosity())
+	CoverallsNet(new FilePath(coverageFile), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
 	{
-		CoverallsNet(new FilePath(coverageFile), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-		{
-			RepoToken = coverallsToken,
-			UseRelativePaths = true
-		});
-	}
+		RepoToken = coverallsToken,
+		UseRelativePaths = true
+	});
 }).OnError (exception =>
 {
     Information(exception.Message);
@@ -331,16 +331,11 @@ Task("Upload-Coverage-Result-Codecov")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
-    var codecovSettings = new CodecovSettings
+	Codecov(new CodecovSettings
     {
         Files = new[] { coverageFile },
         Token = codecovToken
-    };
-
-	using (DiagnosticVerbosity())
-	{
-		Codecov(codecovSettings);
-	}
+    });
 }).OnError (exception =>
 {
     Information(exception.Message);
@@ -413,33 +408,37 @@ Task("Publish-NuGet")
 	if(string.IsNullOrEmpty(nuGetApiKey)) throw new InvalidOperationException("Could not resolve NuGet API key.");
 	if(string.IsNullOrEmpty(nuGetApiUrl)) throw new InvalidOperationException("Could not resolve NuGet API url.");
 
+	var settings = new DotNetNuGetPushSettings
+	{
+    	Source = nuGetApiUrl,
+	    ApiKey = nuGetApiKey
+	};
+
 	foreach(var package in GetFiles(outputDir + "*.nupkg"))
 	{
-		// Push the package.
-		NuGetPush(package, new NuGetPushSettings {
-			ApiKey = nuGetApiKey,
-			Source = nuGetApiUrl
-		});
+		DotNetNuGetPush(package, settings);
 	}
 });
 
-Task("Publish-MyGet")
+Task("Publish-Feedzio")
 	.IsDependentOn("Create-NuGet-Package")
 	.WithCriteria(() => !isLocalBuild)
 	.WithCriteria(() => !isPullRequest)
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
-	if(string.IsNullOrEmpty(myGetApiKey)) throw new InvalidOperationException("Could not resolve MyGet API key.");
-	if(string.IsNullOrEmpty(myGetApiUrl)) throw new InvalidOperationException("Could not resolve MyGet API url.");
+	if(string.IsNullOrEmpty(feedzioApiKey)) throw new InvalidOperationException("Could not resolve Feedz.io API key.");
+	if(string.IsNullOrEmpty(feedzioApiUrl)) throw new InvalidOperationException("Could not resolve Feedz.io API url.");
+
+	var settings = new DotNetNuGetPushSettings
+	{
+    	Source = feedzioApiUrl,
+	    ApiKey = feedzioApiKey
+	};
 
 	foreach(var package in GetFiles(outputDir + "*.nupkg"))
 	{
-		// Push the package.
-		NuGetPush(package, new NuGetPushSettings {
-			ApiKey = myGetApiKey,
-			Source = myGetApiUrl
-		});
+		DotNetNuGetPush(package, settings);
 	}
 });
 
@@ -545,7 +544,7 @@ Task("AppVeyor")
 	.IsDependentOn("Upload-Coverage-Result-Codecov")
 	.IsDependentOn("Create-NuGet-Package")
 	.IsDependentOn("Upload-AppVeyor-Artifacts")
-	.IsDependentOn("Publish-MyGet")
+	.IsDependentOn("Publish-Feedzio")
 	.IsDependentOn("Publish-NuGet")
 	.IsDependentOn("Publish-GitHub-Release")
     .Finally(() =>
@@ -587,4 +586,50 @@ private static string TrimStart(this string source, string value, StringComparis
 	}
 
 	return source.Substring(startIndex);
+}
+
+private static List<string> ExecuteCommand(this ICakeContext context, FilePath exe, string args)
+{
+    context.StartProcess(exe, new ProcessSettings { Arguments = args, RedirectStandardOutput = true }, out var redirectedOutput);
+
+    return redirectedOutput.ToList();
+}
+
+private static List<string> ExecGitCmd(this ICakeContext context, string cmd)
+{
+    var gitExe = context.Tools.Resolve(context.IsRunningOnWindows() ? "git.exe" : "git");
+    return context.ExecuteCommand(gitExe, cmd);
+}
+
+private static string GetBuildBranch(this ICakeContext context)
+{
+    var buildSystem = context.BuildSystem();
+    string repositoryBranch = null;
+
+    if (buildSystem.IsRunningOnAppVeyor) repositoryBranch = buildSystem.AppVeyor.Environment.Repository.Branch;
+    else if (buildSystem.IsRunningOnAzurePipelines) repositoryBranch = buildSystem.AzurePipelines.Environment.Repository.SourceBranchName;
+    else if (buildSystem.IsRunningOnBamboo) repositoryBranch = buildSystem.Bamboo.Environment.Repository.Branch;
+    else if (buildSystem.IsRunningOnBitbucketPipelines) repositoryBranch = buildSystem.BitbucketPipelines.Environment.Repository.Branch;
+    else if (buildSystem.IsRunningOnBitrise) repositoryBranch = buildSystem.Bitrise.Environment.Repository.GitBranch;
+    else if (buildSystem.IsRunningOnGitHubActions) repositoryBranch = buildSystem.GitHubActions.Environment.Workflow.Ref.Replace("refs/heads/", "");
+    else if (buildSystem.IsRunningOnGitLabCI) repositoryBranch = buildSystem.GitLabCI.Environment.Build.RefName;
+    else if (buildSystem.IsRunningOnTeamCity) repositoryBranch = buildSystem.TeamCity.Environment.Build.BranchName;
+    else if (buildSystem.IsRunningOnTravisCI) repositoryBranch = buildSystem.TravisCI.Environment.Build.Branch;
+	else repositoryBranch = ExecGitCmd(context, "rev-parse --abbrev-ref HEAD").Single();
+
+    return repositoryBranch;
+}
+
+public static string GetRepoName(this ICakeContext context)
+{
+    var buildSystem = context.BuildSystem();
+
+    if (buildSystem.IsRunningOnAppVeyor) return buildSystem.AppVeyor.Environment.Repository.Name;
+    else if (buildSystem.IsRunningOnAzurePipelines) return buildSystem.AzurePipelines.Environment.Repository.RepoName;
+    else if (buildSystem.IsRunningOnTravisCI) return buildSystem.TravisCI.Environment.Repository.Slug;
+    else if (buildSystem.IsRunningOnGitHubActions) return buildSystem.GitHubActions.Environment.Workflow.Repository;
+
+	var originUrl = ExecGitCmd(context, "config --get remote.origin.url").Single();
+	var parts = originUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+	return $"{parts[parts.Length - 2]}/{parts[parts.Length - 1].Replace(".git", "")}";
 }

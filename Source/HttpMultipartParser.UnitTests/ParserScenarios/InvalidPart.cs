@@ -54,8 +54,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
 				var parser = MultipartFormDataParser.Parse(stream, ignoreInvalidParts: true);
-				Assert.Equal(0, parser.Files.Count);
-				Assert.Equal(0, parser.Parameters.Count);
+				Assert.Empty(parser.Files);
+				Assert.Empty(parser.Parameters);
 			}
 		}
 
@@ -65,8 +65,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
 				var parser = await MultipartFormDataParser.ParseAsync(stream, ignoreInvalidParts: true);
-				Assert.Equal(0, parser.Files.Count);
-				Assert.Equal(0, parser.Parameters.Count);
+				Assert.Empty(parser.Files);
+				Assert.Empty(parser.Parameters);
 			}
 		}
 	}

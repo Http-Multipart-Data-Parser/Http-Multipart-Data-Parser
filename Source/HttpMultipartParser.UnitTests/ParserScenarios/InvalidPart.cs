@@ -44,7 +44,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			// The default behavior is to throw an exception when the form contains an invalid section.
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream)).ConfigureAwait(false);
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream));
 			}
 		}
 
@@ -54,8 +54,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
 				var parser = MultipartFormDataParser.Parse(stream, ignoreInvalidParts: true);
-				Assert.Equal(0, parser.Files.Count);
-				Assert.Equal(0, parser.Parameters.Count);
+				Assert.Empty(parser.Files);
+				Assert.Empty(parser.Parameters);
 			}
 		}
 
@@ -64,9 +64,9 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, ignoreInvalidParts: true).ConfigureAwait(false);
-				Assert.Equal(0, parser.Files.Count);
-				Assert.Equal(0, parser.Parameters.Count);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, ignoreInvalidParts: true);
+				Assert.Empty(parser.Files);
+				Assert.Empty(parser.Parameters);
 			}
 		}
 	}

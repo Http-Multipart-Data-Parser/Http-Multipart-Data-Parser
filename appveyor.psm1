@@ -42,6 +42,11 @@ function Invoke-AppVeyorInstall {
                 # I spent a whole day trying to find a solution but ultimately the only reliable solution
                 # I was able to come up with is to install in the default location (which is /usr/share/dotnet)
                 # using 'sudo' because you need admin privileges to access the default install location.
+                #
+                # November 2022: I tried removing this workaround since GetVersion.Tool was updated more
+                # than 2 years ago but it led to another problem: https://ci.appveyor.com/project/Jericho/zoomnet/builds/48579496/job/pymt60j9b53ayxta#L78
+                #
+                # Therefore this workaround seems like a permanent solution.
 
                 sudo bash dotnet-install.sh --version $desiredDotNetCoreSDKVersion --install-dir /usr/share/dotnet
             }

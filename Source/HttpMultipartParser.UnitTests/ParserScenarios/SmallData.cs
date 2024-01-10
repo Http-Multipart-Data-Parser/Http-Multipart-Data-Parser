@@ -73,8 +73,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				// The boundary is missing the first two -- in accordance with the multipart
 				// spec. (A -- is added by the parser, this boundary is what would be sent in the
-				// requset header)
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "---------------------------265001916915724").ConfigureAwait(false);
+				// request header)
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "---------------------------265001916915724");
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

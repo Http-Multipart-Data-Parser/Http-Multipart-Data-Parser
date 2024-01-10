@@ -51,7 +51,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "----WebKitFormBoundaryb4SfPlH9Bv7c2PKS").ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "----WebKitFormBoundaryb4SfPlH9Bv7c2PKS");
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -61,7 +61,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

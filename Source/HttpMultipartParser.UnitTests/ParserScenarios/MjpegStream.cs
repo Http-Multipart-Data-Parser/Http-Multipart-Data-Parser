@@ -64,7 +64,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "MOBOTIX_Fast_Serverpush", Encoding.UTF8, 32).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "MOBOTIX_Fast_Serverpush", Encoding.UTF8, 32);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

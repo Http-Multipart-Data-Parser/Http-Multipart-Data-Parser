@@ -96,12 +96,12 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				// Move the Position to the end of the stream
 				var sr = new StreamReader(stream);
-				var content = await sr.ReadToEndAsync().ConfigureAwait(false);
+				var content = await sr.ReadToEndAsync();
 
 				// When the developer provides the boundary, the parser does not have to determine the boundary
 				// and therefore the DetectBoundary method is not invoked which avoids the problem altogether.
 				// However, the parser is unable to find the provided boundary and throws a meaningful exception.
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, "MyBoundary")).ConfigureAwait(false);
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, "MyBoundary"));
 			}
 		}
 
@@ -112,10 +112,10 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				// Move the Position to the end of the stream
 				var sr = new StreamReader(stream);
-				var content = await sr.ReadToEndAsync().ConfigureAwait(false);
+				var content = await sr.ReadToEndAsync();
 
 				// As of March 2022, the problem was resolved by throwing a more descriptive exception
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream)).ConfigureAwait(false);
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream));
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				// When the developer provides the boundary, the parser does not have to determine the boundary
 				// and therefore the DetectBoundary method is not invoked which avoids the problem altogether.
 				// However, the parser is unable to find the provided boundary and throws a meaningful exception.
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, "MyBoundary")).ConfigureAwait(false);
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, "MyBoundary"));
 			}
 		}
 
@@ -143,7 +143,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				stream.Position = 3;
 
 				// As of March 2022, the problem was resolved by throwing a more descriptive exception
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream)).ConfigureAwait(false);
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream));
 			}
 		}
 	}

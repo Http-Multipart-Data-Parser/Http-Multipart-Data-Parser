@@ -55,7 +55,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16).ConfigureAwait(false);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

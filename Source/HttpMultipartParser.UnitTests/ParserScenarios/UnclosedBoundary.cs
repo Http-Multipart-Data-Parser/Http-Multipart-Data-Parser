@@ -48,7 +48,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
 				// We expect this to throw!
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8)).ConfigureAwait(false);
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8));
 			}
 		}
 	}

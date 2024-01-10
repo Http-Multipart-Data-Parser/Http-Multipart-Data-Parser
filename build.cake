@@ -1,10 +1,10 @@
 // Install tools.
 #tool dotnet:?package=GitVersion.Tool&version=5.12.0
 #tool dotnet:?package=coveralls.net&version=4.0.1
-#tool nuget:?package=GitReleaseManager&version=0.13.0
-#tool nuget:?package=ReportGenerator&version=5.1.23
-#tool nuget:?package=xunit.runner.console&version=2.5.0
-#tool nuget:?package=CodecovUploader&version=0.5.0
+#tool nuget:https://f.feedz.io/jericho/jericho/nuget/?package=GitReleaseManager&version=0.17.0-collaborators0003
+#tool nuget:?package=ReportGenerator&version=5.2.0
+#tool nuget:?package=xunit.runner.console&version=2.6.5
+#tool nuget:?package=CodecovUploader&version=0.7.1
 
 // Install addins.
 #addin nuget:?package=Cake.Coveralls&version=1.1.0
@@ -51,9 +51,6 @@ var testCoverageExcludeFiles = new[]
 var nuGetApiUrl = Argument<string>("NUGET_API_URL", EnvironmentVariable("NUGET_API_URL"));
 var nuGetApiKey = Argument<string>("NUGET_API_KEY", EnvironmentVariable("NUGET_API_KEY"));
 
-var feedzioApiUrl = Argument<string>("FEEDZIO_API_URL", EnvironmentVariable("FEEDZIO_API_URL"));
-var feedzioApiKey = Argument<string>("FEEDZIO_API_KEY", EnvironmentVariable("FEEDZIO_API_KEY"));
-
 var gitHubToken = Argument<string>("GITHUB_TOKEN", EnvironmentVariable("GITHUB_TOKEN"));
 var gitHubUserName = Argument<string>("GITHUB_USERNAME", EnvironmentVariable("GITHUB_USERNAME"));
 var gitHubPassword = Argument<string>("GITHUB_PASSWORD", EnvironmentVariable("GITHUB_PASSWORD"));
@@ -77,8 +74,9 @@ var benchmarkProject = $"{sourceFolder}{libraryName}.Benchmark/{libraryName}.Ben
 var buildBranch = Context.GetBuildBranch();
 var repoName = Context.GetRepoName();
 
-var versionInfo = GitVersion(new GitVersionSettings() { OutputType = GitVersionOutput.Json });
-var milestone = versionInfo.MajorMinorPatch;
+var versionInfo = (GitVersion)null; // Will be calculated in SETUP
+var milestone = string.Empty; // Will be calculated in SETUP
+
 var cakeVersion = typeof(ICakeContext).Assembly.GetName().Version.ToString();
 var isLocalBuild = BuildSystem.IsLocalBuild;
 var isMainBranch = StringComparer.OrdinalIgnoreCase.Equals("main", buildBranch);
@@ -119,6 +117,10 @@ Setup(context =>
 		context.Log.Verbosity = Verbosity.Diagnostic;
 	}
 
+	Information("Calculating version info...");
+	versionInfo = GitVersion(new GitVersionSettings() { OutputType = GitVersionOutput.Json });
+	milestone = versionInfo.MajorMinorPatch;
+
 	Information("Building version {0} of {1} ({2}, {3}) using version {4} of Cake",
 		versionInfo.LegacySemVerPadded,
 		libraryName,
@@ -133,11 +135,6 @@ Setup(context =>
 		isMainRepo,
 		isPullRequest,
 		isTagged
-	);
-
-	Information("Feedz.io Info:\r\n\tApi Url: {0}\r\n\tApi Key: {1}",
-		feedzioApiUrl,
-		string.IsNullOrEmpty(feedzioApiKey) ? "[NULL]" : new string('*', feedzioApiKey.Length)
 	);
 
 	Information("Nuget Info:\r\n\tApi Url: {0}\r\n\tApi Key: {1}",
@@ -311,6 +308,8 @@ Task("Upload-Coverage-Result-Coveralls")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
+	if(string.IsNullOrEmpty(coverallsToken)) throw new InvalidOperationException("Could not resolve Coveralls token.");
+
 	CoverallsNet(new FilePath(coverageFile), CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
 	{
 		RepoToken = coverallsToken,
@@ -331,6 +330,8 @@ Task("Upload-Coverage-Result-Codecov")
 	.WithCriteria(() => isMainRepo)
 	.Does(() =>
 {
+	if(string.IsNullOrEmpty(codecovToken)) throw new InvalidOperationException("Could not resolve CodeCov token.");
+
 	Codecov(new CodecovSettings
     {
         Files = new[] { coverageFile },
@@ -412,28 +413,6 @@ Task("Publish-NuGet")
 	{
     	Source = nuGetApiUrl,
 	    ApiKey = nuGetApiKey
-	};
-
-	foreach(var package in GetFiles(outputDir + "*.nupkg"))
-	{
-		DotNetNuGetPush(package, settings);
-	}
-});
-
-Task("Publish-Feedzio")
-	.IsDependentOn("Create-NuGet-Package")
-	.WithCriteria(() => !isLocalBuild)
-	.WithCriteria(() => !isPullRequest)
-	.WithCriteria(() => isMainRepo)
-	.Does(() =>
-{
-	if(string.IsNullOrEmpty(feedzioApiKey)) throw new InvalidOperationException("Could not resolve Feedz.io API key.");
-	if(string.IsNullOrEmpty(feedzioApiUrl)) throw new InvalidOperationException("Could not resolve Feedz.io API url.");
-
-	var settings = new DotNetNuGetPushSettings
-	{
-    	Source = feedzioApiUrl,
-	    ApiKey = feedzioApiKey
 	};
 
 	foreach(var package in GetFiles(outputDir + "*.nupkg"))
@@ -544,7 +523,6 @@ Task("AppVeyor")
 	.IsDependentOn("Upload-Coverage-Result-Codecov")
 	.IsDependentOn("Create-NuGet-Package")
 	.IsDependentOn("Upload-AppVeyor-Artifacts")
-	.IsDependentOn("Publish-Feedzio")
 	.IsDependentOn("Publish-NuGet")
 	.IsDependentOn("Publish-GitHub-Release")
     .Finally(() =>

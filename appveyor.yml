@@ -17,7 +17,7 @@ before_build:
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
-  - ps: .\build.ps1 --target=AppVeyor
+  - ps: .\build.ps1 build.cake --target=AppVeyor
 
 # scripts to run after build
 after_build:

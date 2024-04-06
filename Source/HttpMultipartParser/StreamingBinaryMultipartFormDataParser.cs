@@ -361,7 +361,7 @@ namespace HttpMultipartParser
 			if (parameters.Count == 0) return false;
 
 			// If a section contains filename, then it's a file.
-			else if (parameters.ContainsKey("filename")) return true;
+			else if (parameters.ContainsKey("filename") || parameters.ContainsKey("filename*")) return true;
 
 			// Check if mimetype is a binary file
 			else if (parameters.ContainsKey("content-type") && binaryMimeTypes.Contains(parameters["content-type"])) return true;
@@ -581,8 +581,12 @@ namespace HttpMultipartParser
 			// Read the parameters
 			parameters.TryGetValue("name", out string name);
 			parameters.TryGetValue("filename", out string filename);
+			parameters.TryGetValue("filename*", out string filenameStar);
 			parameters.TryGetValue("content-type", out string contentType);
 			parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+			// Per RFC6266 section 4.3, we should favor "filename*" over "filename"
+			if (!string.IsNullOrEmpty(filenameStar)) filename = RFC5987.Decode(filenameStar);
 
 			// Filter out the "well known" parameters.
 			var additionalParameters = GetAdditionalParameters(parameters);
@@ -733,8 +737,12 @@ namespace HttpMultipartParser
 			// Read the parameters
 			parameters.TryGetValue("name", out string name);
 			parameters.TryGetValue("filename", out string filename);
+			parameters.TryGetValue("filename*", out string filenameStar);
 			parameters.TryGetValue("content-type", out string contentType);
 			parameters.TryGetValue("content-disposition", out string contentDisposition);
+
+			// Per RFC6266 section 4.3, we should favor "filename*" over "filename"
+			if (!string.IsNullOrEmpty(filenameStar)) filename = RFC5987.Decode(filenameStar);
 
 			// Filter out the "well known" parameters.
 			var additionalParameters = GetAdditionalParameters(parameters);
@@ -1214,7 +1222,7 @@ namespace HttpMultipartParser
 		/// <returns>A dictionary of parameters.</returns>
 		private IDictionary<string, string> GetAdditionalParameters(IDictionary<string, string> parameters)
 		{
-			var wellKnownParameters = new[] { "name", "filename", "content-type", "content-disposition" };
+			var wellKnownParameters = new[] { "name", "filename", "filename*", "content-type", "content-disposition" };
 			var additionalParameters = parameters
 				.Where(param => !wellKnownParameters.Contains(param.Key, StringComparer.OrdinalIgnoreCase))
 				.ToDictionary(

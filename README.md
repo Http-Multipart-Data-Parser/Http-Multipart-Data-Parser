@@ -76,7 +76,7 @@ var parser = await MultipartFormDataParser.ParseAsync(stream).ConfigureAwait(fal
 // From this point the data is parsed, we can retrieve the
 // form data using the GetParameterValue method.
 var username = parser.GetParameterValue("username");
-var email = parser.GetParameterValue("email")
+var email = parser.GetParameterValue("email");
 
 // Files are stored in a list:
 var file = parser.Files.First();

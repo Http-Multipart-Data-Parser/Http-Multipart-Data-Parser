@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -155,8 +154,7 @@ namespace HttpMultipartParser
 			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, Encoding ?? Constants.DefaultEncoding, BinaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
 			streamingParser.ParameterHandler += binaryParameterPart =>
 			{
-				var data = string.Join(Environment.NewLine, binaryParameterPart.Data.Select(binaryLine => Encoding.GetString(binaryLine)));
-				ParameterHandler.Invoke(new ParameterPart(binaryParameterPart.Name, data));
+				ParameterHandler.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));
 			};
 
 			streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>

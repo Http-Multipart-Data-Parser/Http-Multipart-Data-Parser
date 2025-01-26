@@ -1,15 +1,15 @@
 // Install tools.
-#tool dotnet:?package=GitVersion.Tool&version=5.12.0
+#tool dotnet:?package=GitVersion.Tool&version=6.1.0
 #tool dotnet:?package=coveralls.net&version=4.0.1
-#tool nuget:https://f.feedz.io/jericho/jericho/nuget/?package=GitReleaseManager&version=0.17.0-collaborators0004
-#tool nuget:?package=ReportGenerator&version=5.2.4
-#tool nuget:?package=xunit.runner.console&version=2.7.0
-#tool nuget:?package=CodecovUploader&version=0.7.2
+#tool nuget:https://f.feedz.io/jericho/jericho/nuget/?package=GitReleaseManager&version=0.17.0-collaborators0008
+#tool nuget:?package=ReportGenerator&version=5.4.3
+#tool nuget:?package=xunit.runner.console&version=2.9.3
+#tool nuget:?package=CodecovUploader&version=0.8.0
 
 // Install addins.
-#addin nuget:?package=Cake.Coveralls&version=1.1.0
-#addin nuget:?package=Cake.Git&version=4.0.0
-#addin nuget:?package=Cake.Codecov&version=1.0.1
+#addin nuget:?package=Cake.Coveralls&version=4.0.0
+#addin nuget:?package=Cake.Git&version=5.0.1
+#addin nuget:?package=Cake.Codecov&version=3.0.0
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ var sourceFolder = "./Source/";
 var outputDir = "./artifacts/";
 var codeCoverageDir = $"{outputDir}CodeCoverage/";
 var benchmarkDir = $"{outputDir}Benchmark/";
-var coverageFile = $"{codeCoverageDir}coverage.{DefaultFramework}.xml";
+var coverageFile = $"{codeCoverageDir}coverage.{DEFAULT_FRAMEWORK}.xml";
 
 var solutionFile = $"{sourceFolder}{libraryName}.sln";
 var sourceProject = $"{sourceFolder}{libraryName}/{libraryName}.csproj";
@@ -86,6 +86,8 @@ var isTagged = BuildSystem.AppVeyor.Environment.Repository.Tag.IsTag && !string.
 var isIntegrationTestsProjectPresent = FileExists(integrationTestsProject);
 var isUnitTestsProjectPresent = FileExists(unitTestsProject);
 var isBenchmarkProjectPresent = FileExists(benchmarkProject);
+var removeIntegrationTests = isIntegrationTestsProjectPresent && (!isLocalBuild || target == "coverage");
+var removeBenchmarks = isBenchmarkProjectPresent && (!isLocalBuild || target == "coverage");
 
 var publishingError = false;
 
@@ -94,15 +96,12 @@ var publishingError = false;
 // - when building source project on Ubuntu
 // - when running unit tests on Ubuntu
 // - when calculating code coverage
-// FYI, this will cause an error if the source project and/or the unit test project are not configured to target this desired framework:
-const string DefaultFramework = "net7.0";
-var desiredFramework = (
-		!IsRunningOnWindows() ||
+const string DEFAULT_FRAMEWORK = "net9.0";
+var isSingleTfmMode = !IsRunningOnWindows() ||
 		target.Equals("Coverage", StringComparison.OrdinalIgnoreCase) ||
 		target.Equals("Run-Code-Coverage", StringComparison.OrdinalIgnoreCase) ||
 		target.Equals("Generate-Code-Coverage-Report", StringComparison.OrdinalIgnoreCase) ||
-		target.Equals("Upload-Coverage-Result", StringComparison.OrdinalIgnoreCase)
-	) ? DefaultFramework : null;
+		target.Equals("Upload-Coverage-Result", StringComparison.OrdinalIgnoreCase);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,7 +121,7 @@ Setup(context =>
 	milestone = versionInfo.MajorMinorPatch;
 
 	Information("Building version {0} of {1} ({2}, {3}) using version {4} of Cake",
-		versionInfo.LegacySemVerPadded,
+		versionInfo.FullSemVer,
 		libraryName,
 		configuration,
 		target,
@@ -162,7 +161,7 @@ Setup(context =>
 	// Integration tests are intended to be used for debugging purposes and not intended to be executed in CI environment.
 	// Also, the runner for these tests contains windows-specific code (such as resizing window, moving window to center of screen, etc.)
 	// which can cause problems when attempting to run unit tests on an Ubuntu image on AppVeyor.
-	if (!isLocalBuild && isIntegrationTestsProjectPresent)
+	if (removeIntegrationTests)
 	{
 		Information("");
 		Information("Removing integration tests");
@@ -172,20 +171,40 @@ Setup(context =>
 	// Similarly, benchmarking can causes problems similar to this one:
 	// error NETSDK1005: Assets file '/home/appveyor/projects/stronggrid/Source/StrongGrid.Benchmark/obj/project.assets.json' doesn't have a target for 'net5.0'.
 	// Ensure that restore has run and that you have included 'net5.0' in the TargetFrameworks for your project.
-	if (!isLocalBuild && isBenchmarkProjectPresent)
+	if (removeBenchmarks)
 	{
 		Information("");
 		Information("Removing benchmark project");
 		DotNetTool(solutionFile, "sln", $"remove {benchmarkProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
 	}
+
+	// In single TFM mode we want to override the framework(s) with our desired framework
+	if (isSingleTfmMode)
+	{
+		var peekSettings = new XmlPeekSettings { SuppressWarning = true };
+		foreach(var projectFile in GetFiles("./Source/**/*.csproj"))
+		{
+			Information("Updating TFM in: {0}", projectFile.ToString());
+			if (XmlPeek(projectFile, "/Project/PropertyGroup/TargetFramework", peekSettings) != null) XmlPoke(projectFile, "/Project/PropertyGroup/TargetFramework", DEFAULT_FRAMEWORK);
+			if (XmlPeek(projectFile, "/Project/PropertyGroup/TargetFrameworks", peekSettings) != null) XmlPoke(projectFile, "/Project/PropertyGroup/TargetFrameworks", DEFAULT_FRAMEWORK);
+		}
+	}
 });
 
 Teardown(context =>
 {
-	if (!isLocalBuild)
+	if (removeIntegrationTests || removeBenchmarks)
 	{
 		Information("Restoring projects that may have been removed during build script setup");
 		GitCheckout(".", new FilePath[] { solutionFile });
+		Information("  Restored {0}", solutionFile.ToString());
+		Information("");
+	}
+
+	if (isSingleTfmMode)
+	{
+		Information("Restoring project files that may have been modified during build script setup");
+		GitCheckout(".", GetFiles("./Source/**/*.csproj").ToArray());
 		Information("");
 	}
 
@@ -246,11 +265,11 @@ Task("Build")
 	DotNetBuild(solutionFile, new DotNetBuildSettings
 	{
 		Configuration = configuration,
-		Framework =  desiredFramework,
+		Framework =  isSingleTfmMode ? DEFAULT_FRAMEWORK : null,
 		NoRestore = true,
 		MSBuildSettings = new DotNetMSBuildSettings
 		{
-			Version = versionInfo.LegacySemVerPadded,
+			Version = versionInfo.SemVer,
 			AssemblyVersion = versionInfo.MajorMinorPatch,
 			FileVersion = versionInfo.MajorMinorPatch,
 			InformationalVersion = versionInfo.InformationalVersion,
@@ -269,7 +288,7 @@ Task("Run-Unit-Tests")
 		NoBuild = true,
 		NoRestore = true,
 		Configuration = configuration,
-		Framework = desiredFramework
+		Framework = isSingleTfmMode ? DEFAULT_FRAMEWORK : null
 	});
 });
 
@@ -283,7 +302,7 @@ Task("Run-Code-Coverage")
 		NoBuild = true,
 		NoRestore = true,
 		Configuration = configuration,
-		Framework = DefaultFramework,
+		Framework = isSingleTfmMode ? DEFAULT_FRAMEWORK : null,
 
 		// The following assumes that coverlet.msbuild has been added to the unit testing project
 		ArgumentCustomization = args => args
@@ -294,6 +313,7 @@ Task("Run-Code-Coverage")
 			.Append($"/p:ExcludeByFile={string.Join("%2c", testCoverageExcludeFiles)}")
 			.Append($"/p:Exclude={string.Join("%2c", testCoverageFilters.Where(filter => filter.StartsWith("-")).Select(filter => filter.TrimStart("-", StringComparison.OrdinalIgnoreCase)))}")
 			.Append($"/p:Include={string.Join("%2c", testCoverageFilters.Where(filter => filter.StartsWith("+")).Select(filter => filter.TrimStart("+", StringComparison.OrdinalIgnoreCase)))}")
+			.Append("/p:ExcludeAssembliesWithoutSources=MissingAll")
 			.Append("/p:SkipAutoProps=true")
     };
 
@@ -352,7 +372,7 @@ Task("Generate-Code-Coverage-Report")
 		new FilePath(coverageFile),
 		codeCoverageDir,
 		new ReportGeneratorSettings() {
-			ClassFilters = new[] { "*.UnitTests*" }
+			ClassFilters = new[] { "+*" }
 		}
 	);
 });
@@ -376,7 +396,7 @@ Task("Create-NuGet-Package")
 		MSBuildSettings = new DotNetMSBuildSettings
 		{
 			PackageReleaseNotes = releaseNotesUrl,
-			PackageVersion = versionInfo.LegacySemVerPadded
+			PackageVersion = versionInfo.FullSemVer.Replace('+', '-')
 		}
 	};
 

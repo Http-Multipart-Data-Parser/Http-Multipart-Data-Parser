@@ -1,26 +1,7 @@
-mode: ContinuousDelivery
+workflow: GitFlow/v1 # https://github.com/GitTools/GitVersion/blob/main/docs/input/docs/reference/configuration.md#snippet-/docs/workflows/GitFlow/v1.yml
+
 branches:
-  master:
-    regex: (master|main)
-    mode: ContinuousDelivery
-    tag:
-    increment: Patch
-    prevent-increment-of-merged-branch-version: true
-    track-merge-target: false
-  feature:
-    regex: feature(s)?[/-]
-    mode: ContinuousDeployment
   develop:
-    regex: dev(elop)?(ment)?$
-    mode: ContinuousDeployment
-    tag: beta
-  hotfix:
-    regex: hotfix(es)?[/-]
-    mode: ContinuousDeployment
-    tag: hotfix
+    label: beta # default is 'alpha' for the 'develop' branch. I prefer 'beta'.
   release:
-    regex: release(s)?[/-]
-    mode: ContinuousDeployment
-    tag: rc
-ignore:
-  sha: []
+    label: rc # default is 'beta' for the 'release' branch. I prefer 'RC'.

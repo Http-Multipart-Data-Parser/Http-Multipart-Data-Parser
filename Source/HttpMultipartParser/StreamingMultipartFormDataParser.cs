@@ -129,12 +129,12 @@ namespace HttpMultipartParser
 			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, Encoding, BinaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
 			streamingParser.ParameterHandler += binaryParameterPart =>
 			{
-				ParameterHandler.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));
+				ParameterHandler?.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));
 			};
 
 			streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
 			{
-				FileHandler.Invoke(name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties);
+				FileHandler?.Invoke(name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties);
 			};
 
 			streamingParser.Run();
@@ -154,12 +154,12 @@ namespace HttpMultipartParser
 			var streamingParser = new StreamingBinaryMultipartFormDataParser(stream, boundary, Encoding ?? Constants.DefaultEncoding, BinaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
 			streamingParser.ParameterHandler += binaryParameterPart =>
 			{
-				ParameterHandler.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));
+				ParameterHandler?.Invoke(new ParameterPart(binaryParameterPart.Name, binaryParameterPart.ToString(Encoding)));
 			};
 
 			streamingParser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties) =>
 			{
-				FileHandler.Invoke(name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties);
+				FileHandler?.Invoke(name, fileName, type, disposition, buffer, bytes, partNumber, additionalProperties);
 			};
 
 			await streamingParser.RunAsync().ConfigureAwait(false);

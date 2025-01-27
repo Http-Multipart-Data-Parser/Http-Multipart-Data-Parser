@@ -686,7 +686,7 @@ namespace HttpMultipartParser
 					// We also want to chop off the newline that is inserted by the protocol.
 					// We can do this by reducing endPos by the length of newline in this environment
 					// and encoding
-					FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
+					FileHandler?.Invoke(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
 
 					int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
 					int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -696,7 +696,7 @@ namespace HttpMultipartParser
 				}
 
 				// No end, consume the entire previous buffer
-				FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
+				FileHandler?.Invoke(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
 
 				// Now we want to swap the two buffers, we don't care
 				// what happens to the data from prevBuffer so we set
@@ -843,7 +843,7 @@ namespace HttpMultipartParser
 					// We also want to chop off the newline that is inserted by the protocl.
 					// We can do this by reducing endPos by the length of newline in this environment
 					// and encoding
-					FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
+					FileHandler?.Invoke(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
 
 					int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
 					int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -853,7 +853,7 @@ namespace HttpMultipartParser
 				}
 
 				// No end, consume the entire previous buffer
-				FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
+				FileHandler?.Invoke(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
 
 				// Now we want to swap the two buffers, we don't care
 				// what happens to the data from prevBuffer so we set
@@ -898,7 +898,7 @@ namespace HttpMultipartParser
 			if (line.SequenceEqual(endBoundaryBinary)) readEndBoundary = true;
 
 			var part = new ParameterPartBinary(parameters["name"], data);
-			ParameterHandler(part);
+			ParameterHandler?.Invoke(part);
 		}
 
 		/// <summary>
@@ -933,7 +933,7 @@ namespace HttpMultipartParser
 			if (line.SequenceEqual(endBoundaryBinary)) readEndBoundary = true;
 
 			var part = new ParameterPartBinary(parameters["name"], data);
-			ParameterHandler(part);
+			ParameterHandler?.Invoke(part);
 		}
 
 		/// <summary>

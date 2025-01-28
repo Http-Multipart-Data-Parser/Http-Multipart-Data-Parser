@@ -29,8 +29,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			_testData,
 			Enumerable.Empty<ParameterPart>().ToList(),
 			new List<FilePart>() {
-				new FilePart("file1", "file1.txt", TestUtil.StringToStreamNoBom("file content here")),
-				new FilePart("file2", "file2.txt", TestUtil.StringToStreamNoBom("file content here 2")),
+				new FilePart("file1", "file1.txt", TestUtil.StringToStreamNoBom("file content here"), (new[] { new KeyValuePair<string, string>("charset", "UTF-8") }).ToDictionary(kvp => kvp.Key, kvp => kvp.Value)),
+				new FilePart("file2", "file2.txt", TestUtil.StringToStreamNoBom("file content here 2"), (new[] { new KeyValuePair<string, string>("charset", "UTF-8") }).ToDictionary(kvp => kvp.Key, kvp => kvp.Value)),
 			}
 		);
 

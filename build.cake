@@ -86,18 +86,13 @@ var isTagged = BuildSystem.AppVeyor.Environment.Repository.Tag.IsTag && !string.
 var isIntegrationTestsProjectPresent = FileExists(integrationTestsProject);
 var isUnitTestsProjectPresent = FileExists(unitTestsProject);
 var isBenchmarkProjectPresent = FileExists(benchmarkProject);
-var removeIntegrationTests = isIntegrationTestsProjectPresent && (!isLocalBuild || target == "coverage");
-var removeBenchmarks = isBenchmarkProjectPresent && (!isLocalBuild || target == "coverage");
 
 var publishingError = false;
 
-// Generally speaking, we want to honor all the TFM configured in the source project and the unit test project.
-// However, there are a few scenarios where a single framework is sufficient. Here are a few examples that come to mind:
-// - when building source project on Ubuntu
-// - when running unit tests on Ubuntu
-// - when calculating code coverage
+// Generally speaking, we want to honor all the TFM configured in the unit tests, integration tests and benchmark projects.
+// However, a single framework is sufficient when calculating code coverage.
 const string DEFAULT_FRAMEWORK = "net9.0";
-var isSingleTfmMode = !IsRunningOnWindows() ||
+var isSingleTfmMode = 
 		target.Equals("Coverage", StringComparison.OrdinalIgnoreCase) ||
 		target.Equals("Run-Code-Coverage", StringComparison.OrdinalIgnoreCase) ||
 		target.Equals("Generate-Code-Coverage-Report", StringComparison.OrdinalIgnoreCase) ||
@@ -158,49 +153,17 @@ Setup(context =>
 		);
 	}
 
-	// Integration tests are intended to be used for debugging purposes and not intended to be executed in CI environment.
-	// Also, the runner for these tests contains windows-specific code (such as resizing window, moving window to center of screen, etc.)
-	// which can cause problems when attempting to run unit tests on an Ubuntu image on AppVeyor.
-	if (removeIntegrationTests)
-	{
-		Information("");
-		Information("Removing integration tests");
-		DotNetTool(solutionFile, "sln", $"remove {integrationTestsProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
-	}
-
-	// Similarly, benchmarking can causes problems similar to this one:
-	// error NETSDK1005: Assets file '/home/appveyor/projects/stronggrid/Source/StrongGrid.Benchmark/obj/project.assets.json' doesn't have a target for 'net5.0'.
-	// Ensure that restore has run and that you have included 'net5.0' in the TargetFrameworks for your project.
-	if (removeBenchmarks)
-	{
-		Information("");
-		Information("Removing benchmark project");
-		DotNetTool(solutionFile, "sln", $"remove {benchmarkProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
-	}
-
 	// In single TFM mode we want to override the framework(s) with our desired framework
 	if (isSingleTfmMode)
 	{
-		var peekSettings = new XmlPeekSettings { SuppressWarning = true };
-		foreach(var projectFile in GetFiles("./Source/**/*.csproj"))
-		{
-			Information("Updating TFM in: {0}", projectFile.ToString());
-			if (XmlPeek(projectFile, "/Project/PropertyGroup/TargetFramework", peekSettings) != null) XmlPoke(projectFile, "/Project/PropertyGroup/TargetFramework", DEFAULT_FRAMEWORK);
-			if (XmlPeek(projectFile, "/Project/PropertyGroup/TargetFrameworks", peekSettings) != null) XmlPoke(projectFile, "/Project/PropertyGroup/TargetFrameworks", DEFAULT_FRAMEWORK);
-		}
+		if (isUnitTestsProjectPresent) Context.UpdateProjectTarget(unitTestsProject, DEFAULT_FRAMEWORK);
+		if (isBenchmarkProjectPresent) Context.UpdateProjectTarget(benchmarkProject, DEFAULT_FRAMEWORK);
+		if (isIntegrationTestsProjectPresent) Context.UpdateProjectTarget(integrationTestsProject, DEFAULT_FRAMEWORK);
 	}
 });
 
 Teardown(context =>
 {
-	if (removeIntegrationTests || removeBenchmarks)
-	{
-		Information("Restoring projects that may have been removed during build script setup");
-		GitCheckout(".", new FilePath[] { solutionFile });
-		Information("  Restored {0}", solutionFile.ToString());
-		Information("");
-	}
-
 	if (isSingleTfmMode)
 	{
 		Information("Restoring project files that may have been modified during build script setup");
@@ -265,7 +228,6 @@ Task("Build")
 	DotNetBuild(solutionFile, new DotNetBuildSettings
 	{
 		Configuration = configuration,
-		Framework =  isSingleTfmMode ? DEFAULT_FRAMEWORK : null,
 		NoRestore = true,
 		MSBuildSettings = new DotNetMSBuildSettings
 		{
@@ -288,7 +250,6 @@ Task("Run-Unit-Tests")
 		NoBuild = true,
 		NoRestore = true,
 		Configuration = configuration,
-		Framework = isSingleTfmMode ? DEFAULT_FRAMEWORK : null
 	});
 });
 
@@ -302,7 +263,6 @@ Task("Run-Code-Coverage")
 		NoBuild = true,
 		NoRestore = true,
 		Configuration = configuration,
-		Framework = isSingleTfmMode ? DEFAULT_FRAMEWORK : null,
 
 		// The following assumes that coverlet.msbuild has been added to the unit testing project
 		ArgumentCustomization = args => args
@@ -618,7 +578,7 @@ private static string GetBuildBranch(this ICakeContext context)
     return repositoryBranch;
 }
 
-public static string GetRepoName(this ICakeContext context)
+private static string GetRepoName(this ICakeContext context)
 {
     var buildSystem = context.BuildSystem();
 
@@ -630,4 +590,15 @@ public static string GetRepoName(this ICakeContext context)
 	var originUrl = ExecGitCmd(context, "config --get remote.origin.url").Single();
 	var parts = originUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
 	return $"{parts[parts.Length - 2]}/{parts[parts.Length - 1].Replace(".git", "")}";
+}
+
+private static void UpdateProjectTarget(this ICakeContext context, string path, string desiredTarget)
+{
+	var peekSettings = new XmlPeekSettings { SuppressWarning = true };
+	foreach(var projectFile in context.GetFiles(path))
+	{
+		context.Information("Updating TFM in: {0}", projectFile.ToString());
+		if (context.XmlPeek(projectFile, "/Project/PropertyGroup/TargetFramework", peekSettings) != null) context.XmlPoke(projectFile, "/Project/PropertyGroup/TargetFramework", desiredTarget);
+		if (context.XmlPeek(projectFile, "/Project/PropertyGroup/TargetFrameworks", peekSettings) != null) context.XmlPoke(projectFile, "/Project/PropertyGroup/TargetFrameworks", desiredTarget);
+	}
 }

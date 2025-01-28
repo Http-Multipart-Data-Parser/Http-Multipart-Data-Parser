@@ -277,9 +277,12 @@ namespace HttpMultipartParser
 			// Remove the two dashes
 			string boundary = line.Substring(2);
 
-			// If the string ends with '--' it means that we found the "end" boundary and we
-			// need to trim the two dashes to get the actual boundary
-			if (boundary.EndsWith("--"))
+			// If the string ends with '--' and it's not followed by content, we can safely assume that we
+			// found the "end" boundary. In this scenario, we must trim the two dashes to get the actual boundary.
+			// Otherwise, the boundary must be accepted as-is. The reason we check for "additional content" is to
+			// resolve the problem explained in GH-123.
+			var moreContentAvailable = MoreContentAvailable(reader);
+			if (boundary.EndsWith("--") && !moreContentAvailable)
 			{
 				boundary = boundary.Substring(0, boundary.Length - 2);
 				reader.Buffer($"--{boundary}--\n");
@@ -333,9 +336,12 @@ namespace HttpMultipartParser
 			// Remove the two dashes
 			string boundary = line.Substring(2);
 
-			// If the string ends with '--' it means that we found the "end" boundary and we
-			// need to trim the two dashes to get the actual boundary.
-			if (boundary.EndsWith("--"))
+			// If the string ends with '--' and it's not followed by content, we can safely assume that we
+			// found the "end" boundary. In this scenario, we must trim the two dashes to get the actual boundary.
+			// Otherwise, the boundary must be accepted as-is. The reason we check for "additional content" is to
+			// resolve the problem explained in GH-123.
+			var moreContentAvailable = await MoreContentAvailableAsync(reader).ConfigureAwait(false);
+			if (boundary.EndsWith("--") && !moreContentAvailable)
 			{
 				boundary = boundary.Substring(0, boundary.Length - 2);
 				reader.Buffer($"--{boundary}--\n");
@@ -346,6 +352,47 @@ namespace HttpMultipartParser
 			}
 
 			return boundary;
+		}
+
+		/// <summary>
+		///     Determine if there is more content.
+		/// </summary>
+		/// <param name="reader">
+		///     The binary reader to parse.
+		/// </param>
+		/// <returns>
+		///     A boolean indicating whether more content is available in the binary reader.
+		/// </returns>
+		private static bool MoreContentAvailable(RebufferableBinaryReader reader)
+		{
+			var line = reader.ReadLine();
+
+			if (line == null) return false;
+			else reader.Buffer($"{line}\n");
+
+			return true;
+		}
+
+		/// <summary>
+		///     Determine if there is more content.
+		/// </summary>
+		/// <param name="reader">
+		///     The binary reader to parse.
+		/// </param>
+		/// <param name="cancellationToken">
+		///     The cancellation token.
+		/// </param>
+		/// <returns>
+		///     A boolean indicating whether more content is available in the binary reader.
+		/// </returns>
+		private static async Task<bool> MoreContentAvailableAsync(RebufferableBinaryReader reader, CancellationToken cancellationToken = default)
+		{
+			var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+
+			if (line == null) return false;
+			else reader.Buffer($"{line}\n");
+
+			return true;
 		}
 
 		/// <summary>

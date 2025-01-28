@@ -86,17 +86,19 @@ var isTagged = BuildSystem.AppVeyor.Environment.Repository.Tag.IsTag && !string.
 var isIntegrationTestsProjectPresent = FileExists(integrationTestsProject);
 var isUnitTestsProjectPresent = FileExists(unitTestsProject);
 var isBenchmarkProjectPresent = FileExists(benchmarkProject);
+var isCodeCoverageTarget = target.Equals("Coverage", StringComparison.OrdinalIgnoreCase) ||
+	target.Equals("Run-Code-Coverage", StringComparison.OrdinalIgnoreCase) ||
+	target.Equals("Generate-Code-Coverage-Report", StringComparison.OrdinalIgnoreCase) ||
+	target.Equals("Upload-Coverage-Result", StringComparison.OrdinalIgnoreCase);
+var removeIntegrationTests = isIntegrationTestsProjectPresent && (!isLocalBuild || isCodeCoverageTarget);
+var removeBenchmarks = isBenchmarkProjectPresent && (!isLocalBuild || isCodeCoverageTarget);
 
 var publishingError = false;
 
 // Generally speaking, we want to honor all the TFM configured in the unit tests, integration tests and benchmark projects.
 // However, a single framework is sufficient when calculating code coverage.
 const string DEFAULT_FRAMEWORK = "net9.0";
-var isSingleTfmMode = (IsRunningOnWindows() && BuildSystem.AppVeyor.IsRunningOnAppVeyor) ||
-		target.Equals("Coverage", StringComparison.OrdinalIgnoreCase) ||
-		target.Equals("Run-Code-Coverage", StringComparison.OrdinalIgnoreCase) ||
-		target.Equals("Generate-Code-Coverage-Report", StringComparison.OrdinalIgnoreCase) ||
-		target.Equals("Upload-Coverage-Result", StringComparison.OrdinalIgnoreCase);
+var isSingleTfmMode = (IsRunningOnWindows() && !isLocalBuild) || isCodeCoverageTarget;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,11 +156,21 @@ Setup(context =>
 	}
 
 	// In single TFM mode we want to override the framework(s) with our desired framework
-	if (isSingleTfmMode)
+	if (isSingleTfmMode && isUnitTestsProjectPresent) Context.UpdateProjectTarget(unitTestsProject, DEFAULT_FRAMEWORK);
+
+	// Integration tests are intended to be used for debugging purposes and not intended to be executed in CI environment.
+	if (removeIntegrationTests)
 	{
-		if (isUnitTestsProjectPresent) Context.UpdateProjectTarget(unitTestsProject, DEFAULT_FRAMEWORK);
-		if (isBenchmarkProjectPresent) Context.UpdateProjectTarget(benchmarkProject, DEFAULT_FRAMEWORK);
-		if (isIntegrationTestsProjectPresent) Context.UpdateProjectTarget(integrationTestsProject, DEFAULT_FRAMEWORK);
+		Information("");
+		Information("Removing integration tests");
+		DotNetTool(solutionFile, "sln", $"remove {integrationTestsProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
+	}
+
+	// Similarly, benchmarks are not intended to be executed in CI environment.
+	if (removeBenchmarks)
+		Information("");
+		Information("Removing benchmark project");
+		DotNetTool(solutionFile, "sln", $"remove {benchmarkProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");
 	}
 });
 
@@ -166,8 +178,16 @@ Teardown(context =>
 {
 	if (isSingleTfmMode)
 	{
-		Information("Restoring project files that may have been modified during build script setup");
+		Information("Restoring project files that were modified during build script setup");
 		GitCheckout(".", GetFiles("./Source/**/*.csproj").ToArray());
+		Information("");
+	}
+
+	if (removeIntegrationTests || removeBenchmarks)
+	{
+		Information("Restoring the solution file which was modified during build script setup");
+		GitCheckout(".", new FilePath[] { solutionFile });
+		Information("  Restored {0}", solutionFile.ToString());
 		Information("");
 	}
 

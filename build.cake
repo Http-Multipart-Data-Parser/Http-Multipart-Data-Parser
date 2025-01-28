@@ -156,7 +156,10 @@ Setup(context =>
 	}
 
 	// In single TFM mode we want to override the framework(s) with our desired framework
-	if (isSingleTfmMode && isUnitTestsProjectPresent) Context.UpdateProjectTarget(unitTestsProject, DEFAULT_FRAMEWORK);
+	if (isSingleTfmMode && isUnitTestsProjectPresent)
+	{
+		Context.UpdateProjectTarget(unitTestsProject, DEFAULT_FRAMEWORK);
+	}
 
 	// Integration tests are intended to be used for debugging purposes and not intended to be executed in CI environment.
 	if (removeIntegrationTests)
@@ -168,6 +171,7 @@ Setup(context =>
 
 	// Similarly, benchmarks are not intended to be executed in CI environment.
 	if (removeBenchmarks)
+	{
 		Information("");
 		Information("Removing benchmark project");
 		DotNetTool(solutionFile, "sln", $"remove {benchmarkProject.TrimStart(sourceFolder, StringComparison.OrdinalIgnoreCase)}");

@@ -277,9 +277,12 @@ namespace HttpMultipartParser
 			// Remove the two dashes
 			string boundary = line.Substring(2);
 
-			// If the string ends with '--' it means that we found the "end" boundary and we
-			// need to trim the two dashes to get the actual boundary
-			if (boundary.EndsWith("--"))
+			// If the string ends with '--' and it's not followed by content, we can safely assume that we
+			// found the "end" boundary. In this scenario, we must trim the two dashes to get the actual boundary.
+			// Otherwise, the boundary must be accepted as-is. The reason we check for "additional content" is to
+			// resolve the problem explained in GH-123.
+			var moreContentAvailable = MoreContentAvailable(reader);
+			if (boundary.EndsWith("--") && !moreContentAvailable)
 			{
 				boundary = boundary.Substring(0, boundary.Length - 2);
 				reader.Buffer($"--{boundary}--\n");
@@ -333,9 +336,12 @@ namespace HttpMultipartParser
 			// Remove the two dashes
 			string boundary = line.Substring(2);
 
-			// If the string ends with '--' it means that we found the "end" boundary and we
-			// need to trim the two dashes to get the actual boundary.
-			if (boundary.EndsWith("--"))
+			// If the string ends with '--' and it's not followed by content, we can safely assume that we
+			// found the "end" boundary. In this scenario, we must trim the two dashes to get the actual boundary.
+			// Otherwise, the boundary must be accepted as-is. The reason we check for "additional content" is to
+			// resolve the problem explained in GH-123.
+			var moreContentAvailable = await MoreContentAvailableAsync(reader).ConfigureAwait(false);
+			if (boundary.EndsWith("--") && !moreContentAvailable)
 			{
 				boundary = boundary.Substring(0, boundary.Length - 2);
 				reader.Buffer($"--{boundary}--\n");
@@ -346,6 +352,47 @@ namespace HttpMultipartParser
 			}
 
 			return boundary;
+		}
+
+		/// <summary>
+		///     Determine if there is more content.
+		/// </summary>
+		/// <param name="reader">
+		///     The binary reader to parse.
+		/// </param>
+		/// <returns>
+		///     A boolean indicating whether more content is available in the binary reader.
+		/// </returns>
+		private static bool MoreContentAvailable(RebufferableBinaryReader reader)
+		{
+			var line = reader.ReadLine();
+
+			if (line == null) return false;
+			else reader.Buffer($"{line}\n");
+
+			return true;
+		}
+
+		/// <summary>
+		///     Determine if there is more content.
+		/// </summary>
+		/// <param name="reader">
+		///     The binary reader to parse.
+		/// </param>
+		/// <param name="cancellationToken">
+		///     The cancellation token.
+		/// </param>
+		/// <returns>
+		///     A boolean indicating whether more content is available in the binary reader.
+		/// </returns>
+		private static async Task<bool> MoreContentAvailableAsync(RebufferableBinaryReader reader, CancellationToken cancellationToken = default)
+		{
+			var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+
+			if (line == null) return false;
+			else reader.Buffer($"{line}\n");
+
+			return true;
 		}
 
 		/// <summary>
@@ -686,7 +733,7 @@ namespace HttpMultipartParser
 					// We also want to chop off the newline that is inserted by the protocol.
 					// We can do this by reducing endPos by the length of newline in this environment
 					// and encoding
-					FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
+					FileHandler?.Invoke(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
 
 					int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
 					int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -696,7 +743,7 @@ namespace HttpMultipartParser
 				}
 
 				// No end, consume the entire previous buffer
-				FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
+				FileHandler?.Invoke(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
 
 				// Now we want to swap the two buffers, we don't care
 				// what happens to the data from prevBuffer so we set
@@ -843,7 +890,7 @@ namespace HttpMultipartParser
 					// We also want to chop off the newline that is inserted by the protocl.
 					// We can do this by reducing endPos by the length of newline in this environment
 					// and encoding
-					FileHandler(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
+					FileHandler?.Invoke(name, filename, contentType, contentDisposition, fullBuffer, endPos - bufferNewlineLength, partNumber++, additionalParameters);
 
 					int writeBackOffset = endPos + endPosLength + boundaryNewlineOffset;
 					int writeBackAmount = (prevLength + curLength) - writeBackOffset;
@@ -853,7 +900,7 @@ namespace HttpMultipartParser
 				}
 
 				// No end, consume the entire previous buffer
-				FileHandler(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
+				FileHandler?.Invoke(name, filename, contentType, contentDisposition, prevBuffer, prevLength, partNumber++, additionalParameters);
 
 				// Now we want to swap the two buffers, we don't care
 				// what happens to the data from prevBuffer so we set
@@ -898,7 +945,7 @@ namespace HttpMultipartParser
 			if (line.SequenceEqual(endBoundaryBinary)) readEndBoundary = true;
 
 			var part = new ParameterPartBinary(parameters["name"], data);
-			ParameterHandler(part);
+			ParameterHandler?.Invoke(part);
 		}
 
 		/// <summary>
@@ -933,7 +980,7 @@ namespace HttpMultipartParser
 			if (line.SequenceEqual(endBoundaryBinary)) readEndBoundary = true;
 
 			var part = new ParameterPartBinary(parameters["name"], data);
-			ParameterHandler(part);
+			ParameterHandler?.Invoke(part);
 		}
 
 		/// <summary>

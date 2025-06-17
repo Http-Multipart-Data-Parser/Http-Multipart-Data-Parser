@@ -51,7 +51,7 @@ namespace HttpMultipartParser.UnitTests
 				parser.ParameterHandler = null;
 				parser.FileHandler = null;
 
-				await parser.RunAsync();
+				await parser.RunAsync(TestContext.Current.CancellationToken);
 			}
 		}
 	}

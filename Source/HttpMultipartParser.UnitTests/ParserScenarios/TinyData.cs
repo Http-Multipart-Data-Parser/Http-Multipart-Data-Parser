@@ -67,7 +67,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -95,7 +95,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, 16, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -127,7 +127,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			string request = regex.Replace(_testCase.Request, "\r\n", 1);
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -155,7 +155,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			string request = _testCase.Request.Replace("\n", "\r\n");
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -181,7 +181,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -204,7 +204,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 
 				stream.Position = 0;
@@ -227,7 +227,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.Null(parser.GetParameterValue("does not exist"));
 			}
 		}
@@ -248,7 +248,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.NotNull(parser.GetParameterValue("text"));
 				Assert.Null(parser.GetParameterValue("Text"));
 			}
@@ -260,8 +260,8 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
 				var parser = MultipartFormDataParser.Parse(stream, "boundary", Encoding.UTF8);
-				Assert.NotNull(parser.GetParameterValue("text",StringComparison.OrdinalIgnoreCase));
-				Assert.NotNull(parser.GetParameterValue("Text",StringComparison.OrdinalIgnoreCase));
+				Assert.NotNull(parser.GetParameterValue("text", StringComparison.OrdinalIgnoreCase));
+				Assert.NotNull(parser.GetParameterValue("Text", StringComparison.OrdinalIgnoreCase));
 			}
 		}
 
@@ -270,9 +270,9 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8);
-				Assert.NotNull(parser.GetParameterValue("text",StringComparison.OrdinalIgnoreCase));
-				Assert.NotNull(parser.GetParameterValue("Text",StringComparison.OrdinalIgnoreCase));
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
+				Assert.NotNull(parser.GetParameterValue("text", StringComparison.OrdinalIgnoreCase));
+				Assert.NotNull(parser.GetParameterValue("Text", StringComparison.OrdinalIgnoreCase));
 			}
 		}
 
@@ -296,7 +296,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 				{
-					var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, i);
+					var parser = await MultipartFormDataParser.ParseAsync(stream, "boundary", Encoding.UTF8, i, cancellationToken: TestContext.Current.CancellationToken);
 					Assert.True(_testCase.Validate(parser), $"Failure in buffer length {i}");
 				}
 			}

@@ -48,7 +48,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		{
 			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

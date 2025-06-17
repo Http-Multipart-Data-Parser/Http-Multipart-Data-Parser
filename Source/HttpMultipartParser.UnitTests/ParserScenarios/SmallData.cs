@@ -74,7 +74,7 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				// The boundary is missing the first two -- in accordance with the multipart
 				// spec. (A -- is added by the parser, this boundary is what would be sent in the
 				// request header)
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "---------------------------265001916915724");
+				var parser = await MultipartFormDataParser.ParseAsync(stream, "---------------------------265001916915724", cancellationToken: TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

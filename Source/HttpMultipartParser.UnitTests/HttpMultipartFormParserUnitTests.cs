@@ -46,7 +46,7 @@ namespace HttpMultipartParser.UnitTests
 		[Fact]
 		public async Task ConstructingWithNullStreamFailsAsync()
 		{
-			await Assert.ThrowsAsync<ArgumentNullException>(() => MultipartFormDataParser.ParseAsync(Stream.Null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => MultipartFormDataParser.ParseAsync(Stream.Null, cancellationToken: TestContext.Current.CancellationToken));
 		}
 
 		/// <summary>
@@ -89,7 +89,7 @@ namespace HttpMultipartParser.UnitTests
 
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValue("multilined"));
 				Assert.Equal($"line 1{Environment.NewLine}line 2{Environment.NewLine}line 3", parser.GetParameterValues("multilined").First());
 			}
@@ -139,7 +139,7 @@ Content-Type: application/pdf
 
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 			}
 		}
 
@@ -187,7 +187,7 @@ Content-Type: application/pdf
 
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 			}
 		}
 
@@ -211,7 +211,7 @@ Content-Type: application/octet-stream
 
 			using (Stream stream = TestUtil.StringToStream(request, Encoding.UTF8))
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8);
+				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
 				Assert.Single(parser.Files);
 			}
 		}

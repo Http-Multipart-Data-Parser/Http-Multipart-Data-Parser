@@ -90,7 +90,7 @@ parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNum
 {
     // Write the part of the file we've received to a file stream. (Or do something else)
     filestream.Write(buffer, 0, bytes);
-}
+};
 
 // You can parse synchronously:
 parser.Run();

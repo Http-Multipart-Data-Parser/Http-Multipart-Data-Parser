@@ -26,7 +26,7 @@ if (IsRunningOnUnix()) target = "Run-Unit-Tests";
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
-var libraryName = "Http-Multipart-Data-Parser";
+var libraryName = "HttpMultipartParser";
 var gitHubRepo = "Http-Multipart-Data-Parser";
 
 var nuGetApiUrl = Argument<string>("NUGET_API_URL", EnvironmentVariable("NUGET_API_URL"));

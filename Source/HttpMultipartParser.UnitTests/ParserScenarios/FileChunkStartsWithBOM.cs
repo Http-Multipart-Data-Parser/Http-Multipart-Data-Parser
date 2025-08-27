@@ -76,7 +76,7 @@ Content-Type: application/octet-stream
 					Assert.Equal(_utf8BOMString, Encoding.UTF8.GetString(bomBuffer));
 
 					// Read the rest of the content and assert we get the expected value
-					var restOfContentBuffer = new byte[_fileContent.Length - _padding.Length - _utf8BOMBinary.Length];
+					var restOfContentBuffer = new byte[_fileContent.Length - _padding.Length - _utf8BOMString.Length];
 					file.Read(restOfContentBuffer, 0, restOfContentBuffer.Length);
 
 					Assert.Equal("Hello world", Encoding.UTF8.GetString(restOfContentBuffer));

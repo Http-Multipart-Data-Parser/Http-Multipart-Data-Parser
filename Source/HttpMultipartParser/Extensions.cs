@@ -49,5 +49,24 @@ namespace HttpMultipartParser
 				.Where(p => p.Name.Equals(name, comparisonType))
 				.Select(p => p.Data);
 		}
+
+		/// <summary>
+		/// Determines if the source byte array starts with the specified pattern.
+		/// </summary>
+		/// <param name="src">The source byte array.</param>
+		/// <param name="pattern">The pattern.</param>
+		/// <returns>True if the source byte array starts with the specified pattern, false otherwise.</returns>
+		internal static bool StartsWith(this byte[] src, byte[] pattern)
+		{
+			if (src == null || pattern == null) return false;
+			if (src.Length < pattern.Length) return false;
+
+			for (int i = 0; i < pattern.Length - 1; i++)
+			{
+				if (src[i] != pattern[i]) return false;
+			}
+
+			return true;
+		}
 	}
 }

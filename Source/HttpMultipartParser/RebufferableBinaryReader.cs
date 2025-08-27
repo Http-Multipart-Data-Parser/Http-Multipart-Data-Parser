@@ -62,6 +62,9 @@ namespace HttpMultipartParser
 		/// </summary>
 		private readonly BinaryStreamStack streamStack;
 
+		/// <summary>
+		/// The BOM (AKA preamble) for the encoding.
+		/// </summary>
 		private readonly byte[] preamble;
 
 		#endregion
@@ -290,7 +293,7 @@ namespace HttpMultipartParser
 			byte[] data = ReadByteLine();
 
 			if (data == null) return null;
-			else if (StartsWith(data, preamble)) return encoding.GetString(data.Skip(preamble.Length).ToArray());
+			else if (data.StartsWith(preamble)) return encoding.GetString(data.Skip(preamble.Length).ToArray());
 			else return encoding.GetString(data);
 		}
 
@@ -456,32 +459,13 @@ namespace HttpMultipartParser
 			byte[] data = await ReadByteLineAsync(cancellationToken).ConfigureAwait(false);
 
 			if (data == null) return null;
-			else if (StartsWith(data, preamble)) return encoding.GetString(data.Skip(preamble.Length).ToArray());
+			else if (data.StartsWith(preamble)) return encoding.GetString(data.Skip(preamble.Length).ToArray());
 			else return encoding.GetString(data);
 		}
 
 		#endregion
 
 		#region Methods
-
-		/// <summary>
-		/// Determines if the source byte array starts with the specified pattern.
-		/// </summary>
-		/// <param name="src">The source byte array.</param>
-		/// <param name="pattern">The pattern.</param>
-		/// <returns>True if the source byte array starts with the specified pattern, false otherwise.</returns>
-		private static bool StartsWith(byte[] src, byte[] pattern)
-		{
-			if (src == null || pattern == null) return false;
-			if (src.Length < pattern.Length) return false;
-
-			for (int i = 0; i < pattern.Length - 1; i++)
-			{
-				if (src[i] != pattern[i]) return false;
-			}
-
-			return true;
-		}
 
 		/// <summary>
 		///     Reads more data from the stream into the stream stack.

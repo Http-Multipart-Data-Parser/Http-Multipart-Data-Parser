@@ -10,20 +10,22 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 	public class FileChunkStartsWithBOM
 	{
 		private static readonly int _binaryBufferSize = 100;
-		private static readonly string _prefixChunk = new string('a', _binaryBufferSize * 2);
 		private static readonly byte[] _utf8BOMBinary = new byte[] { 0xef, 0xbb, 0xbf };
 		private static readonly string _utf8BOMString = Encoding.UTF8.GetString(_utf8BOMBinary);
 
-		// The reasoning behind this test is that the parser should be able to handle a file chunk that starts with a BOM.
-		private static readonly string _fileContent = $"{_prefixChunk}{_utf8BOMString}Hello world";
+		private static readonly string _prefix =
+	@"--boundary
+Content-Type: application/octet-stream
+
+";
+		// This padding ensures that the BOM is positioned at the begining of the second chunk
+		private static readonly string _padding = new string('+', _binaryBufferSize - _prefix.Length);
+		private static readonly string _fileContent = $"{_padding}{_utf8BOMString}Hello world";
 
 		private static readonly string _testDataFormat =
-			@"-----------------------------41952539122868
-            Content-Type: application/octet-stream
-
-            {0}
-            -----------------------------41952539122868--";
-		private static readonly string _testData = TestUtil.TrimAllLines(string.Format(_testDataFormat, _fileContent));
+			@"{0}{1}
+--boundary--";
+		private static readonly string _testData = TestUtil.TrimAllLines(string.Format(_testDataFormat, _prefix, _fileContent));
 
 		/// <summary>
 		///     Test case for files with additional parameter.
@@ -55,21 +57,29 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 			{
 				var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8, _binaryBufferSize);
 
-				using (var reader = new BinaryReader(parser.Files[0].Data))
+				using (var file = parser.Files[0].Data)
 				{
-					// Read and discard the prefix
-					var buffer = new byte[_prefixChunk.Length];
-					reader.Read(buffer, 0, buffer.Length);
+					file.Position = 0;
 
-					// Read the BOM
-					buffer = new byte[_utf8BOMBinary.Length];
-					var bomChunk = reader.Read(buffer, 0, buffer.Length);
+					// Read the padding and assert we get the expected value
+					var paddingBuffer = new byte[_padding.Length];
+					file.Read(paddingBuffer, 0, paddingBuffer.Length);
 
-					// Assert that the BOM was read correctly
-					for (int i = 0; i < buffer.Length; i++)
-					{
-						Assert.Equal(_utf8BOMBinary[i], buffer[i]);
-					}
+					Assert.Equal(_padding, Encoding.UTF8.GetString(paddingBuffer));
+
+					// Read the BOM and assert we get the expected value
+					var bomBuffer = new byte[_utf8BOMBinary.Length];
+					file.Read(bomBuffer, 0, bomBuffer.Length);
+
+					// If this assertion fails, it means that we have reproduced the problem described in GH-64
+					// If it succeeds, it means that the bug has been fixed.
+					Assert.Equal(_utf8BOMString, Encoding.UTF8.GetString(bomBuffer));
+
+					// Read the rest of the content and assert we get the expected value
+					var restOfContentBuffer = new byte[_fileContent.Length - _padding.Length - _utf8BOMBinary.Length];
+					file.Read(restOfContentBuffer, 0, restOfContentBuffer.Length);
+
+					Assert.Equal("Hello world", Encoding.UTF8.GetString(restOfContentBuffer));
 				}
 			}
 		}

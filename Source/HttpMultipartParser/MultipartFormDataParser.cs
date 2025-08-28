@@ -20,7 +20,6 @@
 // <author>Jake Woods</author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -144,7 +143,6 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		[Obsolete("Please use Parse(Stream, ParserOptions)")]
 		public static MultipartFormDataParser Parse(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			var options = new ParserOptions
@@ -184,7 +182,6 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		[Obsolete("Please use Parse(Stream, ParserOptions)")]
 		public static MultipartFormDataParser Parse(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			var options = new ParserOptions
@@ -244,7 +241,6 @@ namespace HttpMultipartParser
 		/// <param name="cancellationToken">
 		///     The cancellation token.
 		/// </param>
-		[Obsolete("Please use ParseAsync(Stream, ParserOptions, CancellationToken)")]
 		public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false, CancellationToken cancellationToken = default)
 		{
 			var options = new ParserOptions
@@ -287,7 +283,6 @@ namespace HttpMultipartParser
 		/// <returns>
 		///     A new instance of the <see cref="MultipartFormDataParser"/> class.
 		/// </returns>
-		[Obsolete("Please use ParseAsync(Stream, ParserOptions, CancellationToken)")]
 		public static Task<MultipartFormDataParser> ParseAsync(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false, CancellationToken cancellationToken = default)
 		{
 			var options = new ParserOptions

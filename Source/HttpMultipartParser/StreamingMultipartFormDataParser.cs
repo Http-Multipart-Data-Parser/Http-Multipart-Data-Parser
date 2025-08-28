@@ -70,7 +70,6 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
 		/// </param>
-		[Obsolete("Please use StreamingMultipartFormDataParser(Stream, ParserOptions)")]
 		public StreamingMultipartFormDataParser(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 			: this(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts)
 		{
@@ -100,7 +99,6 @@ namespace HttpMultipartParser
 		/// <param name="ignoreInvalidParts">
 		///     By default the parser will throw an exception if it encounters an invalid part. set this to true to ignore invalid parts.
 		/// </param>
-		[Obsolete("Please use StreamingMultipartFormDataParser(Stream, ParserOptions)")]
 		public StreamingMultipartFormDataParser(Stream stream, string boundary = null, Encoding encoding = null, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
 			if (stream == null || stream == Stream.Null) { throw new ArgumentNullException(nameof(stream)); }

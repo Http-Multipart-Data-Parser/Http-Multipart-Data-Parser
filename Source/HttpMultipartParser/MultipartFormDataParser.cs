@@ -145,14 +145,7 @@ namespace HttpMultipartParser
 		/// </returns>
 		public static MultipartFormDataParser Parse(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false)
 		{
-			var options = new ParserOptions
-			{
-				BinaryBufferSize = binaryBufferSize,
-				BinaryMimeTypes = binaryMimeTypes,
-				Encoding = encoding,
-				IgnoreInvalidParts = ignoreInvalidParts
-			};
-			return Parse(stream, options);
+			return Parse(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts);
 		}
 
 		/// <summary>
@@ -187,11 +180,13 @@ namespace HttpMultipartParser
 			var options = new ParserOptions
 			{
 				BinaryBufferSize = binaryBufferSize,
-				BinaryMimeTypes = binaryMimeTypes,
-				Boundary = boundary,
-				Encoding = encoding,
 				IgnoreInvalidParts = ignoreInvalidParts
 			};
+
+			if (!string.IsNullOrEmpty(boundary)) options.Boundary = boundary;
+			if (encoding != null) options.Encoding = encoding;
+			if (binaryMimeTypes != null) options.BinaryMimeTypes = binaryMimeTypes;
+
 			return Parse(stream, options);
 		}
 
@@ -243,14 +238,7 @@ namespace HttpMultipartParser
 		/// </param>
 		public static Task<MultipartFormDataParser> ParseAsync(Stream stream, Encoding encoding, int binaryBufferSize = Constants.DefaultBufferSize, string[] binaryMimeTypes = null, bool ignoreInvalidParts = false, CancellationToken cancellationToken = default)
 		{
-			var options = new ParserOptions
-			{
-				BinaryBufferSize = binaryBufferSize,
-				BinaryMimeTypes = binaryMimeTypes,
-				Encoding = encoding,
-				IgnoreInvalidParts = ignoreInvalidParts
-			};
-			return ParseAsync(stream, options, cancellationToken);
+			return ParseAsync(stream, null, encoding, binaryBufferSize, binaryMimeTypes, ignoreInvalidParts, cancellationToken);
 		}
 
 		/// <summary>
@@ -288,11 +276,13 @@ namespace HttpMultipartParser
 			var options = new ParserOptions
 			{
 				BinaryBufferSize = binaryBufferSize,
-				BinaryMimeTypes = binaryMimeTypes,
-				Boundary = boundary,
-				Encoding = encoding,
 				IgnoreInvalidParts = ignoreInvalidParts
 			};
+
+			if (!string.IsNullOrEmpty(boundary)) options.Boundary = boundary;
+			if (encoding != null) options.Encoding = encoding;
+			if (binaryMimeTypes != null) options.BinaryMimeTypes = binaryMimeTypes;
+
 			return ParseAsync(stream, options, cancellationToken);
 		}
 

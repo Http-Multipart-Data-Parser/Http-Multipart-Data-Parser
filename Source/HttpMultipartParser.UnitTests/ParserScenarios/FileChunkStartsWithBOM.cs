@@ -53,9 +53,11 @@ Content-Type: application/octet-stream
 		[Fact]
 		public void CanHandleBOM()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var encoding = Encoding.UTF8;
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, encoding))
 			{
-				var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8, _binaryBufferSize);
+				var parser = MultipartFormDataParser.Parse(stream, encoding, _binaryBufferSize);
 
 				using (var file = parser.Files[0].Data)
 				{
@@ -65,7 +67,7 @@ Content-Type: application/octet-stream
 					var paddingBuffer = new byte[_padding.Length];
 					var readCount = file.Read(paddingBuffer, 0, paddingBuffer.Length);
 
-					Assert.Equal(_padding, Encoding.UTF8.GetString(paddingBuffer));
+					Assert.Equal(_padding, encoding.GetString(paddingBuffer));
 
 					// Read the BOM and assert we get the expected value
 					var bomBuffer = new byte[_utf8BOMBinary.Length];
@@ -73,13 +75,13 @@ Content-Type: application/octet-stream
 
 					// If this assertion fails, it means that we have reproduced the problem described in GH-64
 					// If it succeeds, it means that the bug has been fixed.
-					Assert.Equal(_utf8BOMString, Encoding.UTF8.GetString(bomBuffer));
+					Assert.Equal(_utf8BOMString, encoding.GetString(bomBuffer));
 
 					// Read the rest of the content and assert we get the expected value
 					var restOfContentBuffer = new byte[_fileContent.Length - _padding.Length - _utf8BOMString.Length];
 					readCount = file.Read(restOfContentBuffer, 0, restOfContentBuffer.Length);
 
-					Assert.Equal("Hello world", Encoding.UTF8.GetString(restOfContentBuffer));
+					Assert.Equal("Hello world", encoding.GetString(restOfContentBuffer));
 				}
 			}
 		}

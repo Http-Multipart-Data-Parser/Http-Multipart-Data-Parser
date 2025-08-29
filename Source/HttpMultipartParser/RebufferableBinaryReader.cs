@@ -26,7 +26,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,9 +62,9 @@ namespace HttpMultipartParser
 		private readonly BinaryStreamStack streamStack;
 
 		/// <summary>
-		/// The BOM (AKA preamble) for the encoding.
+		/// Counts the number of chunks read from the underlying stream.
 		/// </summary>
-		private readonly byte[] preamble;
+		private int processedChunkCounter;
 
 		#endregion
 
@@ -101,7 +100,7 @@ namespace HttpMultipartParser
 			streamStack = new BinaryStreamStack(encoding);
 			this.encoding = encoding;
 			this.bufferSize = bufferSize;
-			this.preamble = encoding.GetPreamble();
+			processedChunkCounter = 0;
 		}
 
 		#endregion
@@ -291,10 +290,7 @@ namespace HttpMultipartParser
 		public string ReadLine()
 		{
 			byte[] data = ReadByteLine();
-
-			if (data == null) return null;
-			else if (data.StartsWith(preamble)) return encoding.GetString(data.Skip(preamble.Length).ToArray());
-			else return encoding.GetString(data);
+			return data == null ? null : encoding.GetString(data);
 		}
 
 		/// <summary>
@@ -457,15 +453,37 @@ namespace HttpMultipartParser
 		public async Task<string> ReadLineAsync(CancellationToken cancellationToken = default)
 		{
 			byte[] data = await ReadByteLineAsync(cancellationToken).ConfigureAwait(false);
-
-			if (data == null) return null;
-			else if (data.StartsWith(preamble)) return encoding.GetString(data.Skip(preamble.Length).ToArray());
-			else return encoding.GetString(data);
+			return data == null ? null : encoding.GetString(data);
 		}
 
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		///     Determines the byte order marking offset (if any) from the
+		///     given buffer.
+		/// </summary>
+		/// <param name="buffer">
+		///     The buffer to examine.
+		/// </param>
+		/// <returns>
+		///     The <see cref="int" /> representing the length of the byte order marking.
+		/// </returns>
+		private int GetBomOffset(byte[] buffer)
+		{
+			byte[] bom = encoding.GetPreamble();
+			bool usesBom = true;
+			for (int i = 0; i < bom.Length; ++i)
+			{
+				if (bom[i] != buffer[i])
+				{
+					usesBom = false;
+				}
+			}
+
+			return usesBom ? bom.Length : 0;
+		}
 
 		/// <summary>
 		///     Reads more data from the stream into the stream stack.
@@ -518,14 +536,30 @@ namespace HttpMultipartParser
 		private void PushToStack(byte[] buffer, int amountRead)
 		{
 			/*
-				The logic in this method until August 2025 would eliminate the BOM (also called the encoding preamble).
-				However, it's important to preserve the BOM when the data is binary, such as the content of a file.
-				That's why we no longer eliminate the BOM in this method.
-				The BOM is now eliminated in `ReadLine` and `ReadLineAsync` because we want to get rid of it
-				when processing string data.
-			*/
+				The logic in this method until August 2025 would eliminate the BOM (also called the encoding preamble)
+				if it was present at the begining of each and every buffer read from the stream.
 
-			if (amountRead > 0) streamStack.Push(buffer, 0, amountRead);
+				However, we only need to remove the BOM if present at the very begining of the stream.
+				In other words: only remove the BOM from the first chunk.
+			 */
+
+			if (amountRead > 0)
+			{
+				if (processedChunkCounter == 0)
+				{
+					int bomOffset = GetBomOffset(buffer);
+					if (amountRead - bomOffset > 0)
+					{
+						streamStack.Push(buffer, bomOffset, amountRead - bomOffset);
+					}
+				}
+				else
+				{
+					streamStack.Push(buffer, 0, amountRead);
+				}
+
+				processedChunkCounter++;
+			}
 		}
 
 		#endregion

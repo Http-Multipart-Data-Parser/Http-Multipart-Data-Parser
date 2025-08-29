@@ -42,11 +42,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void CanHandleMixedSingleByteAndMultiByteWidthCharacters()
 		{
-			using (
-				Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8)
-				)
+			var options = new ParserOptions
 			{
-				var parser = MultipartFormDataParser.Parse(stream, Encoding.UTF8);
+				Encoding = Encoding.UTF8
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, options);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -54,11 +57,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public async Task CanHandleMixedSingleByteAndMultiByteWidthCharactersAsync()
 		{
-			using (
-				Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8)
-				)
+			var options = new ParserOptions
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, Encoding.UTF8, cancellationToken: TestContext.Current.CancellationToken);
+				Encoding = Encoding.UTF8
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}

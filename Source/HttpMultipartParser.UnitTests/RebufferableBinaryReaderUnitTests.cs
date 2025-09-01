@@ -67,6 +67,48 @@ namespace HttpMultipartParser.UnitTests
 			Assert.Equal('g', reader.Read());
 		}
 
+		[Theory]
+		[InlineData(new byte[] { 0xef, 0xbb, 0xbf }, "utf-8")] // UTF-8
+		[InlineData(new byte[] { 0xff, 0xfe }, "utf-16")] // UTF-16
+		[InlineData(new byte[] { 0xfe, 0xff }, "utf-16BE")] // UTF-16 Big Endian
+		[InlineData(new byte[] { 0xfe, 0xff }, "utf-32")] // UTF-32
+		[InlineData(new byte[] { 0x00, 0x00, 0xfe, 0xff }, "utf-32BE")] // UTF-32 Big Endian
+		public void CanReadBOM(byte[] bom, string encodingName)
+		{
+			var encoding = Encoding.GetEncoding(encodingName);
+
+			var prefixString = "Foo Bar";
+			var prefixBinary = encoding.GetBytes(prefixString);
+
+			var sufixString = "Hello world";
+			var sufixBinary = encoding.GetBytes(sufixString);
+
+			var stream = new MemoryStream();
+			var binaryWriter = new BinaryWriter(stream);
+			binaryWriter.Write(prefixBinary);
+			binaryWriter.Write(bom);
+			binaryWriter.Write(sufixBinary);
+			binaryWriter.Flush();
+			stream.Position = 0;
+
+			var reader = new RebufferableBinaryReader(stream, encoding);
+
+			var buffer = new byte[prefixBinary.Length];
+			reader.Read(buffer, 0, buffer.Length);
+			Assert.Equal(prefixString, encoding.GetString(buffer));
+
+			buffer = new byte[bom.Length];
+			reader.Read(buffer, 0, buffer.Length);
+			for (int i = 0; i < buffer.Length; i++)
+			{
+				Assert.Equal(bom[i], buffer[i]);
+			}
+
+			buffer = new byte[sufixBinary.Length];
+			reader.Read(buffer, 0, buffer.Length);
+			Assert.Equal(sufixString, encoding.GetString(buffer));
+		}
+
 		#endregion
 
 		#region ReadAsync() Tests
@@ -76,9 +118,9 @@ namespace HttpMultipartParser.UnitTests
 		{
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abc"), Encoding.UTF8);
 
-			Assert.Equal('a', await reader.ReadAsync());
-			Assert.Equal('b', await reader.ReadAsync());
-			Assert.Equal('c', await reader.ReadAsync());
+			Assert.Equal('a', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('b', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('c', await reader.ReadAsync(TestContext.Current.CancellationToken));
 		}
 
 		[Fact]
@@ -87,12 +129,12 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("def"), Encoding.UTF8);
 			reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
-			Assert.Equal('a', await reader.ReadAsync());
-			Assert.Equal('b', await reader.ReadAsync());
-			Assert.Equal('c', await reader.ReadAsync());
-			Assert.Equal('d', await reader.ReadAsync());
-			Assert.Equal('e', await reader.ReadAsync());
-			Assert.Equal('f', await reader.ReadAsync());
+			Assert.Equal('a', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('b', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('c', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('d', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('e', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('f', await reader.ReadAsync(TestContext.Current.CancellationToken));
 		}
 
 		[Fact]
@@ -100,13 +142,13 @@ namespace HttpMultipartParser.UnitTests
 		{
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("abcdèfg"), Encoding.UTF8);
 
-			Assert.Equal('a', await reader.ReadAsync());
-			Assert.Equal('b', await reader.ReadAsync());
-			Assert.Equal('c', await reader.ReadAsync());
-			Assert.Equal('d', await reader.ReadAsync());
-			Assert.Equal('è', await reader.ReadAsync());
-			Assert.Equal('f', await reader.ReadAsync());
-			Assert.Equal('g', await reader.ReadAsync());
+			Assert.Equal('a', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('b', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('c', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('d', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('è', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('f', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('g', await reader.ReadAsync(TestContext.Current.CancellationToken));
 		}
 
 		[Fact]
@@ -115,13 +157,13 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("dèfg"), Encoding.UTF8);
 			reader.Buffer(TestUtil.StringToByteNoBom("abc"));
 
-			Assert.Equal('a', await reader.ReadAsync());
-			Assert.Equal('b', await reader.ReadAsync());
-			Assert.Equal('c', await reader.ReadAsync());
-			Assert.Equal('d', await reader.ReadAsync());
-			Assert.Equal('è', await reader.ReadAsync());
-			Assert.Equal('f', await reader.ReadAsync());
-			Assert.Equal('g', await reader.ReadAsync());
+			Assert.Equal('a', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('b', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('c', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('d', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('è', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('f', await reader.ReadAsync(TestContext.Current.CancellationToken));
+			Assert.Equal('g', await reader.ReadAsync(TestContext.Current.CancellationToken));
 		}
 
 		#endregion
@@ -251,7 +293,7 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
 			var buffer = new byte[Encoding.UTF8.GetByteCount("6chars")];
-			await reader.ReadAsync(buffer, 0, buffer.Length);
+			await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			string result = Encoding.UTF8.GetString(buffer);
 			Assert.Equal("6chars", result);
 		}
@@ -263,7 +305,7 @@ namespace HttpMultipartParser.UnitTests
 			reader.Buffer(TestUtil.StringToByteNoBom("6ch"));
 
 			var buffer = new byte[6];
-			await reader.ReadAsync(buffer, 0, buffer.Length);
+			await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("6chars", Encoding.UTF8.GetString(buffer));
 		}
 
@@ -273,7 +315,7 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("5èats"), Encoding.UTF8);
 
 			var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
-			await reader.ReadAsync(buffer, 0, buffer.Length);
+			await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			string result = Encoding.UTF8.GetString(buffer);
 			Assert.Equal("5èats", result);
 		}
@@ -285,7 +327,7 @@ namespace HttpMultipartParser.UnitTests
 			reader.Buffer(TestUtil.StringToByteNoBom(("5èa")));
 
 			var buffer = new byte[Encoding.UTF8.GetByteCount("5èats")];
-			await reader.ReadAsync(buffer, 0, buffer.Length);
+			await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			string result = Encoding.UTF8.GetString(buffer);
 			Assert.Equal("5èats", result);
 		}
@@ -296,11 +338,11 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
 			var buffer = new byte[4];
-			await reader.ReadAsync(buffer, 0, buffer.Length);
+			await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("6cha", Encoding.UTF8.GetString(buffer));
 
 			buffer = new byte[2];
-			await reader.ReadAsync(buffer, 0, buffer.Length);
+			await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("rs", Encoding.UTF8.GetString(buffer));
 		}
 
@@ -310,7 +352,7 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
 			var buffer = new byte[10];
-			int amountRead = await reader.ReadAsync(buffer, 0, buffer.Length);
+			int amountRead = await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("6chars\0\0\0\0", Encoding.UTF8.GetString(buffer));
 			Assert.Equal(6, amountRead);
 		}
@@ -321,7 +363,7 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(new MemoryStream(), Encoding.UTF8);
 
 			var buffer = new byte[6];
-			int amountRead = await reader.ReadAsync(buffer, 0, buffer.Length);
+			int amountRead = await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("\0\0\0\0\0\0", Encoding.UTF8.GetString(buffer));
 			Assert.Equal(0, amountRead);
 		}
@@ -331,9 +373,9 @@ namespace HttpMultipartParser.UnitTests
 		{
 			var reader = new RebufferableBinaryReader(new MemoryStream(new byte[6]), Encoding.UTF8);
 
-			var s = await reader.ReadLineAsync();
+			var s = await reader.ReadLineAsync(TestContext.Current.CancellationToken);
 			Assert.Equal("\0\0\0\0\0\0", s);
-			Assert.Null(await reader.ReadLineAsync());
+			Assert.Null(await reader.ReadLineAsync(TestContext.Current.CancellationToken));
 		}
 
 		[Fact]
@@ -342,18 +384,18 @@ namespace HttpMultipartParser.UnitTests
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("6chars"), Encoding.UTF8);
 
 			var buffer = new byte[4];
-			int amountRead = await reader.ReadAsync(buffer, 0, buffer.Length);
+			int amountRead = await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("6cha", Encoding.UTF8.GetString(buffer));
 			Assert.Equal(4, amountRead);
 
 			reader.Buffer(TestUtil.StringToByteNoBom("14intermission"));
 			buffer = new byte[14];
-			amountRead = await reader.ReadAsync(buffer, 0, buffer.Length);
+			amountRead = await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("14intermission", Encoding.UTF8.GetString(buffer));
 			Assert.Equal(14, amountRead);
 
 			buffer = new byte[2];
-			amountRead = await reader.ReadAsync(buffer, 0, buffer.Length);
+			amountRead = await reader.ReadAsync(buffer, 0, buffer.Length, cancellationToken: TestContext.Current.CancellationToken);
 			Assert.Equal("rs", Encoding.UTF8.GetString(buffer));
 			Assert.Equal(2, amountRead);
 		}
@@ -383,7 +425,7 @@ namespace HttpMultipartParser.UnitTests
 		public async Task CanReadByteLineOnMixedAsciiAndUTF8TextAsync()
 		{
 			var reader = new RebufferableBinaryReader(TestUtil.StringToStreamNoBom("Bonjour poignée"), Encoding.UTF8);
-			byte[] bytes = await reader.ReadByteLineAsync();
+			byte[] bytes = await reader.ReadByteLineAsync(TestContext.Current.CancellationToken);
 			var expected = new byte[] { 66, 111, 110, 106, 111, 117, 114, 32, 112, 111, 105, 103, 110, 195, 169, 101 };
 
 			foreach (var pair in expected.Zip(bytes, Tuple.Create))

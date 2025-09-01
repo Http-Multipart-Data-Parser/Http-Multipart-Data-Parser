@@ -34,7 +34,12 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void End_of_stream_and_boundary_is_known()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Boundary = "MyBoundary"
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to the end of the stream
 				var sr = new StreamReader(stream);
@@ -43,28 +48,38 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				// When the developer provides the boundary, the parser does not have to determine the boundary
 				// and therefore the DetectBoundary method is not invoked which avoids the problem altogether.
 				// However, the parser is unable to find the provided boundary and throws a meaningful exception.
-				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, "MyBoundary"));
+				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, options));
 			}
 		}
 
 		[Fact]
 		public void End_of_stream_and_boundary_is_unknown()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Encoding = Encoding.UTF8,
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to the end of the stream
 				var sr = new StreamReader(stream);
 				var content = sr.ReadToEnd();
 
 				// As of March 2022, the problem was resolved by throwing a more descriptive exception
-				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream));
+				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, options));
 			}
 		}
 
 		[Fact]
 		public void Middle_of_stream_and_boundary_is_known()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Boundary = "MyBoundary"
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to an arbitrary location
 				stream.Position = 3;
@@ -72,57 +87,85 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				// When the developer provides the boundary, the parser does not have to determine the boundary
 				// and therefore the DetectBoundary method is not invoked which avoids the problem altogether.
 				// However, the parser is unable to find the provided boundary and throws a meaningful exception.
-				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, "MyBoundary"));
+				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, options));
 			}
 		}
 
 		[Fact]
 		public void Middle_of_stream_and_boundary_is_unknown()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Encoding = Encoding.UTF8,
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to an arbitrary location
 				stream.Position = 3;
 
 				// As of March 2022, the problem was resolved by throwing a more descriptive exception
-				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream));
+				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, default));
 			}
 		}
 
 		[Fact]
 		public async Task End_of_stream_and_boundary_is_known_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Boundary = "MyBoundary"
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to the end of the stream
 				var sr = new StreamReader(stream);
-				var content = await sr.ReadToEndAsync();
+				var content = await sr.ReadToEndAsync(
+#if NET5_0_OR_GREATER
+					TestContext.Current.CancellationToken
+#endif
+				);
 
 				// When the developer provides the boundary, the parser does not have to determine the boundary
 				// and therefore the DetectBoundary method is not invoked which avoids the problem altogether.
 				// However, the parser is unable to find the provided boundary and throws a meaningful exception.
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, "MyBoundary"));
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken));
 			}
 		}
 
 		[Fact]
 		public async Task End_of_stream_and_boundary_is_unknown_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Encoding = Encoding.UTF8,
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to the end of the stream
 				var sr = new StreamReader(stream);
-				var content = await sr.ReadToEndAsync();
+				var content = await sr.ReadToEndAsync(
+#if NET5_0_OR_GREATER
+					TestContext.Current.CancellationToken
+#endif
+				);
 
 				// As of March 2022, the problem was resolved by throwing a more descriptive exception
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream));
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken));
 			}
 		}
 
 		[Fact]
 		public async Task Middle_of_stream_and_boundary_is_known_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Boundary = "MyBoundary"
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to an arbitrary location
 				stream.Position = 3;
@@ -130,20 +173,25 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 				// When the developer provides the boundary, the parser does not have to determine the boundary
 				// and therefore the DetectBoundary method is not invoked which avoids the problem altogether.
 				// However, the parser is unable to find the provided boundary and throws a meaningful exception.
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, "MyBoundary"));
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken));
 			}
 		}
 
 		[Fact]
 		public async Task Middle_of_stream_and_boundary_is_unknown_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
+			{
+				Encoding = Encoding.UTF8,
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
 			{
 				// Move the Position to an arbitrary location
 				stream.Position = 3;
 
 				// As of March 2022, the problem was resolved by throwing a more descriptive exception
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream));
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken));
 			}
 		}
 	}

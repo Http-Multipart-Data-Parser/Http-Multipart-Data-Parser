@@ -61,6 +61,11 @@ namespace HttpMultipartParser
 		/// </summary>
 		private readonly BinaryStreamStack streamStack;
 
+		/// <summary>
+		/// Counts the number of chunks read from the underlying stream.
+		/// </summary>
+		private int processedChunkCounter;
+
 		#endregion
 
 		#region Constructors and Destructors
@@ -73,7 +78,7 @@ namespace HttpMultipartParser
 		///     The input stream to read from.
 		/// </param>
 		public RebufferableBinaryReader(Stream input)
-			: this(input, new UTF8Encoding(false))
+			: this(input, Encoding.UTF8)
 		{
 		}
 
@@ -95,6 +100,7 @@ namespace HttpMultipartParser
 			streamStack = new BinaryStreamStack(encoding);
 			this.encoding = encoding;
 			this.bufferSize = bufferSize;
+			processedChunkCounter = 0;
 		}
 
 		#endregion
@@ -529,15 +535,30 @@ namespace HttpMultipartParser
 		/// </param>
 		private void PushToStack(byte[] buffer, int amountRead)
 		{
-			// We need to check if our stream is using our encodings
-			// BOM, if it is we need to jump it.
-			int bomOffset = GetBomOffset(buffer);
+			/*
+				The logic in this method until August 2025 would eliminate the BOM (also called the encoding preamble)
+				if it was present at the begining of each and every buffer read from the stream.
 
-			// Sometimes we'll get a buffer that's smaller then we expect, chop it down
-			// for the reader:
-			if (amountRead - bomOffset > 0)
+				However, we only need to remove the BOM if present at the very begining of the stream.
+				In other words: only remove the BOM from the first chunk.
+			 */
+
+			if (amountRead > 0)
 			{
-				streamStack.Push(buffer, bomOffset, amountRead - bomOffset);
+				if (processedChunkCounter == 0)
+				{
+					int bomOffset = GetBomOffset(buffer);
+					if (amountRead - bomOffset > 0)
+					{
+						streamStack.Push(buffer, bomOffset, amountRead - bomOffset);
+					}
+				}
+				else
+				{
+					streamStack.Push(buffer, 0, amountRead);
+				}
+
+				processedChunkCounter++;
 			}
 		}
 

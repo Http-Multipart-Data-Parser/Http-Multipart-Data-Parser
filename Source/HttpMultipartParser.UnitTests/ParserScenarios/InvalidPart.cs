@@ -31,29 +31,44 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void Exception_is_thrown_when_attempting_to_parse()
 		{
-			// The default behavior is to throw an exception when the form contains an invalid section.
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream));
+				Encoding = Encoding.UTF8,
+			};
+
+			// The default behavior is to throw an exception when the form contains an invalid section.
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				Assert.Throws<MultipartParseException>(() => MultipartFormDataParser.Parse(stream, options));
 			}
 		}
 
 		[Fact]
 		public async Task Exception_is_thrown_when_attempting_to_parse_async()
 		{
-			// The default behavior is to throw an exception when the form contains an invalid section.
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream));
+				Encoding = Encoding.UTF8,
+			};
+
+			// The default behavior is to throw an exception when the form contains an invalid section.
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				await Assert.ThrowsAsync<MultipartParseException>(() => MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken));
 			}
 		}
 
 		[Fact]
 		public void Invalid_part_is_ignored()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = MultipartFormDataParser.Parse(stream, ignoreInvalidParts: true);
+				IgnoreInvalidParts = true
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, options);
 				Assert.Empty(parser.Files);
 				Assert.Empty(parser.Parameters);
 			}
@@ -62,9 +77,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public async Task Invalid_part_is_ignored_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, ignoreInvalidParts: true);
+				IgnoreInvalidParts = true
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken);
 				Assert.Empty(parser.Files);
 				Assert.Empty(parser.Parameters);
 			}

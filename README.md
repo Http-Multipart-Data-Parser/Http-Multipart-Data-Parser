@@ -27,7 +27,7 @@ PM> Install-Package HttpMultipartParser
 
 ## .NET framework suport
 
-- The parser was built for and tested on .NET 4.8, .NET standard 2.1, .NET 5.0 and .NET 6.0.
+- The parser currently supports .NET framework 4.8 and any framework supporting `.NET Standard 2.1` (which includes .NET 5.0 and all subsequent versions as well as some legacy versions such as .NET Core 3.x and ASP.NET Core 3.x).
 - Version 5.1.0 was the last version that supported .NET 4.6.1, NET 4.7.2 and .NET standard 2.0.
 - Version 2.2.4 was the last version that supported older .NET platforms such as .NET 4.5 and .NET standard 1.3.
 
@@ -90,7 +90,7 @@ parser.FileHandler += (name, fileName, type, disposition, buffer, bytes, partNum
 {
     // Write the part of the file we've received to a file stream. (Or do something else)
     filestream.Write(buffer, 0, bytes);
-}
+};
 
 // You can parse synchronously:
 parser.Run();

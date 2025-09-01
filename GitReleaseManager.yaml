@@ -4,8 +4,10 @@ create:
   footer-content: You can download this release from [nuget.org](https://www.nuget.org/packages/Http-Multipart-Data-Parser/{milestone})
   footer-includes-milestone: true
   milestone-replace-text: '{milestone}'
+  include-contributors: true
 close:
   use-issue-comments: true
+  set-due-date: true
   issue-comment: |-
     :tada: This issue has been resolved in version {milestone} :tada:
 

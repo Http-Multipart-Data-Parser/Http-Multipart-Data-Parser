@@ -29,9 +29,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void Parse_empty_form_boundary_specified()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = MultipartFormDataParser.Parse(stream, "----WebKitFormBoundaryb4SfPlH9Bv7c2PKS");
+				Boundary = "----WebKitFormBoundaryb4SfPlH9Bv7c2PKS"
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, options);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -39,9 +44,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public void Parse_empty_form_boundary_omitted()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = MultipartFormDataParser.Parse(stream);
+				Encoding = Encoding.UTF8,
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = MultipartFormDataParser.Parse(stream, options);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -49,9 +59,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public async Task Parse_empty_form_boundary_specified_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream, "----WebKitFormBoundaryb4SfPlH9Bv7c2PKS");
+				Boundary = "----WebKitFormBoundaryb4SfPlH9Bv7c2PKS"
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
@@ -59,9 +74,14 @@ namespace HttpMultipartParser.UnitTests.ParserScenarios
 		[Fact]
 		public async Task Parse_empty_form_boundary_omitted_async()
 		{
-			using (Stream stream = TestUtil.StringToStream(_testCase.Request, Encoding.UTF8))
+			var options = new ParserOptions
 			{
-				var parser = await MultipartFormDataParser.ParseAsync(stream);
+				Encoding = Encoding.UTF8,
+			};
+
+			using (Stream stream = TestUtil.StringToStream(_testCase.Request, options.Encoding))
+			{
+				var parser = await MultipartFormDataParser.ParseAsync(stream, options, TestContext.Current.CancellationToken);
 				Assert.True(_testCase.Validate(parser));
 			}
 		}
